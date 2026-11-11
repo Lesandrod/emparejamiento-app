@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { db, isFirebaseConfigured } from './firebase';
 import {
   collection,
@@ -25,40 +26,52 @@ export const INITIAL_PARTICIPANTS = [
   { id: '10', name: 'Edwin', revealed: false }
 ];
 
-const LOCAL_STORE_FILE = path.join(process.cwd(), '.data', 'pairing_store.json');
+// Use os.tmpdir() to ensure write permissions on Vercel/serverless environments (/tmp)
+const LOCAL_STORE_FILE = path.join(os.tmpdir(), 'pairing_store.json');
+
+// In-memory fallback in case filesystem is completely restricted
+let memoryStore = {
+  participants: INITIAL_PARTICIPANTS,
+  pairs: [],
+  preferences: {},
+  tournamentBracket: null
+};
 
 function ensureLocalStoreDir() {
-  const dir = path.dirname(LOCAL_STORE_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  try {
+    const dir = path.dirname(LOCAL_STORE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch (err) {
+    console.warn('Could not create local store directory:', err.message);
   }
 }
 
 function readLocalStore() {
-  ensureLocalStoreDir();
-  if (!fs.existsSync(LOCAL_STORE_FILE)) {
-    const initial = {
-      participants: INITIAL_PARTICIPANTS,
-      pairs: [],
-      preferences: {}
-    };
-    fs.writeFileSync(LOCAL_STORE_FILE, JSON.stringify(initial, null, 2), 'utf8');
-    return initial;
-  }
   try {
-    return JSON.parse(fs.readFileSync(LOCAL_STORE_FILE, 'utf8'));
-  } catch {
-    return {
-      participants: INITIAL_PARTICIPANTS,
-      pairs: [],
-      preferences: {}
-    };
+    ensureLocalStoreDir();
+    if (!fs.existsSync(LOCAL_STORE_FILE)) {
+      writeLocalStore(memoryStore);
+      return memoryStore;
+    }
+    const data = JSON.parse(fs.readFileSync(LOCAL_STORE_FILE, 'utf8'));
+    memoryStore = data;
+    return data;
+  } catch (err) {
+    console.warn('Falling back to memoryStore in readLocalStore:', err.message);
+    return memoryStore;
   }
 }
 
 function writeLocalStore(data) {
-  ensureLocalStoreDir();
-  fs.writeFileSync(LOCAL_STORE_FILE, JSON.stringify(data, null, 2), 'utf8');
+  try {
+    memoryStore = data;
+    ensureLocalStoreDir();
+    fs.writeFileSync(LOCAL_STORE_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Could not write to local store file:', err.message);
+  }
 }
 
 // -------------------------------------------------------------
