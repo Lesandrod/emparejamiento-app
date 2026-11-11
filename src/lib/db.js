@@ -477,6 +477,14 @@ export async function updateParticipant(participantId, { name, alias }) {
     );
     writeLocalStore(local);
   }
+
+  // Reflejar inmediatamente el nuevo alias/nombre en el árbol activo sin alterar su estructura
+  try {
+    await syncParticipantToActiveBracket(participantId, updates);
+  } catch (e) {
+    console.warn('Error syncing updated participant to active bracket:', e.message);
+  }
+
   return { success: true };
 }
 
@@ -507,6 +515,14 @@ export async function updateParticipantPhoto(participantId, photoUrl) {
     );
     writeLocalStore(local);
   }
+
+  // Reflejar inmediatamente la nueva foto en el árbol activo
+  try {
+    await syncParticipantToActiveBracket(participantId, { photoUrl: photoUrl || null });
+  } catch (e) {
+    console.warn('Error syncing updated photo to active bracket:', e.message);
+  }
+
   return true;
 }
 
@@ -546,20 +562,126 @@ export async function setPairingPreference(giverId, receiverId) {
 // -------------------------------------------------------------
 const BRACKET_DOC = 'tournament_bracket';
 
-export async function getTournamentBracket() {
+// Sincronizar un peleador editado directamente en el árbol activo sin alterar estructura
+async function syncParticipantToActiveBracket(participantId, fields) {
+  let bracket = null;
   if (isFirebaseConfigured && db) {
     try {
       const snap = await getDoc(doc(db, CONFIG_COL, BRACKET_DOC));
       if (snap.exists()) {
-        return snap.data();
+        bracket = snap.data();
+      }
+    } catch (e) {
+      console.warn('Firestore fetch bracket error:', e.message);
+    }
+  }
+
+  if (!bracket) {
+    const local = readLocalStore();
+    bracket = local.tournamentBracket || null;
+  }
+
+  if (!bracket || !bracket.rounds) return;
+
+  const updateObj = (fighter) => {
+    if (!fighter || fighter.id !== participantId || fighter.isBye) return;
+    if (fields.name !== undefined) fighter.name = fields.name;
+    if (fields.alias !== undefined) fighter.alias = fields.alias;
+    if (fields.photoUrl !== undefined) fighter.photoUrl = fields.photoUrl;
+  };
+
+  bracket.rounds.forEach((round) => {
+    round.matches.forEach((m) => {
+      updateObj(m.fighter1);
+      updateObj(m.fighter2);
+      updateObj(m.winner);
+    });
+  });
+
+  if (bracket.champion) {
+    updateObj(bracket.champion);
+  }
+
+  // Guardar en Firestore y local
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, CONFIG_COL, BRACKET_DOC), bracket);
+    } catch (e) {
+      console.warn('Firestore update bracket error:', e.message);
+    }
+  }
+
+  const local = readLocalStore();
+  local.tournamentBracket = bracket;
+  writeLocalStore(local);
+}
+
+// Sincronizar masivamente nombres, alias y fotos en el árbol cargado
+function syncParticipantInfoToBracket(bracket, participants) {
+  if (!bracket || !bracket.rounds || !participants || participants.length === 0) return bracket;
+
+  const partMap = new Map();
+  participants.forEach((p) => {
+    if (p && p.id) partMap.set(p.id, p);
+  });
+
+  const updateFighterObj = (fighter) => {
+    if (!fighter || !fighter.id || fighter.isBye) return;
+    const latest = partMap.get(fighter.id);
+    if (latest) {
+      if (latest.name !== undefined) fighter.name = latest.name;
+      if (latest.alias !== undefined) fighter.alias = latest.alias || '';
+      if (latest.photoUrl !== undefined) fighter.photoUrl = latest.photoUrl || null;
+    }
+  };
+
+  bracket.rounds.forEach((round) => {
+    round.matches.forEach((m) => {
+      updateFighterObj(m.fighter1);
+      updateFighterObj(m.fighter2);
+      updateFighterObj(m.winner);
+    });
+  });
+
+  if (bracket.champion) {
+    updateFighterObj(bracket.champion);
+  }
+
+  return bracket;
+}
+
+export async function getTournamentBracket() {
+  let bracket = null;
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const snap = await getDoc(doc(db, CONFIG_COL, BRACKET_DOC));
+      if (snap.exists()) {
+        bracket = snap.data();
       }
     } catch (e) {
       console.warn('Error fetching bracket from Firestore:', e.message);
     }
   }
 
-  const local = readLocalStore();
-  return local.tournamentBracket || null;
+  if (!bracket) {
+    const local = readLocalStore();
+    bracket = local.tournamentBracket || null;
+  }
+
+  // Auto-sincronizar el árbol con los alias y fotos más recientes de los peleadores
+  if (bracket && bracket.rounds) {
+    try {
+      const { participants } = await getPairingData();
+      if (participants && participants.length > 0) {
+        bracket = syncParticipantInfoToBracket(bracket, participants);
+      }
+    } catch (e) {
+      console.warn('Error auto-syncing participant info to bracket:', e.message);
+    }
+  }
+
+  return bracket;
 }
 
 export async function generateTournamentBracket() {
