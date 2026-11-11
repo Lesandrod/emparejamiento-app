@@ -61,20 +61,26 @@ export default function ParticipantSelector({
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
-      {/* Program Ledger Header */}
-      <div className="ticket-card p-6 bg-[#0a0d16] border border-[#1b2336] space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1b2336] pb-3 text-[11px] font-mono-tech text-neutral-400">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-red-600 inline-block" />
-            <span className="text-white font-bold tracking-widest">
-              OFFICIAL SPARRING BOUT SHEET
+      {/* Neo UFC Billboard Header */}
+      <div className="neo-card p-6 sm:p-8 space-y-4">
+        {/* Top Control Bar with 3 Status Dots from Reference */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-900/40 pb-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 mr-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5252] shadow-[0_0_8px_#ff5252]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ffd600] shadow-[0_0_8px_#ffd600]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+            </div>
+            <span className="px-2 py-0.5 rounded border border-cyan-400/40 bg-cyan-950/40 text-[10px] font-mono-tech text-cyan-300 font-bold tracking-widest">
+              SISTEMA_01 • MATCHMAKER
             </span>
           </div>
-          <div className="flex items-center gap-4 text-xs">
-            <span className="text-blue-400 font-bold">
+
+          <div className="flex items-center gap-4 text-xs font-mono-tech">
+            <span className="text-cyan-400 font-bold">
               ROSTER: {unpairedList.length} PENDIENTES
             </span>
-            <span className="text-neutral-600">/</span>
+            <span className="text-neutral-600">•</span>
             <span className="text-red-400 font-bold">
               COMBATES: {pairs.length} CONFIRMADOS
             </span>
@@ -83,49 +89,50 @@ export default function ParticipantSelector({
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-1">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-fighter font-bold text-white tracking-wide">
-              EMPAREJAMIENTO DE COMBATES
+            <h1 className="text-3xl sm:text-5xl font-ufc font-bold tracking-wider text-white">
+              FIGHT NIGHT <span className="text-[#00f0ff] drop-shadow-[0_0_15px_rgba(0,240,255,0.6)]">MATCHMAKER</span>
             </h1>
-            <p className="text-xs text-neutral-400 font-mono-tech mt-0.5">
-              SELECCIONA PELEADOR PARA ASIGNAR RIVAL A CIEGAS EN EL CUADRILÁTERO.
+            <p className="text-xs sm:text-sm text-neutral-400 font-sans mt-1 max-w-xl">
+              Sorteo de combates a ciegas estilo UFC. Selecciona tu peleador y sube al ring para descubrir a tu rival en tiempo real.
             </p>
           </div>
 
           <button
             type="button"
             onClick={onRefreshParticipants}
-            className="btn-press-outline px-3.5 h-9 self-start sm:self-auto font-mono-tech"
+            className="btn-neo-outline px-4 h-10 self-start sm:self-auto font-mono-tech"
           >
             [↻ ACTUALIZAR CARTELERA]
           </button>
         </div>
       </div>
 
-      {/* Main Grid: Roster & Fight Schedule */}
+      {/* Main Grid: Neo Roster & Live Fight Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Fighter Roster (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="ticket-card-blue p-5 space-y-4 bg-[#0a0f1d]">
-            <div className="border-b border-[#1b2742] pb-2 flex items-center justify-between">
-              <span className="text-xs font-mono-tech text-blue-400 font-bold tracking-wider">
-                ROSTER DISPONIBLE ({unpairedList.length})
+          <div className="neo-card-blue p-5 sm:p-6 space-y-4">
+            <div className="border-b border-cyan-500/30 pb-3 flex items-center justify-between">
+              <span className="text-xs font-mono-tech text-cyan-300 font-bold tracking-wider flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                PELEADORES DISPONIBLES ({unpairedList.length})
               </span>
-              <span className="text-[10px] font-mono-tech text-neutral-400">
+              <span className="text-[10px] font-mono-tech text-cyan-400/80">
                 ESQUINA AZUL
               </span>
             </div>
 
             {unpairedList.length === 0 ? (
-              <div className="p-8 text-center border border-[#1b2742] bg-[#070b14] space-y-2">
-                <div className="text-xs font-mono-tech font-bold text-white tracking-wider">
+              <div className="p-8 text-center rounded-xl border border-cyan-500/30 bg-blue-950/30 space-y-2">
+                <div className="text-sm font-ufc font-bold text-white tracking-wider">
                   CARTELERA COMPLETA
                 </div>
-                <p className="text-[11px] text-neutral-400 font-mono-tech">
-                  TODOS LOS PELEADORES DEL PROGRAMA HAN SIDO ASIGNADOS.
+                <p className="text-xs text-neutral-400">
+                  Todos los peleadores ya han subido al cuadrilátero.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
                 {unpairedList.map((p, idx) => {
                   const isSelected = p.id === selectedId;
 
@@ -134,35 +141,35 @@ export default function ParticipantSelector({
                       key={p.id}
                       type="button"
                       onClick={() => setSelectedId(p.id)}
-                      className={`flex flex-col items-start p-2.5 text-left transition-all border ${
+                      className={`flex flex-col items-start p-3 text-left transition-all rounded-xl border ${
                         isSelected
-                          ? 'bg-blue-950/80 border-blue-400 ring-1 ring-blue-400 text-white'
-                          : 'bg-[#080d1a] hover:bg-[#0c1428] border-[#18233c] text-neutral-300'
+                          ? 'bg-cyan-950/80 border-cyan-400 ring-2 ring-cyan-400 text-white shadow-[0_0_20px_rgba(0,240,255,0.4)]'
+                          : 'bg-[#081226]/80 hover:bg-[#0c1a38] border-blue-900/60 hover:border-cyan-500/60 text-neutral-200'
                       }`}
                     >
-                      <div className="flex items-center gap-2 w-full mb-1.5">
+                      <div className="flex items-center gap-2.5 w-full mb-1.5">
                         {p.photoUrl ? (
                           <img
                             src={p.photoUrl}
                             alt={p.name}
-                            className="w-7 h-7 object-cover border border-blue-500 flex-shrink-0"
+                            className="w-8 h-8 rounded-full object-cover border border-cyan-400 flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-7 h-7 bg-[#101b33] border border-blue-500/60 text-blue-300 flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-blue-900/80 border border-cyan-400 text-cyan-200 flex items-center justify-center text-xs font-ufc font-bold flex-shrink-0">
                             {p.name.charAt(0)}
                           </div>
                         )}
-                        <span className="text-xs font-fighter tracking-wide truncate text-white">
+                        <span className="text-xs sm:text-sm font-ufc font-bold tracking-wide truncate text-white">
                           {p.name}
                         </span>
                       </div>
 
                       <span
                         className={`text-[9px] font-mono-tech ${
-                          isSelected ? 'text-amber-400 font-bold' : 'text-neutral-500'
+                          isSelected ? 'text-amber-400 font-bold' : 'text-cyan-400/70'
                         }`}
                       >
-                        {isSelected ? '[SELECCIONADO]' : `ENTRY #${String(idx + 1).padStart(2, '0')}`}
+                        {isSelected ? 'SELECCIONADO' : `ENTRY #${String(idx + 1).padStart(2, '0')}`}
                       </span>
                     </button>
                   );
@@ -172,30 +179,30 @@ export default function ParticipantSelector({
 
             {/* Selected Fighter Details & Crop Button */}
             {selectedUser && (
-              <div className="p-3 bg-[#070b16] border border-[#1b2742] flex items-center justify-between gap-3">
+              <div className="p-3.5 bg-blue-950/60 border border-cyan-500/40 rounded-xl flex items-center justify-between gap-3 shadow-[0_0_15px_rgba(0,240,255,0.15)]">
                 <div className="flex items-center gap-2.5 overflow-hidden">
                   {selectedUser.photoUrl ? (
                     <img
                       src={selectedUser.photoUrl}
                       alt={selectedUser.name}
-                      className="w-10 h-10 object-cover border border-blue-400 flex-shrink-0"
+                      className="w-11 h-11 rounded-full object-cover border-2 border-cyan-400 flex-shrink-0 shadow-[0_0_10px_#00f0ff]"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-[#101b33] border border-blue-400 text-blue-300 font-mono font-bold text-xs flex items-center justify-center flex-shrink-0">
+                    <div className="w-11 h-11 rounded-full bg-blue-900 border-2 border-cyan-400 text-cyan-200 font-ufc font-bold text-sm flex items-center justify-center flex-shrink-0">
                       {selectedUser.name.charAt(0)}
                     </div>
                   )}
                   <div className="truncate">
-                    <div className="text-xs font-fighter text-white truncate tracking-wider">
+                    <div className="text-sm font-ufc font-bold text-white truncate tracking-wider">
                       {selectedUser.name}
                     </div>
-                    <div className="text-[10px] font-mono-tech text-blue-400">
-                      {selectedUser.photoUrl ? 'FOTO CONFIRMADA' : 'SIN FOTO'}
+                    <div className="text-[10px] font-mono-tech text-cyan-300">
+                      {selectedUser.photoUrl ? 'FOTO CONFIRMADA' : 'SIN FOTO DE PELEADOR'}
                     </div>
                   </div>
                 </div>
 
-                <label className="cursor-pointer text-[10px] font-mono-tech px-2 py-1 border border-neutral-700 hover:border-white bg-[#0e1526] text-neutral-300 hover:text-white flex-shrink-0 transition-colors">
+                <label className="cursor-pointer text-[10px] font-mono-tech px-2.5 py-1.5 border border-cyan-400/60 hover:border-cyan-400 bg-cyan-950/50 text-cyan-300 rounded-lg flex-shrink-0 transition-colors">
                   {isUpdatingPhoto ? '...' : selectedUser.photoUrl ? '[EDITAR FOTO]' : '[+ SUBIR FOTO]'}
                   <input
                     type="file"
@@ -211,25 +218,26 @@ export default function ParticipantSelector({
               </div>
             )}
 
-            {/* Enter Ring Button */}
+            {/* Enter Ring Button (Cyan Neo Button from Reference) */}
             {unpairedList.length > 0 && (
               <button
                 type="button"
                 disabled={!selectedId || !selectedUser}
                 onClick={handleContinue}
-                className="btn-press-primary w-full h-11 text-xs"
+                className="btn-neo-cyan w-full h-12 text-sm"
               >
-                {selectedUser ? `SUBIR AL RING (${selectedUser.name})` : 'SELECCIONA PELEADOR'}
+                {selectedUser ? `SUBIR AL RING (${selectedUser.name})` : 'SELECCIONA TU NOMBRE'}
               </button>
             )}
           </div>
         </div>
 
-        {/* Right Column: Fight Card Schedule (7 cols) */}
+        {/* Right Column: Neo Fight Schedule (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="ticket-card p-5 space-y-4 bg-[#0a0d16] border border-[#1b2336]">
-            <div className="border-b border-[#1b2336] pb-2 flex items-center justify-between">
-              <span className="text-xs font-mono-tech text-white font-bold tracking-wider">
+          <div className="neo-card p-5 sm:p-6 space-y-4">
+            <div className="border-b border-blue-900/40 pb-3 flex items-center justify-between">
+              <span className="text-xs font-mono-tech text-white font-bold tracking-wider flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
                 CARTELERA OFICIAL DE COMBATES ({pairs.length})
               </span>
               <span className="text-[10px] font-mono-tech text-red-400 font-bold">
@@ -238,67 +246,67 @@ export default function ParticipantSelector({
             </div>
 
             {pairs.length === 0 ? (
-              <div className="py-14 px-4 text-center border border-dashed border-[#1b2336] bg-[#070910] space-y-1">
-                <div className="text-xs font-mono-tech text-neutral-400 font-bold tracking-wider">
+              <div className="py-14 px-4 text-center rounded-xl border border-dashed border-blue-900/40 bg-[#070b16] space-y-2">
+                <div className="text-sm font-mono-tech text-neutral-400 font-bold tracking-wider">
                   NINGÚN COMBATE PACTADO AÚN
                 </div>
-                <p className="text-[11px] text-neutral-500 font-mono-tech max-w-sm mx-auto">
-                  LOS COMBATES PACTADOS SE REGISTRARÁN AQUÍ AUTOMÁTICAMENTE A MEDIDA QUE CADA BOXEADOR SAQUE SU CARTA.
+                <p className="text-xs text-neutral-500 max-w-sm mx-auto font-sans">
+                  Los combates pactados se registrarán aquí automáticamente a medida que cada boxeador saque su carta.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2.5 max-h-[500px] overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 gap-3 max-h-[500px] overflow-y-auto pr-1">
                 {pairs.map((pair) => (
                   <div
                     key={pair.id}
-                    className="p-3 bg-[#0d111c] border border-[#1a2233] hover:border-neutral-500 transition-colors space-y-2 relative"
+                    className="p-4 rounded-xl bg-gradient-to-r from-[#091228] via-[#0b0e1a] to-[#24080e] border border-[#1e2d4d] hover:border-cyan-400/60 transition-all space-y-2.5 relative shadow-lg"
                   >
-                    <div className="flex items-center justify-between text-[10px] font-mono-tech text-neutral-400 border-b border-[#161d2d] pb-1.5">
-                      <span className="font-bold text-amber-500 tracking-wider">
-                        BOUT {String(pair.pairNumber).padStart(2, '0')}
+                    <div className="flex items-center justify-between text-[10px] font-mono-tech text-neutral-400 border-b border-white/10 pb-2">
+                      <span className="font-bold text-amber-400 tracking-wider">
+                        BOUT #{pair.pairNumber}
                       </span>
-                      <span className="text-neutral-500">
-                        {pair.trioMember ? 'MODALIDAD: TRÍO' : 'MODALIDAD: 1 VS 1'}
+                      <span className="text-neutral-400">
+                        {pair.trioMember ? 'MODALIDAD: TRÍO' : 'SPARRING 1 VS 1'}
                       </span>
                     </div>
 
                     {/* Matchup Layout */}
                     <div className="flex items-center justify-between gap-3 pt-1">
                       {/* Blue Corner */}
-                      <div className="flex items-center gap-2 flex-1 min-w-0 tape-blue pl-2">
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
                         {pair.member1.photoUrl ? (
                           <img
                             src={pair.member1.photoUrl}
                             alt={pair.member1.name}
-                            className="w-8 h-8 object-cover border border-blue-500 flex-shrink-0"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-cyan-400 flex-shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.5)]"
                           />
                         ) : (
-                          <div className="w-8 h-8 bg-[#101b33] border border-blue-500 text-blue-300 font-mono font-bold text-xs flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-950 border-2 border-cyan-400 text-cyan-200 font-ufc font-bold text-sm flex items-center justify-center flex-shrink-0">
                             {pair.member1.name.charAt(0)}
                           </div>
                         )}
                         <div className="truncate">
-                          <div className="text-[9px] font-mono-tech text-blue-400 font-bold">
-                            AZUL
+                          <div className="text-[9px] font-mono-tech text-cyan-400 font-bold">
+                            ESQUINA AZUL
                           </div>
-                          <div className="text-xs font-fighter text-white truncate">
+                          <div className="text-sm font-ufc font-bold text-white truncate">
                             {pair.member1.name}
                           </div>
                         </div>
                       </div>
 
-                      {/* Technical VS Divider */}
-                      <div className="px-2 py-0.5 border border-[#2b354c] bg-[#070a12] text-neutral-300 text-[10px] font-mono-tech font-bold flex-shrink-0">
+                      {/* Glowing VS Badge */}
+                      <div className="px-2.5 py-1 rounded-lg bg-black/90 border border-amber-400 text-amber-400 text-xs font-ufc font-bold shadow-[0_0_10px_rgba(255,171,0,0.4)] flex-shrink-0">
                         VS
                       </div>
 
                       {/* Red Corner */}
-                      <div className="flex items-center justify-end gap-2 flex-1 min-w-0 text-right tape-red pr-2">
+                      <div className="flex items-center justify-end gap-2.5 flex-1 min-w-0 text-right">
                         <div className="truncate">
                           <div className="text-[9px] font-mono-tech text-red-400 font-bold">
-                            ROJA
+                            ESQUINA ROJA
                           </div>
-                          <div className="text-xs font-fighter text-white truncate">
+                          <div className="text-sm font-ufc font-bold text-white truncate">
                             {pair.member2.name}
                           </div>
                         </div>
@@ -306,10 +314,10 @@ export default function ParticipantSelector({
                           <img
                             src={pair.member2.photoUrl}
                             alt={pair.member2.name}
-                            className="w-8 h-8 object-cover border border-red-500 flex-shrink-0"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-red-500 flex-shrink-0 shadow-[0_0_10px_rgba(255,23,68,0.5)]"
                           />
                         ) : (
-                          <div className="w-8 h-8 bg-[#2d0e13] border border-red-500 text-red-300 font-mono font-bold text-xs flex items-center justify-center flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-red-950 border-2 border-red-500 text-red-200 font-ufc font-bold text-sm flex items-center justify-center flex-shrink-0">
                             {pair.member2.name.charAt(0)}
                           </div>
                         )}
@@ -318,8 +326,8 @@ export default function ParticipantSelector({
 
                     {/* Trio if exists */}
                     {pair.trioMember && (
-                      <div className="mt-2 pt-2 border-t border-dashed border-[#1a2233] flex items-center justify-center gap-2">
-                        <span className="text-[10px] font-mono-tech text-amber-500">
+                      <div className="mt-2 pt-2 border-t border-dashed border-white/10 flex items-center justify-center gap-2">
+                        <span className="text-[10px] font-mono-tech text-amber-400">
                           + 3ER INTEGRANTE:
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -327,14 +335,14 @@ export default function ParticipantSelector({
                             <img
                               src={pair.trioMember.photoUrl}
                               alt={pair.trioMember.name}
-                              className="w-6 h-6 object-cover border border-amber-500"
+                              className="w-6 h-6 rounded-full object-cover border border-amber-400"
                             />
                           ) : (
-                            <div className="w-6 h-6 bg-[#2b1807] text-amber-300 text-[10px] font-mono font-bold flex items-center justify-center border border-amber-500">
+                            <div className="w-6 h-6 rounded-full bg-amber-950 text-amber-200 text-[10px] font-mono font-bold flex items-center justify-center border border-amber-400">
                               {pair.trioMember.name.charAt(0)}
                             </div>
                           )}
-                          <span className="text-xs font-fighter text-white">
+                          <span className="text-xs font-ufc text-white font-bold">
                             {pair.trioMember.name}
                           </span>
                         </div>
@@ -349,12 +357,12 @@ export default function ParticipantSelector({
       </div>
 
       {/* Footer Meta */}
-      <div className="flex items-center justify-between text-[11px] font-mono-tech text-neutral-500 border-t border-[#1b2336] pt-3">
-        <span>FIGHT NIGHT MATCHMAKER • VERSIÓN OFICIAL</span>
+      <div className="flex items-center justify-between text-[11px] font-mono-tech text-neutral-400 border-t border-blue-900/40 pt-3">
+        <span>FIGHT NIGHT • SISTEMA DE ASIGNACIÓN EN VIVO</span>
         <button
           type="button"
           onClick={onOpenAdmin}
-          className="text-neutral-400 hover:text-white transition-colors"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors"
         >
           [PANEL DE ORGANIZADOR]
         </button>

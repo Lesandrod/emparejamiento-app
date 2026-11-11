@@ -1,5 +1,11 @@
-import { Oswald, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Rajdhani, Oswald, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const rajdhani = Rajdhani({
+  subsets: ["latin"],
+  variable: "--font-ufc",
+  weight: ["500", "600", "700"],
+});
 
 const oswald = Oswald({
   subsets: ["latin"],
@@ -10,27 +16,21 @@ const oswald = Oswald({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  weight: ["400", "600", "700", "800"],
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
 });
 
 export const metadata = {
   title: "Fight Night • Sparring Matchmaker",
-  description: "Cartelera oficial de combates y sorteo de sparring en tiempo real",
+  description: "Cartelera oficial de combates y emparejamiento estilo UFC",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
-      className={`${oswald.variable} ${jetbrainsMono.variable} ${plusJakarta.variable}`}
+      className={`${rajdhani.variable} ${oswald.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-[#0a0c10] text-[#e2e8f0]">
+      <body className="min-h-full flex flex-col font-sans bg-[#050711] text-[#f1f5f9]">
         {children}
       </body>
     </html>

@@ -204,16 +204,19 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md select-none">
-      <div className="w-full max-w-2xl bg-[#090d16] border border-[#1b2336] shadow-2xl flex flex-col max-h-[90vh] text-white">
+      <div className="w-full max-w-2xl bg-[#090d18] border border-cyan-500/40 rounded-2xl shadow-[0_0_35px_rgba(0,240,255,0.2)] flex flex-col max-h-[90vh] text-white overflow-hidden">
         {/* Header */}
-        <div className="p-4 border-b border-[#1b2336] flex items-center justify-between bg-[#070a12]">
-          <div>
-            <h2 className="text-sm font-fighter font-bold text-white tracking-wider">
-              PANEL DE ORGANIZADOR / MATCHMAKER
-            </h2>
-            <span className="text-[10px] font-mono-tech text-neutral-400">
-              GESTIÓN DE CARTELERA Y ASIGNACIONES
-            </span>
+        <div className="p-4 sm:p-5 border-b border-blue-900/40 flex items-center justify-between bg-[#060a16]">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f0ff]" />
+            <div>
+              <h2 className="text-base font-ufc font-bold text-white tracking-wider">
+                PANEL DE ORGANIZADOR <span className="text-cyan-400">UFC MATCHMAKER</span>
+              </h2>
+              <span className="text-[10px] font-mono-tech text-neutral-400">
+                GESTIÓN DE COMBATES Y PREFERENCIAS
+              </span>
+            </div>
           </div>
           <button
             type="button"
@@ -227,19 +230,19 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         {/* Content */}
         {!isAuthenticated ? (
           <form onSubmit={handleLogin} className="p-6 space-y-4 max-w-sm mx-auto w-full">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-mono-tech text-neutral-400">
-                CLAVE DE ACCESO
+                CLAVE DE ACCESO (PIN)
               </label>
               <input
                 type="password"
-                placeholder="PIN"
+                placeholder="Ingresa la clave"
                 value={adminPin}
                 onChange={(e) => {
                   setAdminPin(e.target.value);
                   setAuthError('');
                 }}
-                className="w-full h-10 px-3 bg-[#060910] border border-[#1b2336] text-white text-xs font-mono-tech outline-none focus:border-white"
+                className="w-full h-11 px-3.5 bg-[#060912] border border-cyan-500/40 rounded-xl text-white text-xs font-mono-tech outline-none focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(0,240,255,0.3)]"
                 autoFocus
               />
             </div>
@@ -251,7 +254,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
             <button
               type="submit"
               disabled={loading}
-              className="btn-press-primary w-full h-10 text-xs"
+              className="btn-neo-cyan w-full h-11 text-xs"
             >
               {loading ? 'ACCEDIENDO...' : 'INGRESAR'}
             </button>
@@ -259,26 +262,26 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         ) : (
           <div className="p-6 overflow-y-auto space-y-6 flex-1">
             {notice && (
-              <div className="p-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200 text-xs font-mono-tech text-center">
+              <div className="p-2.5 bg-cyan-950/80 border border-cyan-400 text-cyan-200 text-xs font-mono-tech text-center rounded-xl">
                 {notice}
               </div>
             )}
 
             {/* Metrics */}
-            <div className="grid grid-cols-3 gap-2 text-center font-mono-tech">
-              <div className="p-3 bg-[#060910] border border-[#1b2336]">
-                <div className="text-lg font-bold text-white">{participants.length}</div>
+            <div className="grid grid-cols-3 gap-2.5 text-center font-mono-tech">
+              <div className="p-3 bg-[#060912] border border-blue-900/40 rounded-xl">
+                <div className="text-xl font-bold text-white font-ufc">{participants.length}</div>
                 <div className="text-[9px] text-neutral-400">ROSTER</div>
               </div>
-              <div className="p-3 bg-[#060910] border border-[#1b2336]">
-                <div className="text-lg font-bold text-amber-500">{pairs.length}</div>
+              <div className="p-3 bg-[#060912] border border-blue-900/40 rounded-xl">
+                <div className="text-xl font-bold text-amber-400 font-ufc">{pairs.length}</div>
                 <div className="text-[9px] text-neutral-400">COMBATES</div>
               </div>
-              <div className="p-3 bg-[#060910] border border-[#1b2336]">
-                <div className="text-lg font-bold text-blue-400">
+              <div className="p-3 bg-[#060912] border border-blue-900/40 rounded-xl">
+                <div className="text-xl font-bold text-cyan-400 font-ufc">
                   {participants.filter((p) => !p.revealed).length}
                 </div>
-                <div className="text-[9px] text-neutral-400">SIN ASIGNAR</div>
+                <div className="text-[9px] text-neutral-400">DISPONIBLES</div>
               </div>
             </div>
 
@@ -298,16 +301,16 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
               </div>
 
               {pairs.length === 0 ? (
-                <div className="p-4 border border-dashed border-[#1b2336] text-center text-xs font-mono-tech text-neutral-500">
-                  NO HAY COMBATES REGISTRADOS.
+                <div className="p-4 border border-dashed border-blue-900/40 rounded-xl text-center text-xs font-mono-tech text-neutral-500">
+                  NO HAY COMBATES REGISTRADOS AÚN.
                 </div>
               ) : (
-                <div className="border border-[#1b2336] divide-y divide-[#1b2336] bg-[#060910] max-h-48 overflow-y-auto font-mono-tech">
+                <div className="border border-blue-900/40 rounded-xl divide-y divide-blue-900/30 bg-[#060912] max-h-48 overflow-y-auto font-mono-tech">
                   {pairs.map((p) => (
-                    <div key={p.id} className="p-2.5 flex items-center justify-between text-xs">
+                    <div key={p.id} className="p-3 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-amber-500">#{p.pairNumber}</span>
-                        <span className="font-bold text-blue-400">{p.member1.name}</span>
+                        <span className="font-bold text-amber-400">#{p.pairNumber}</span>
+                        <span className="font-bold text-cyan-400">{p.member1.name}</span>
                         <span className="text-neutral-500">VS</span>
                         <span className="font-bold text-red-400">{p.member2.name}</span>
                         {p.trioMember && (
@@ -317,7 +320,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                       <button
                         type="button"
                         onClick={() => handleUnpairDuo(p.id, p.pairNumber)}
-                        className="text-amber-500 hover:text-amber-400 text-[10px] px-2 py-0.5 border border-amber-600/60"
+                        className="text-amber-400 hover:text-amber-300 text-[10px] px-2 py-0.5 border border-amber-500/50 rounded-lg hover:bg-amber-950/40"
                       >
                         [DISOLVER]
                       </button>
@@ -335,13 +338,13 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="NOMBRE"
+                  placeholder="Nombre de peleador"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="flex-1 h-9 px-3 bg-[#060910] border border-[#1b2336] text-white text-xs font-mono-tech outline-none focus:border-white"
+                  className="flex-1 h-10 px-3.5 bg-[#060912] border border-cyan-500/40 rounded-xl text-white text-xs outline-none focus:border-cyan-400"
                   required
                 />
-                <button type="submit" disabled={loading} className="btn-press-primary px-4 h-9 text-xs">
+                <button type="submit" disabled={loading} className="btn-neo-cyan px-4 h-10 text-xs">
                   INSCRIBIR
                 </button>
               </div>
@@ -353,9 +356,9 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                 COMBATES PREDEFINIDOS (PREFERENCIAS)
               </span>
 
-              <div className="max-h-56 overflow-y-auto border border-[#1b2336] bg-[#060910]">
+              <div className="max-h-56 overflow-y-auto border border-blue-900/40 rounded-xl bg-[#060912]">
                 <table className="w-full text-xs text-left font-mono-tech">
-                  <thead className="bg-[#05070c] text-neutral-400 border-b border-[#1b2336] text-[10px] sticky top-0">
+                  <thead className="bg-[#05070f] text-neutral-400 border-b border-blue-900/40 text-[10px] sticky top-0">
                     <tr>
                       <th className="p-2.5 font-medium">PELEADOR</th>
                       <th className="p-2.5 font-medium">ESTADO</th>
@@ -363,7 +366,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                       <th className="p-2.5 text-right"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#151c2d]">
+                  <tbody className="divide-y divide-blue-900/20">
                     {participants.map((p) => {
                       const currentPrefId = preferences[p.id] || '';
 
@@ -375,16 +378,16 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                                 <img
                                   src={p.photoUrl}
                                   alt={p.name}
-                                  className="w-7 h-7 object-cover border border-neutral-600 flex-shrink-0"
+                                  className="w-7 h-7 rounded-full object-cover border border-cyan-400 flex-shrink-0"
                                 />
                               ) : (
-                                <div className="w-7 h-7 bg-[#101b33] border border-neutral-700 flex items-center justify-center text-[10px] text-neutral-300 font-bold flex-shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-blue-950 border border-cyan-400 flex items-center justify-center text-[10px] text-cyan-200 font-bold flex-shrink-0">
                                   {p.name.charAt(0)}
                                 </div>
                               )}
-                              <span className="truncate font-fighter">{p.name}</span>
+                              <span className="truncate font-ufc">{p.name}</span>
                               <label
-                                className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-[#1b2336] hover:border-white bg-[#0b0f1a] text-neutral-400 ml-1"
+                                className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-cyan-400/40 hover:border-cyan-400 bg-cyan-950/40 text-cyan-300 rounded ml-1"
                                 title="Subir foto"
                               >
                                 {p.photoUrl ? 'FOTO' : '+FOTO'}
@@ -402,7 +405,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                           </td>
 
                           <td className="p-2.5 text-[10px]">
-                            <span className={p.revealed ? 'text-amber-500 font-bold' : 'text-blue-400'}>
+                            <span className={p.revealed ? 'text-amber-400 font-bold' : 'text-cyan-400'}>
                               {p.revealed ? `BOUT #${p.pairNumber}` : 'LIBRE'}
                             </span>
                           </td>
@@ -414,10 +417,10 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                               <select
                                 value={currentPrefId}
                                 onChange={(e) => handleSetPreference(p.id, e.target.value)}
-                                className={`text-[10px] h-7 px-1.5 border outline-none cursor-pointer max-w-[160px] truncate ${
+                                className={`text-[10px] h-7 px-1.5 border outline-none cursor-pointer rounded-lg max-w-[160px] truncate ${
                                   currentPrefId
-                                    ? 'bg-amber-950/80 border-amber-500 text-amber-200'
-                                    : 'bg-[#080d1a] border-[#1b2336] text-neutral-300'
+                                    ? 'bg-amber-950/80 border-amber-400 text-amber-200'
+                                    : 'bg-[#080d1a] border-blue-900/60 text-neutral-300'
                                 }`}
                               >
                                 <option value="">(AL AZAR)</option>

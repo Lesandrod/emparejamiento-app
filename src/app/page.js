@@ -48,24 +48,21 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#080b12] text-[#e2e8f0] antialiased">
-      {/* Official Ledger Header */}
-      <header className="border-b border-[#1b2336] bg-[#090d16] sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto h-14 flex items-center justify-between px-4 sm:px-6">
+    <div className="min-h-screen flex flex-col justify-between bg-[#050711] text-[#f1f5f9] antialiased">
+      {/* Neo UFC Header */}
+      <header className="border-b border-blue-900/40 bg-[#070b18]/90 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto h-16 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-red-600" />
-            <span className="font-fighter font-bold text-sm uppercase tracking-wider text-white">
-              FIGHT NIGHT • SPARRING MATCHMAKER
-            </span>
-            <span className="hidden sm:inline-block px-2 py-0.5 border border-[#2b354c] bg-[#0d121f] text-neutral-400 text-[9px] font-mono-tech">
-              OFFICIAL PROGRAM
+            <span className="w-3 h-3 rounded-full bg-[#00f0ff] shadow-[0_0_10px_#00f0ff]" />
+            <span className="font-ufc font-bold text-base sm:text-lg uppercase tracking-wider text-white">
+              FIGHT NIGHT <span className="text-[#00f0ff]">UFC</span> MATCHMAKER
             </span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsAdminOpen(true)}
-            className="btn-press-outline px-3 py-1.5 text-[10px]"
+            className="btn-neo-outline px-3.5 py-1.5 text-[11px]"
           >
             [ORGANIZADOR]
           </button>
@@ -75,8 +72,9 @@ export default function Home() {
       {/* Main Arena */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
         {loading ? (
-          <div className="text-xs font-mono-tech text-neutral-400 font-bold">
-            CARGANDO PROGRAMA OFICIAL...
+          <div className="text-sm font-mono-tech text-cyan-400 font-bold flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+            CARGANDO PROGRAMA EN VIVO...
           </div>
         ) : !activeUser ? (
           <ParticipantSelector
@@ -97,9 +95,9 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#1b2336] py-3.5 px-4 text-center bg-[#070910]">
-        <p className="text-[10px] font-mono-tech text-neutral-500">
-          SPARRING MATCHMAKER • BLUE CORNER VS RED CORNER • RESULTADOS PÚBLICOS EN TIEMPO REAL
+      <footer className="border-t border-blue-900/40 py-4 px-4 text-center bg-[#050814]">
+        <p className="text-[11px] font-mono-tech text-neutral-400">
+          SPARRING MATCHMAKER • ESQUINA AZUL VS ESQUINA ROJA • RESULTADOS EN TIEMPO REAL
         </p>
       </footer>
 

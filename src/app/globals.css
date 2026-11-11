@@ -1,47 +1,43 @@
 @import "tailwindcss";
 
 :root {
+  --font-ufc: 'Rajdhani', sans-serif;
   --font-fighter: 'Oswald', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
 
-  --navy-base: #080b12;
-  --navy-surface: #0e1320;
-  --navy-card: #121829;
-  --navy-border: #1e2842;
-  --blue-corner: #1d4ed8;
-  --blue-tape: #3b82f6;
-
-  --crimson-base: #0f0507;
-  --crimson-surface: #1a0a0d;
-  --crimson-card: #240e12;
-  --crimson-border: #42161d;
-  --red-corner: #b91c1c;
-  --red-tape: #ef4444;
-
-  --gold-stamp: #d97706;
-}
-
-* {
-  border-radius: 0px !important;
+  --neon-cyan: #00f0ff;
+  --neon-blue: #2979ff;
+  --neon-red: #ff1744;
+  --neon-crimson: #ff0055;
+  --neon-amber: #ffab00;
+  --dark-bg: #050711;
 }
 
 body {
-  background-color: var(--navy-base);
-  color: #e2e8f0;
-  font-family: var(--font-sans), sans-serif;
+  background-color: var(--dark-bg);
+  color: #f1f5f9;
+  font-family: var(--font-ufc), sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   margin: 0;
   user-select: none;
   background-image: 
-    linear-gradient(rgba(8, 11, 18, 0.94), rgba(8, 11, 18, 0.98)),
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255, 255, 255, 0.015) 40px, rgba(255, 255, 255, 0.015) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255, 255, 255, 0.015) 40px, rgba(255, 255, 255, 0.015) 41px);
+    radial-gradient(circle at 12% 15%, rgba(0, 240, 255, 0.15) 0%, transparent 45%),
+    radial-gradient(circle at 88% 30%, rgba(255, 23, 68, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 90%, rgba(41, 121, 255, 0.1) 0%, transparent 55%),
+    linear-gradient(180deg, #060914 0%, #030408 100%);
+  background-attachment: fixed;
+}
+
+.font-ufc {
+  font-family: var(--font-ufc), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .font-fighter {
-  font-family: var(--font-fighter), var(--font-sans), sans-serif;
+  font-family: var(--font-fighter), sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -52,151 +48,139 @@ body {
   text-transform: uppercase;
 }
 
-/* Industrial Corner Tape Rules */
-.tape-blue {
-  border-left: 4px solid var(--blue-corner);
-}
-
-.tape-red {
-  border-left: 4px solid var(--red-corner);
-}
-
-.tape-top-ropes {
-  border-top: 3px solid #3b82f6;
-  border-bottom: 3px solid #ef4444;
-}
-
-/* Authentic Boxing Match Ticket Card */
-.ticket-card {
-  background-color: var(--navy-surface);
-  border: 1px solid var(--navy-border);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+/* Neo-Futuristic Rounded Cards with Glowing Neon Borders */
+.neo-card {
+  background: linear-gradient(145deg, #090e21 0%, #060916 100%);
+  border: 1.5px solid #2a4175;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(41, 121, 255, 0.12);
   position: relative;
+  overflow: hidden;
 }
 
-.ticket-card-blue {
-  background: linear-gradient(135deg, #0e1526 0%, #0a0f1d 100%);
-  border: 1px solid var(--navy-border);
-  border-left: 4px solid var(--blue-corner);
+.neo-card-blue {
+  background: linear-gradient(145deg, #09122b 0%, #050a19 100%);
+  border: 1.5px solid #00f0ff;
+  border-radius: 18px !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.22), inset 0 0 20px rgba(0, 240, 255, 0.06);
 }
 
-.ticket-card-red {
-  background: linear-gradient(135deg, #1f0b0f 0%, #14070a 100%);
-  border: 1px solid var(--crimson-border);
-  border-left: 4px solid var(--red-corner);
+.neo-card-red {
+  background: linear-gradient(145deg, #24070c 0%, #120306 100%);
+  border: 1.5px solid #ff1744;
+  border-radius: 18px !important;
+  box-shadow: 0 0 25px rgba(255, 23, 68, 0.25), inset 0 0 20px rgba(255, 23, 68, 0.06);
 }
 
-/* Authentic Buttons: Heavy Sports Press Style */
-.btn-press-primary {
-  background-color: #ffffff;
+.neo-card-gold {
+  background: linear-gradient(145deg, #1f1406 0%, #120a02 100%);
+  border: 1.5px solid #ffab00;
+  border-radius: 18px !important;
+  box-shadow: 0 0 25px rgba(255, 171, 0, 0.25);
+}
+
+/* Neo Action Buttons */
+.btn-neo-cyan {
+  background-color: #00f0ff;
   color: #000000;
-  border: 1px solid #ffffff;
-  font-family: var(--font-fighter);
-  font-weight: 700;
+  border: none;
+  font-family: var(--font-ufc);
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  border-radius: 10px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.1s ease;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
+  transition: all 0.15s ease;
 }
-.btn-press-primary:hover:not(:disabled) {
-  background-color: #e2e8f0;
-  border-color: #e2e8f0;
-}
-.btn-press-primary:active:not(:disabled) {
-  transform: translateY(1px);
+.btn-neo-cyan:hover:not(:disabled) {
+  background-color: #38f4ff;
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.8);
+  transform: translateY(-1px);
 }
 
-.btn-press-blue {
-  background-color: var(--blue-corner);
+.btn-neo-red {
+  background-color: #ff1744;
   color: #ffffff;
-  border: 1px solid var(--blue-tape);
-  font-family: var(--font-fighter);
-  font-weight: 700;
+  border: none;
+  font-family: var(--font-ufc);
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  border-radius: 10px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.1s ease;
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.45);
+  transition: all 0.15s ease;
 }
-.btn-press-blue:hover:not(:disabled) {
-  background-color: #2563eb;
-  border-color: #60a5fa;
-}
-
-.btn-press-gold {
-  background-color: #d97706;
-  color: #000000;
-  border: 1px solid #f59e0b;
-  font-family: var(--font-fighter);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.1s ease;
-}
-.btn-press-gold:hover:not(:disabled) {
-  background-color: #f59e0b;
-  border-color: #fbbf24;
+.btn-neo-red:hover:not(:disabled) {
+  background-color: #ff3d67;
+  box-shadow: 0 0 35px rgba(255, 23, 68, 0.8);
+  transform: translateY(-1px);
 }
 
-.btn-press-outline {
-  background-color: transparent;
-  color: #94a3b8;
-  border: 1px solid #334155;
+.btn-neo-outline {
+  background: rgba(0, 240, 255, 0.05);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.4);
   font-family: var(--font-mono);
   font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  border-radius: 10px !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.15s ease;
 }
-.btn-press-outline:hover:not(:disabled) {
-  border-color: #94a3b8;
-  color: #ffffff;
+.btn-neo-outline:hover:not(:disabled) {
+  border-color: #00f0ff;
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
 }
 
-/* Card Selection Glow for boxing table */
+/* Card Selection Glow for boxing cards */
 .card-selected-glow {
-  outline: 2px solid #f59e0b !important;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25) !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 0 15px rgba(0, 240, 255, 0.3) !important;
+  transform: translateY(-4px) scale(1.02);
   z-index: 25;
 }
 
 /* Screen Shake Effect */
 @keyframes screenShake {
   0% { transform: translate(0, 0); }
-  20% { transform: translate(-4px, 3px); }
-  40% { transform: translate(4px, -3px); }
-  60% { transform: translate(-2px, 2px); }
-  80% { transform: translate(2px, -1px); }
+  20% { transform: translate(-5px, 4px); }
+  40% { transform: translate(5px, -4px); }
+  60% { transform: translate(-3px, 3px); }
+  80% { transform: translate(3px, -2px); }
   100% { transform: translate(0, 0); }
 }
 
 .animate-screen-shake {
-  animation: screenShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation: screenShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 /* Card 3D Flip */
 .card-item {
   will-change: transform;
+  border-radius: 14px !important;
 }
 .card-inner {
   transform-style: preserve-3d;
   will-change: transform;
+  border-radius: 14px !important;
 }
 .card-face-back,
 .card-face-front {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  border-radius: 14px !important;
 }

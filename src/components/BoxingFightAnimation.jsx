@@ -26,7 +26,6 @@ export default function BoxingFightAnimation({
   const vsBadgeRef = useRef(null);
   const fightersBannerRef = useRef(null);
 
-  // Spark Particle System on Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -39,17 +38,17 @@ export default function BoxingFightAnimation({
     const particles = [];
 
     const createImpactSparks = (x, y) => {
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < 50; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 4 + Math.random() * 12;
+        const speed = 4 + Math.random() * 14;
         particles.push({
           x,
           y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          size: 2 + Math.random() * 3,
+          size: 2 + Math.random() * 4,
           alpha: 1,
-          color: Math.random() > 0.5 ? '#f59e0b' : Math.random() > 0.5 ? '#38bdf8' : '#ef4444'
+          color: Math.random() > 0.5 ? '#00f0ff' : Math.random() > 0.5 ? '#ff1744' : '#ffd600'
         });
       }
     };
@@ -73,7 +72,7 @@ export default function BoxingFightAnimation({
         ctx.globalAlpha = p.alpha;
         ctx.fillStyle = p.color;
         ctx.shadowColor = p.color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 12;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -88,17 +87,15 @@ export default function BoxingFightAnimation({
     // Trigger Sequence
     const timeline = gsap.timeline();
 
-    // 1. Initial Bell Strike
     timeline.add(() => {
       playBoxingBell(2);
     }, 0.1);
 
-    // 2. Gloves Charge in for the Big Clash
     timeline.to(
       blueGloveRef.current,
       {
         x: '34vw',
-        rotation: 10,
+        rotation: 12,
         duration: 0.42,
         ease: 'power3.in',
         onStart: () => playWhoosh()
@@ -110,29 +107,27 @@ export default function BoxingFightAnimation({
       redGloveRef.current,
       {
         x: '-34vw',
-        rotation: -10,
+        rotation: -12,
         duration: 0.42,
         ease: 'power3.in'
       },
       0.25
     );
 
-    // 3. THE CLASH MOMENT
     timeline.add(() => {
       setScreenShake(true);
       setFlash(true);
       playPunchImpact();
       createImpactSparks(canvas.width / 2, canvas.height * 0.42);
-      setTimeout(() => setFlash(false), 150);
+      setTimeout(() => setFlash(false), 160);
       setTimeout(() => setScreenShake(false), 450);
     }, 0.67);
 
-    // 4. Sparring Combination Flurry
+    // Sparring Combination Flurry
     const flurry = gsap.timeline();
-    // Blue Jab
     flurry.to(blueGloveRef.current, {
       x: '37vw',
-      scale: 1.12,
+      scale: 1.14,
       duration: 0.09,
       yoyo: true,
       repeat: 1,
@@ -141,10 +136,9 @@ export default function BoxingFightAnimation({
         createImpactSparks(canvas.width / 2 + 25, canvas.height * 0.42);
       }
     });
-    // Red Counter Hook
     flurry.to(redGloveRef.current, {
       x: '-37vw',
-      scale: 1.12,
+      scale: 1.14,
       duration: 0.09,
       yoyo: true,
       repeat: 1,
@@ -153,9 +147,8 @@ export default function BoxingFightAnimation({
         createImpactSparks(canvas.width / 2 - 25, canvas.height * 0.42);
       }
     });
-    // Double Impact
     flurry.to([blueGloveRef.current, redGloveRef.current], {
-      scale: 1.2,
+      scale: 1.25,
       duration: 0.11,
       yoyo: true,
       repeat: 1,
@@ -167,7 +160,7 @@ export default function BoxingFightAnimation({
 
     timeline.add(flurry, 0.77);
 
-    // 5. Final Separation & VS Badge Entrance
+    // Separation & VS Badge Entrance
     timeline.to(
       [blueGloveRef.current, redGloveRef.current],
       {
@@ -198,7 +191,6 @@ export default function BoxingFightAnimation({
       1.55
     );
 
-    // 6. Fighters Banner Entrance & Confetti
     timeline.fromTo(
       fightersBannerRef.current,
       { y: 60, opacity: 0 },
@@ -210,10 +202,10 @@ export default function BoxingFightAnimation({
         onStart: () => {
           playArenaCheer();
           confetti({
-            particleCount: 50,
-            spread: 80,
+            particleCount: 65,
+            spread: 85,
             origin: { y: 0.6 },
-            colors: ['#1d4ed8', '#b91c1c', '#f59e0b', '#ffffff']
+            colors: ['#00f0ff', '#ff1744', '#ffd600', '#ffffff']
           });
         }
       },
@@ -228,20 +220,22 @@ export default function BoxingFightAnimation({
   return (
     <div
       ref={containerRef}
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-between overflow-hidden bg-[#070a12]/95 backdrop-blur-md select-none ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-between overflow-hidden bg-[#050711]/95 backdrop-blur-md select-none ${
         screenShake ? 'animate-screen-shake' : ''
       }`}
     >
       {/* Flash impact overlay */}
       {flash && (
-        <div className="absolute inset-0 bg-white z-40 pointer-events-none opacity-80" />
+        <div className="absolute inset-0 bg-white z-40 pointer-events-none opacity-85" />
       )}
 
-      {/* Atmospheric Arena Background */}
+      {/* Atmospheric Arena Background with Gradient Glow */}
       <div
-        className="absolute inset-0 opacity-20 bg-cover bg-center pointer-events-none filter contrast-125 brightness-75"
+        className="absolute inset-0 opacity-25 bg-cover bg-center pointer-events-none filter contrast-125 brightness-90"
         style={{ backgroundImage: `url('/fight_arena.jpg')` }}
       />
+      <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-[#00f0ff]/15 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-bl from-[#ff1744]/15 via-transparent to-transparent pointer-events-none" />
 
       {/* Particle Canvas */}
       <canvas
@@ -249,13 +243,13 @@ export default function BoxingFightAnimation({
         className="absolute inset-0 pointer-events-none z-30"
       />
 
-      {/* Top Ledger Header */}
+      {/* Top Header */}
       <div className="w-full relative z-20 pt-6 px-4 text-center">
-        <div className="inline-block bg-[#05070c] border border-[#1f293d] px-3.5 py-1 text-[10px] font-mono-tech text-amber-500 font-bold tracking-widest mb-1">
-          BOUT {String(pairNumber || '1').padStart(2, '0')} • SPARRING PAIRING
+        <div className="inline-block px-3.5 py-1 rounded-full border border-cyan-400/50 bg-cyan-950/60 text-[11px] font-mono-tech text-cyan-300 font-bold tracking-widest mb-1 shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+          BOUT #{String(pairNumber || '1').padStart(2, '0')} • SPARRING OFICIAL
         </div>
-        <h1 className="text-3xl sm:text-5xl font-fighter font-bold text-white tracking-wider">
-          COMBATE CONFIRMADO
+        <h1 className="text-3xl sm:text-5xl font-ufc font-bold text-white tracking-wider">
+          COMBATE <span className="text-[#00f0ff] drop-shadow-[0_0_15px_rgba(0,240,255,0.7)]">CONFIRMADO</span>
         </h1>
       </div>
 
@@ -264,7 +258,7 @@ export default function BoxingFightAnimation({
         {/* Left: Blue Boxing Glove */}
         <div
           ref={blueGloveRef}
-          className="absolute -left-32 sm:-left-40 top-1/2 -translate-y-1/2 w-48 sm:w-60 h-48 sm:h-60 pointer-events-none filter drop-shadow-[0_0_25px_rgba(29,78,216,0.6)] will-change-transform"
+          className="absolute -left-32 sm:-left-40 top-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 pointer-events-none filter drop-shadow-[0_0_35px_rgba(0,240,255,0.7)] will-change-transform"
         >
           <img
             src="/blue_glove.png"
@@ -276,7 +270,7 @@ export default function BoxingFightAnimation({
         {/* Right: Red Boxing Glove */}
         <div
           ref={redGloveRef}
-          className="absolute -right-32 sm:-right-40 top-1/2 -translate-y-1/2 w-48 sm:w-60 h-48 sm:h-60 pointer-events-none filter drop-shadow-[0_0_25px_rgba(185,28,28,0.6)] will-change-transform"
+          className="absolute -right-32 sm:-right-40 top-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 pointer-events-none filter drop-shadow-[0_0_35px_rgba(255,23,68,0.7)] will-change-transform"
         >
           <img
             src="/red_glove.png"
@@ -285,18 +279,18 @@ export default function BoxingFightAnimation({
           />
         </div>
 
-        {/* Center: Industrial VS Badge */}
+        {/* Center: Neo VS Badge */}
         <div
           ref={vsBadgeRef}
           className="z-30 flex flex-col items-center justify-center opacity-0 pointer-events-none"
         >
-          <div className="w-20 sm:w-24 h-20 sm:h-24 bg-[#0d121f] border-2 border-amber-500 flex items-center justify-center shadow-2xl">
-            <span className="text-3xl sm:text-4xl font-fighter font-bold text-amber-500 tracking-wider">
+          <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl bg-gradient-to-b from-[#1f1506] to-[#0e0a02] border-2 border-amber-400 flex items-center justify-center shadow-[0_0_35px_rgba(255,171,0,0.6)]">
+            <span className="text-3xl sm:text-4xl font-ufc font-bold text-amber-400 tracking-wider">
               VS
             </span>
           </div>
-          <div className="bg-[#05070c] px-3 py-0.5 border border-[#1f293d] text-[9px] font-mono-tech text-neutral-400 mt-2">
-            MATCHMAKER VERIFIED
+          <div className="bg-black/90 px-3 py-0.5 rounded-full border border-amber-400/50 text-[9px] font-mono-tech text-amber-300 mt-2">
+            UFC MATCHMAKER
           </div>
         </div>
       </div>
@@ -308,51 +302,51 @@ export default function BoxingFightAnimation({
       >
         <div className="grid grid-cols-2 gap-3 sm:gap-6 items-stretch">
           {/* Blue Corner Fighter */}
-          <div className="ticket-card-blue p-4 sm:p-5 flex flex-col items-center text-center space-y-2 bg-[#090f1e]">
-            <span className="text-[10px] font-mono-tech font-bold text-blue-400 tracking-wider">
-              [ESQUINA AZUL]
+          <div className="neo-card-blue p-4 sm:p-5 flex flex-col items-center text-center space-y-2">
+            <span className="text-[10px] font-mono-tech font-bold text-cyan-400 tracking-wider">
+              ESQUINA AZUL
             </span>
 
             {fighterBlue.photoUrl ? (
               <img
                 src={fighterBlue.photoUrl}
                 alt={fighterBlue.name}
-                className="w-16 sm:w-20 h-16 sm:h-20 object-cover border-2 border-blue-500"
+                className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_15px_#00f0ff]"
               />
             ) : (
-              <div className="w-16 sm:w-20 h-16 sm:h-20 bg-[#0e182e] border-2 border-blue-500 text-blue-300 font-mono font-bold text-2xl flex items-center justify-center">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-blue-950 border-2 border-cyan-400 text-cyan-200 font-ufc font-bold text-2xl flex items-center justify-center shadow-[0_0_15px_#00f0ff]">
                 {fighterBlue.name.charAt(0)}
               </div>
             )}
 
-            <div className="text-lg sm:text-2xl font-fighter font-bold text-white truncate w-full">
+            <div className="text-base sm:text-2xl font-ufc font-bold text-white truncate w-full">
               {fighterBlue.name}
             </div>
 
-            <div className="text-[9px] font-mono-tech text-blue-300 tracking-wider">
+            <div className="text-[9px] font-mono-tech text-cyan-300 tracking-wider">
               PELEADOR 01
             </div>
           </div>
 
           {/* Red Corner Fighter */}
-          <div className="ticket-card-red p-4 sm:p-5 flex flex-col items-center text-center space-y-2 bg-[#1b080b]">
+          <div className="neo-card-red p-4 sm:p-5 flex flex-col items-center text-center space-y-2">
             <span className="text-[10px] font-mono-tech font-bold text-red-400 tracking-wider">
-              [ESQUINA ROJA]
+              ESQUINA ROJA
             </span>
 
             {fighterRed.photoUrl ? (
               <img
                 src={fighterRed.photoUrl}
                 alt={fighterRed.name}
-                className="w-16 sm:w-20 h-16 sm:h-20 object-cover border-2 border-red-500"
+                className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover border-2 border-red-500 shadow-[0_0_15px_#ff1744]"
               />
             ) : (
-              <div className="w-16 sm:w-20 h-16 sm:h-20 bg-[#2b0c11] border-2 border-red-500 text-red-300 font-mono font-bold text-2xl flex items-center justify-center">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-red-950 border-2 border-red-500 text-red-200 font-ufc font-bold text-2xl flex items-center justify-center shadow-[0_0_15px_#ff1744]">
                 {fighterRed.name.charAt(0)}
               </div>
             )}
 
-            <div className="text-lg sm:text-2xl font-fighter font-bold text-white truncate w-full">
+            <div className="text-base sm:text-2xl font-ufc font-bold text-white truncate w-full">
               {fighterRed.name}
             </div>
 
@@ -362,12 +356,12 @@ export default function BoxingFightAnimation({
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button (Neo Cyan) */}
         <div className="pt-4 max-w-sm mx-auto">
           <button
             type="button"
             onClick={onComplete}
-            className="btn-press-primary w-full h-11 text-xs"
+            className="btn-neo-cyan w-full h-12 text-sm"
           >
             VOLVER AL PROGRAMA OFICIAL
           </button>
