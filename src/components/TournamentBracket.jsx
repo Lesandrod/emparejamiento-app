@@ -68,8 +68,11 @@ export default function TournamentBracket({
     if (advancingMatchId) return;
 
     setAdvancingMatchId(match.id);
-    playPunchImpact();
-    playBoxingBell(1);
+    const isUnmarking = match.winner && match.winner.id === fighter.id;
+    if (!isUnmarking) {
+      playPunchImpact();
+      playBoxingBell(1);
+    }
 
     try {
       const res = await fetch('/api/tournament', {
@@ -83,7 +86,7 @@ export default function TournamentBracket({
       });
 
       if (res.ok) {
-        if (!match.nextMatchId) {
+        if (!isUnmarking && !match.nextMatchId) {
           // Final match won!
           setTimeout(() => {
             playArenaCheer();
@@ -203,9 +206,10 @@ export default function TournamentBracket({
               onClick={() => handleSelectWinner(m, m.fighter1)}
               disabled={advancingMatchId === m.id}
               type="button"
+              title={isF1Winner ? 'Ganador actual (Haz clic para desmarcar)' : 'Declarar ganador a esta esquina'}
               className={`px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                 isF1Winner
-                  ? 'bg-primary text-black font-extrabold shadow'
+                  ? 'bg-primary text-black font-extrabold shadow ring-1 ring-primary/60 hover:bg-red-500 hover:text-white'
                   : 'bg-surface-container border border-outline-dim text-on-surface-variant hover:text-white hover:border-primary'
               }`}
             >
@@ -273,9 +277,10 @@ export default function TournamentBracket({
               onClick={() => handleSelectWinner(m, m.fighter2)}
               disabled={advancingMatchId === m.id}
               type="button"
+              title={isF2Winner ? 'Ganador actual (Haz clic para desmarcar)' : 'Declarar ganador a esta esquina'}
               className={`px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                 isF2Winner
-                  ? 'bg-primary text-black font-extrabold shadow'
+                  ? 'bg-primary text-black font-extrabold shadow ring-1 ring-primary/60 hover:bg-red-500 hover:text-white'
                   : 'bg-surface-container border border-outline-dim text-on-surface-variant hover:text-white hover:border-primary'
               }`}
             >

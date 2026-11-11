@@ -734,6 +734,38 @@ export async function generateTournamentBracket() {
   return bracketData;
 }
 
+// Cascade-clear winner and remove fighter from all downstream rounds & champion
+function clearMatchWinnerAndDownstream(bracket, roundIdx, match) {
+  if (!match || !match.winner) return;
+
+  const departingFighterId = match.winner.id;
+  match.winner = null;
+
+  // If this match was the final, clear champion
+  if (bracket.champion && bracket.champion.id === departingFighterId) {
+    bracket.champion = null;
+  }
+
+  // If this match feeds a downstream match
+  if (match.nextMatchId && roundIdx + 1 < bracket.rounds.length) {
+    const nextRound = bracket.rounds[roundIdx + 1];
+    const nextMatch = nextRound.matches.find((m) => m.id === match.nextMatchId);
+
+    if (nextMatch) {
+      if (match.nextSlot === 1 && nextMatch.fighter1?.id === departingFighterId) {
+        nextMatch.fighter1 = null;
+      } else if (match.nextSlot === 2 && nextMatch.fighter2?.id === departingFighterId) {
+        nextMatch.fighter2 = null;
+      }
+
+      // If next match had this departing fighter as its winner, cascade clear downstream
+      if (nextMatch.winner && nextMatch.winner.id === departingFighterId) {
+        clearMatchWinnerAndDownstream(bracket, roundIdx + 1, nextMatch);
+      }
+    }
+  }
+}
+
 export async function advanceTournamentWinner(matchId, winnerId) {
   const bracket = await getTournamentBracket();
   if (!bracket || !bracket.rounds) throw new Error('No existe un torneo activo.');
@@ -752,6 +784,27 @@ export async function advanceTournamentWinner(matchId, winnerId) {
 
   if (!targetMatch) throw new Error('Combate no encontrado en el árbol.');
 
+  // 1. DESMARCAR / TOGGLE OFF: Si el usuario toca al que ya era ganador, se desmarca y se limpia en cascada
+  if (targetMatch.winner && targetMatch.winner.id === winnerId) {
+    clearMatchWinnerAndDownstream(bracket, targetRoundIdx, targetMatch);
+
+    // Guardar cambios
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, CONFIG_COL, BRACKET_DOC), bracket);
+      } catch (e) {
+        console.warn('Error updating bracket in Firestore:', e.message);
+      }
+    }
+
+    const local = readLocalStore();
+    local.tournamentBracket = bracket;
+    writeLocalStore(local);
+
+    return bracket;
+  }
+
+  // 2. CAMBIAR DE GANADOR O MARCAR NUEVO
   let winningFighter = null;
   if (targetMatch.fighter1 && targetMatch.fighter1.id === winnerId) {
     winningFighter = targetMatch.fighter1;
@@ -761,9 +814,14 @@ export async function advanceTournamentWinner(matchId, winnerId) {
 
   if (!winningFighter) throw new Error('El peleador seleccionado no pertenece a este combate.');
 
+  // Si ya había otro ganador anterior en este match, limpiarlo primero de las rondas posteriores
+  if (targetMatch.winner && targetMatch.winner.id !== winnerId) {
+    clearMatchWinnerAndDownstream(bracket, targetRoundIdx, targetMatch);
+  }
+
   targetMatch.winner = winningFighter;
 
-  // Advance to next match if not final
+  // Avanzar a la siguiente ronda si no es la Gran Final
   if (targetMatch.nextMatchId && targetRoundIdx + 1 < bracket.rounds.length) {
     const nextRound = bracket.rounds[targetRoundIdx + 1];
     const nextMatch = nextRound.matches.find((m) => m.id === targetMatch.nextMatchId);
@@ -774,18 +832,18 @@ export async function advanceTournamentWinner(matchId, winnerId) {
       } else {
         nextMatch.fighter2 = winningFighter;
       }
-      if (nextMatch.winner && nextMatch.winner.id === (targetMatch.nextSlot === 1 ? nextMatch.fighter1?.id : nextMatch.fighter2?.id)) {
-        // keep
-      } else {
-        nextMatch.winner = null;
+
+      // Si el ganador anterior de nextMatch ya no es ninguno de los dos peleadores actuales, limpiarlo
+      if (nextMatch.winner && nextMatch.winner.id !== nextMatch.fighter1?.id && nextMatch.winner.id !== nextMatch.fighter2?.id) {
+        clearMatchWinnerAndDownstream(bracket, targetRoundIdx + 1, nextMatch);
       }
     }
   } else {
-    // Grand Final Match! Crown Champion
+    // Gran Final: coronar campeón indiscutible
     bracket.champion = winningFighter;
   }
 
-  // Persist
+  // Persistir cambios
   if (isFirebaseConfigured && db) {
     try {
       await setDoc(doc(db, CONFIG_COL, BRACKET_DOC), bracket);
