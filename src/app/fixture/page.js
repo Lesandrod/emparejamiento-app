@@ -14,7 +14,16 @@ export default function FixturePage() {
   const router = useRouter();
   const [bracket, setBracket] = useState(null);
   const [participants, setParticipants] = useState([]);
-  const [showIntro, setShowIntro] = useState(true); // Siempre muestra la animación al entrar o recargar
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('direct') === '1') {
+        window.history.replaceState(null, '', '/fixture');
+        return false;
+      }
+    }
+    return true; // Al recargar o ingresar directamente a la URL muestra la animación
+  });
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 

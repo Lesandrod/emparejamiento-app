@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ParticipantSelector from '@/components/ParticipantSelector';
+import RockyCinematicIntro from '@/components/RockyCinematicIntro';
 import AdminModal from '@/components/AdminModal';
 import PinPromptModal from '@/components/PinPromptModal';
 import { playShuffleSound, playBoxingBell } from '@/utils/audio';
@@ -15,6 +16,7 @@ export default function Home() {
   const [pairs, setPairs] = useState([]);
   const [tournamentBracket, setTournamentBracket] = useState(null);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true); // Se muestra al recargar o entrar a la página principal
   const [loading, setLoading] = useState(true);
   const [isDrawingTournament, setIsDrawingTournament] = useState(false);
 
@@ -71,9 +73,9 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Navegar a la ruta /fixture
+  // Navegar directamente a la ruta /fixture sin reproducir animación
   const handleViewTree = () => {
-    router.push('/fixture');
+    router.push('/fixture?direct=1');
   };
 
   // Trigger PIN Prompt to Sortear / Re-sortear y luego navegar a /fixture
@@ -160,6 +162,15 @@ export default function Home() {
         participantCount={participants.length}
         onOpenAdmin={() => setIsAdminOpen(true)}
       />
+
+      {/* Rocky Cinematic Movie Sequence (se muestra al recargar o entrar a la página principal) */}
+      {showIntro && (
+        <RockyCinematicIntro
+          hasBracket={Boolean(tournamentBracket && tournamentBracket.rounds?.length > 0)}
+          onFinish={() => setShowIntro(false)}
+          onGoHome={() => setShowIntro(false)}
+        />
+      )}
 
       {/* Main Content: Roster & Direct Tournament Draw Launchpad */}
       <main className="flex-1 max-w-[1720px] w-full mx-auto px-6 lg:px-12 py-8 flex flex-col gap-8">

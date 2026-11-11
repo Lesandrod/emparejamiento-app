@@ -51,7 +51,7 @@ export default function Header({
           </Link>
 
           <Link
-            href="/fixture"
+            href="/fixture?direct=1"
             className={`px-3.5 py-2 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
               isFixtureActive
                 ? 'text-white border-b-2 border-[#d4af37]'
