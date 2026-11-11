@@ -20,7 +20,7 @@ export default function TournamentBracket({
   // Mobile modes: 'rounds' (mobile-first stacked rounds) or 'tree' (full panoramic tree)
   const [viewMode, setViewMode] = useState('rounds');
   const [activeRoundNumber, setActiveRoundNumber] = useState(1);
-  const [zoomLevel, setZoomLevel] = useState(80); // 70%, 80%, 90%, 100%
+  const [zoomLevel, setZoomLevel] = useState(55); // 40%, 55%, 70%, 85%, 100%
 
   if (!bracket || !bracket.rounds || bracket.rounds.length === 0) {
     return (
@@ -116,7 +116,7 @@ export default function TournamentBracket({
       <div
         key={m.id}
         className={`rounded-xl border transition-all relative flex flex-col shadow-md w-full ${
-          isMobileCard ? 'p-2 sm:p-2.5 gap-1.5' : 'p-2 sm:p-2.5 gap-1 min-w-[165px] sm:min-w-[210px] md:min-w-[230px] max-w-[260px]'
+          isMobileCard ? 'p-2 sm:p-2.5 gap-1.5' : 'p-1.5 sm:p-2 gap-0.5 sm:gap-1 min-w-[96px] sm:min-w-[130px] md:min-w-[150px] max-w-[190px]'
         } ${
           isCenter
             ? 'bg-gradient-to-b from-[#1c1d24] via-[#14151a] to-[#101115] border-primary shadow-[0_0_20px_rgba(254,207,82,0.25)] ring-1 ring-primary/40'
@@ -300,7 +300,7 @@ export default function TournamentBracket({
         style={{ gridTemplateColumns: `repeat(${baseMatchCount}, minmax(0, 1fr))` }}
       >
         {Array.from({ length: pairCount }).map((_, i) => (
-          <div key={`${keyPrefix}_${i}`} style={{ gridColumn: `span ${pairSpan}` }} className="h-7 sm:h-11">
+          <div key={`${keyPrefix}_${i}`} style={{ gridColumn: `span ${pairSpan}` }} className="h-4 sm:h-7">
             <svg
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
@@ -321,10 +321,10 @@ export default function TournamentBracket({
   // Medalla con el número de ronda + línea divisoria, usada como encabezado de cada
   // nivel del árbol vertical.
   const renderTierRail = (round, isFinalRound) => (
-    <div className="w-full flex items-center gap-2 sm:gap-3 px-1 py-1.5">
+    <div className="w-full flex items-center gap-1.5 sm:gap-2 px-1 py-0.5 sm:py-1">
       <div className="flex-1 h-px bg-gradient-to-r from-transparent via-outline-dim to-outline-dim" />
       <div
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border whitespace-nowrap ${
+        className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border whitespace-nowrap ${
           isFinalRound ? 'border-primary bg-primary/10 shadow-[0_0_12px_rgba(254,207,82,0.2)]' : 'border-outline-dim bg-surface-container/70'
         }`}
       >
@@ -444,7 +444,7 @@ export default function TournamentBracket({
         {viewMode === 'tree' && (
           <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-400">
             <span className="hidden sm:inline">Zoom:</span>
-            {[70, 85, 100].map((z) => (
+            {[40, 55, 70, 85, 100].map((z) => (
               <button
                 key={z}
                 type="button"
@@ -553,7 +553,7 @@ export default function TournamentBracket({
       {/* ================================================================= */}
       {viewMode === 'tree' && (
         <div
-          className="relative w-full rounded-2xl p-2.5 sm:p-5 md:p-6 overflow-x-auto overflow-y-hidden shadow-2xl border border-outline-dim"
+          className="relative w-full rounded-2xl p-1.5 sm:p-3 md:p-4 overflow-x-auto overflow-y-hidden shadow-2xl border border-outline-dim"
           style={{
             background:
               'radial-gradient(ellipse 80% 45% at 50% 0%, rgba(254,207,82,0.10), transparent 60%), linear-gradient(to bottom, #121318, #0a0a0c)'
@@ -573,7 +573,7 @@ export default function TournamentBracket({
               width: zoomLevel < 100 ? `${(100 / zoomLevel) * 100}%` : '100%'
             }}
           >
-            <div className="relative flex flex-col items-center gap-0 min-w-[640px] sm:min-w-[760px]">
+            <div className="relative flex flex-col items-center gap-0">
               {/* Columna vertebral decorativa: traza la escalera del campeón */}
               <div
                 className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 pointer-events-none"
@@ -631,7 +631,7 @@ export default function TournamentBracket({
                     {renderTierRail(round, isFinalRound)}
 
                     <div
-                      className="relative grid w-full gap-2 sm:gap-3 z-10"
+                      className="relative grid w-full gap-1 sm:gap-2 z-10"
                       style={{ gridTemplateColumns: `repeat(${baseMatchCount}, minmax(0, 1fr))` }}
                     >
                       {round.matches.map((m) => (
