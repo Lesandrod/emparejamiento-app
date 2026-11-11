@@ -47,19 +47,9 @@ export default function TournamentBracket({
 
   const { rounds, champion, numByes, participantCount } = bracket;
   const totalRounds = rounds.length;
-  const finalRound = rounds[totalRounds - 1];
-  const finalMatch = finalRound?.matches?.[0];
-
-  // Separate non-final rounds into Left Wing and Right Wing
-  const leftWingRounds = rounds.slice(0, totalRounds - 1).map((round) => ({
-    ...round,
-    matches: round.matches.filter((m) => m.side === 'left')
-  }));
-
-  const rightWingRounds = rounds.slice(0, totalRounds - 1).map((round) => ({
-    ...round,
-    matches: round.matches.filter((m) => m.side === 'right')
-  }));
+  // Ronda 1 (la de más combates) define la cantidad de "unidades" de la grilla:
+  // cada combate de una ronda posterior ocupa 2x el ancho de la ronda anterior.
+  const baseMatchCount = rounds[0]?.matches?.length || 1;
 
   const activeRoundData = rounds.find((r) => r.roundNumber === activeRoundNumber) || rounds[0];
 
@@ -298,6 +288,28 @@ export default function TournamentBracket({
     );
   };
 
+  // Fila de conectores entre una ronda (arriba, menos combates) y la ronda anterior
+  // (abajo, el doble de combates). Dibuja, por cada combate de la ronda de arriba,
+  // un tronco que baja y se divide en dos ramas hacia sus dos combates de origen.
+  const renderConnectorRow = (pairCount) => {
+    const pairSpan = baseMatchCount / pairCount;
+    return (
+      <div
+        className="grid w-full"
+        style={{ gridTemplateColumns: `repeat(${baseMatchCount}, minmax(0, 1fr))` }}
+      >
+        {Array.from({ length: pairCount }).map((_, i) => (
+          <div key={i} style={{ gridColumn: `span ${pairSpan}` }} className="relative h-5 sm:h-7">
+            <div className="absolute border-l border-outline-dim" style={{ left: '50%', top: 0, height: '50%' }} />
+            <div className="absolute border-t border-outline-dim" style={{ left: '25%', width: '50%', top: '50%' }} />
+            <div className="absolute border-l border-outline-dim" style={{ left: '25%', top: '50%', height: '50%' }} />
+            <div className="absolute border-l border-outline-dim" style={{ left: '75%', top: '50%', height: '50%' }} />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4 select-none">
       {/* Top Controls Ribbon */}
@@ -499,111 +511,82 @@ export default function TournamentBracket({
       )}
 
       {/* ================================================================= */}
-      {/* 2. MODO ÁRBOL PANORÁMICO (VISTA CONVERGENTE ESCALABLE)              */}
+      {/* 2. MODO ÁRBOL PANORÁMICO (DE ABAJO HACIA ARRIBA: R1 ABAJO,          */}
+      {/*    EL GANADOR SUBE RONDA A RONDA HASTA EL CAMPEÓN ARRIBA)          */}
       {/* ================================================================= */}
       {viewMode === 'tree' && (
         <div className="w-full bg-surface-dim border border-outline-dim rounded-2xl p-2.5 sm:p-5 md:p-6 overflow-x-auto shadow-2xl">
-          {/* Subtle mobile scroll reminder */}
+          {/* Subtle scroll reminder */}
           <div className="flex items-center justify-center gap-1.5 py-1 mb-2 rounded bg-surface-container/80 border border-outline-dim text-[10px] font-mono text-primary">
-            <span className="material-symbols-outlined text-[13px]">swipe</span>
-            <span>Desplaza horizontalmente para seguir la ruta de los cruces</span>
+            <span className="material-symbols-outlined text-[13px]">swipe_up</span>
+            <span>Ronda 1 abajo • el ganador avanza hacia arriba hasta el Campeón</span>
           </div>
 
           <div
-            className="transition-transform origin-top-left"
+            className="transition-transform origin-top"
             style={{
               transform: `scale(${zoomLevel / 100})`,
-              transformOrigin: 'top left',
+              transformOrigin: 'top center',
               width: zoomLevel < 100 ? `${(100 / zoomLevel) * 100}%` : '100%'
             }}
           >
-            <div className="flex items-stretch justify-between gap-3 sm:gap-6 min-w-[720px] sm:min-w-[880px]">
-              {/* LEFT WING: FLOWS FROM LEFT TO RIGHT TOWARD CENTER */}
-              <div className="flex-1 flex items-stretch gap-3 sm:gap-5 justify-start">
-                {leftWingRounds.filter((r) => r.matches.length > 0).map((round) => (
-                  <div
-                    key={`left_round_${round.roundNumber}`}
-                    className="flex-1 flex flex-col justify-around min-w-[165px] sm:min-w-[210px] max-w-[250px]"
-                  >
-                    <div className="pb-1.5 mb-1.5 border-b border-outline-dim text-center">
-                      <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-blue-400 block">
-                        Ala Izquierda • R0{round.roundNumber}
-                      </span>
-                      <h3 className="font-display font-bold text-[11px] sm:text-xs text-white uppercase">
-                        {round.title}
-                      </h3>
-                    </div>
-
-                    <div className="flex flex-col justify-around gap-2.5 sm:gap-4 h-full py-1">
-                      {round.matches.map((m) => renderMatchCard(m, false, false))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* CENTER STAGE: THE OCTAGON & GRAND FINAL BATTLE */}
-              <div className="flex flex-col items-center justify-around min-w-[200px] sm:min-w-[250px] max-w-[290px] px-2 sm:px-3 border-x border-dashed border-outline-dim/70 relative">
-                <div className="pb-1.5 mb-1.5 border-b border-primary/50 text-center w-full">
-                  <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-primary block">
-                    EL CORAZÓN DEL OCTÁGONO
-                  </span>
-                  <h3 className="font-display font-black text-xs sm:text-sm text-primary uppercase tracking-wide">
-                    GRAN FINAL
-                  </h3>
+            <div className="flex flex-col items-center gap-0 min-w-[640px] sm:min-w-[760px]">
+              {/* CAMPEÓN DEL PODER (arriba de todo) */}
+              <div className="flex flex-col items-center mb-3">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-surface-container border-2 border-primary flex items-center justify-center text-primary shadow-xl mb-1">
+                  <span className="material-symbols-outlined text-xl sm:text-2xl">emoji_events</span>
                 </div>
-
-                <div className="w-full my-auto py-2">
-                  {renderMatchCard(finalMatch, true, false)}
-                </div>
-
-                <div className="mt-2 pt-2 border-t border-dashed border-outline-dim/70 flex flex-col items-center text-center w-full">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-surface-container border-2 border-primary flex items-center justify-center text-primary shadow-xl mb-1">
-                    <span className="material-symbols-outlined text-xl sm:text-2xl">emoji_events</span>
-                  </div>
-                  <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-primary">
-                    CAMPEÓN DEL PODER
-                  </span>
-                  {champion ? (
-                    <div className="mt-1 p-1 rounded-xl bg-primary/10 border border-primary/40 flex flex-col items-center gap-0.5 w-full">
-                      <span className="text-[10px] sm:text-xs font-black text-white uppercase truncate w-full">
-                        {champion.name}
-                      </span>
-                      {champion.alias && (
-                        <span className="text-[8px] sm:text-[9px] font-mono text-primary font-bold">
-                          “{champion.alias}”
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-[8px] sm:text-[9px] font-mono text-on-surface-variant mt-0.5">
-                      Esperando desenlace
+                <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-primary">
+                  CAMPEÓN DEL PODER
+                </span>
+                {champion ? (
+                  <div className="mt-1 p-1 rounded-xl bg-primary/10 border border-primary/40 flex flex-col items-center gap-0.5">
+                    <span className="text-[10px] sm:text-xs font-black text-white uppercase truncate">
+                      {champion.name}
                     </span>
-                  )}
-                </div>
-              </div>
-
-              {/* RIGHT WING: FLOWS FROM RIGHT TO LEFT TOWARD CENTER */}
-              <div className="flex-1 flex items-stretch gap-3 sm:gap-5 justify-end">
-                {[...rightWingRounds].filter((r) => r.matches.length > 0).reverse().map((round) => (
-                  <div
-                    key={`right_round_${round.roundNumber}`}
-                    className="flex-1 flex flex-col justify-around min-w-[165px] sm:min-w-[210px] max-w-[250px]"
-                  >
-                    <div className="pb-1.5 mb-1.5 border-b border-outline-dim text-center">
-                      <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-red-400 block">
-                        Ala Derecha • R0{round.roundNumber}
+                    {champion.alias && (
+                      <span className="text-[8px] sm:text-[9px] font-mono text-primary font-bold">
+                        “{champion.alias}”
                       </span>
-                      <h3 className="font-display font-bold text-[11px] sm:text-xs text-white uppercase">
-                        {round.title}
-                      </h3>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-[8px] sm:text-[9px] font-mono text-on-surface-variant mt-0.5">
+                    Esperando desenlace
+                  </span>
+                )}
+              </div>
+
+              {/* RONDAS: de la Gran Final (arriba) a la Ronda 1 (abajo) */}
+              {[...rounds].reverse().map((round, displayIdx) => {
+                const isFinalRound = round.roundNumber === totalRounds;
+                const spanPerMatch = baseMatchCount / round.matches.length;
+                const isBottomRound = displayIdx === rounds.length - 1;
+
+                return (
+                  <React.Fragment key={round.roundNumber}>
+                    <div className="w-full text-center pt-1 pb-1.5">
+                      <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-primary/80">
+                        {isFinalRound ? 'GRAN FINAL' : `R0${round.roundNumber} • ${round.title}`}
+                      </span>
                     </div>
 
-                    <div className="flex flex-col justify-around gap-2.5 sm:gap-4 h-full py-1">
-                      {round.matches.map((m) => renderMatchCard(m, false, false))}
+                    <div
+                      className="grid w-full gap-2 sm:gap-3"
+                      style={{ gridTemplateColumns: `repeat(${baseMatchCount}, minmax(0, 1fr))` }}
+                    >
+                      {round.matches.map((m) => (
+                        <div key={m.id} style={{ gridColumn: `span ${spanPerMatch}` }} className="flex justify-center">
+                          {renderMatchCard(m, isFinalRound, false)}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
+
+                    {/* Conector hacia la ronda anterior (más combates), que se dibuja debajo */}
+                    {!isBottomRound && renderConnectorRow(round.matches.length)}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         </div>

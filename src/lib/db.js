@@ -684,6 +684,13 @@ export async function getTournamentBracket() {
   return bracket;
 }
 
+// Menor potencia de 2 mayor o igual a n (tamaño de cuadro necesario para Single Elimination)
+function nextPowerOfTwo(n) {
+  let p = 1;
+  while (p < n) p *= 2;
+  return p;
+}
+
 export async function generateTournamentBracket() {
   const { participants } = await getPairingData();
   if (!participants || participants.length < 2) {
@@ -698,19 +705,10 @@ export async function generateTournamentBracket() {
   }
 
   const count = pool.length;
-  const isOdd = count % 2 !== 0;
-  const numByes = isOdd ? 1 : 0; // Regla estricta: si es impar, SOLO UNO avanza con Pase Libre
-
-  // Determine rounds structure
-  const roundMatchCounts = [];
-  let curr = count;
-  while (curr > 1) {
-    const mCount = Math.ceil(curr / 2);
-    roundMatchCounts.push(mCount);
-    curr = mCount;
-  }
-
-  const totalRounds = roundMatchCounts.length;
+  const bracketSize = nextPowerOfTwo(count); // siguiente potencia de 2 >= N
+  const numByes = bracketSize - count; // BYE = siguientePotenciaDe2(N) - N
+  const totalRounds = Math.log2(bracketSize);
+  const firstRoundMatchCount = bracketSize / 2;
 
   function getRoundTitle(rIdx, totalRounds) {
     const distFromEnd = totalRounds - 1 - rIdx;
@@ -721,49 +719,26 @@ export async function generateTournamentBracket() {
     return `Ronda ${rIdx + 1}`;
   }
 
+  // Estructura de rondas: cada ronda tiene exactamente la mitad de combates que la
+  // anterior (bracketSize es potencia de 2), por lo que el avance de ganadores es
+  // un árbol binario regular: el combate m de la ronda r alimenta al combate
+  // floor(m/2) de la ronda r+1.
   const rounds = [];
   let globalBoutNumber = 1;
+  let mCount = firstRoundMatchCount;
 
   for (let rIdx = 0; rIdx < totalRounds; rIdx++) {
-    const mCount = roundMatchCounts[rIdx];
     const isFinal = rIdx === totalRounds - 1;
     const matches = [];
 
-    // Left and right split
-    const leftCount = isFinal ? 0 : Math.ceil(mCount / 2);
-
     for (let m = 0; m < mCount; m++) {
       const matchId = `m_${rIdx + 1}_${m}`;
-      let side = 'center';
-      if (!isFinal) {
-        side = m < leftCount ? 'left' : 'right';
-      }
 
-      // Next match wiring
       let nextMatchId = null;
       let nextSlot = null;
-
       if (!isFinal) {
-        const nextRoundMCount = roundMatchCounts[rIdx + 1];
-        const nextIsFinal = rIdx + 1 === totalRounds - 1;
-
-        if (nextIsFinal) {
-          nextMatchId = `m_${rIdx + 2}_0`;
-          nextSlot = m === 0 ? 1 : 2;
-        } else {
-          const nextLeftCount = Math.ceil(nextRoundMCount / 2);
-          if (side === 'left') {
-            const nextIdx = Math.min(Math.floor(m / 2), nextLeftCount - 1);
-            nextMatchId = `m_${rIdx + 2}_${nextIdx}`;
-            nextSlot = m % 2 === 0 ? 1 : 2;
-          } else {
-            const rightIdx = m - leftCount;
-            const rightTotal = nextRoundMCount - nextLeftCount;
-            const nextIdx = nextLeftCount + Math.min(Math.floor(rightIdx / 2), Math.max(0, rightTotal - 1));
-            nextMatchId = `m_${rIdx + 2}_${nextIdx}`;
-            nextSlot = rightIdx % 2 === 0 ? 1 : 2;
-          }
-        }
+        nextMatchId = `m_${rIdx + 2}_${Math.floor(m / 2)}`;
+        nextSlot = m % 2 === 0 ? 1 : 2;
       }
 
       matches.push({
@@ -771,7 +746,7 @@ export async function generateTournamentBracket() {
         matchNumber: globalBoutNumber++,
         round: rIdx + 1,
         roundTitle: getRoundTitle(rIdx, totalRounds),
-        side,
+        side: null,
         fighter1: null,
         fighter2: null,
         winner: null,
@@ -786,22 +761,31 @@ export async function generateTournamentBracket() {
       title: getRoundTitle(rIdx, totalRounds),
       matches
     });
+
+    mCount = mCount / 2;
   }
 
-  // Populate Round 1 fighters:
-  // Si es impar, el que sobra ("Pase Libre") va en el grupo donde hay 3 combates (Ala Izquierda: r1LeftCount - 1)
+  // Elegir aleatoriamente qué combates de la Ronda 1 son BYE (pase directo), evitando
+  // que dos BYE caigan en el mismo combate (numByes siempre es menor a firstRoundMatchCount).
   const r1 = rounds[0];
-  const r1Count = r1.matches.length;
-  const r1LeftCount = Math.ceil(r1Count / 2);
-  const byeMatchIndex = isOdd ? (r1LeftCount - 1) : -1;
+  const byeMatchIndices = new Set();
+  {
+    const available = Array.from({ length: firstRoundMatchCount }, (_, i) => i);
+    for (let i = available.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [available[i], available[j]] = [available[j], available[i]];
+    }
+    for (let i = 0; i < numByes; i++) byeMatchIndices.add(available[i]);
+  }
 
   let fighterIdx = 0;
-  for (let m = 0; m < r1Count; m++) {
+  let byeCounter = 1;
+  for (let m = 0; m < firstRoundMatchCount; m++) {
     const match = r1.matches[m];
-    if (m === byeMatchIndex) {
+    if (byeMatchIndices.has(m)) {
       match.fighter1 = pool[fighterIdx++] || null;
       match.fighter2 = {
-        id: `bye_1`,
+        id: `bye_${byeCounter++}`,
         isBye: true,
         name: 'PASE LIBRE (BYE)',
         alias: 'Avanza Automático',
@@ -845,7 +829,7 @@ export async function generateTournamentBracket() {
   const bracketData = {
     id: `bracket_${Date.now()}`,
     createdAt: Date.now(),
-    bracketSize: count + numByes,
+    bracketSize,
     totalRounds,
     participantCount: count,
     numByes,
