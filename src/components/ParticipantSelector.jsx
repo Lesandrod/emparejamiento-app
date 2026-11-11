@@ -326,7 +326,7 @@ export default function ParticipantSelector({
         </div>
 
         {/* FULL WIDTH GRID: ROSTER DE CONTENDIENTES */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 max-h-[520px] overflow-y-auto p-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-3 max-h-[520px] overflow-y-auto p-1">
           {filteredRoster.length === 0 ? (
             <div className="col-span-full py-12 text-center text-xs text-on-surface-variant font-mono">
               No se encontraron peleadores disponibles en la lista.
@@ -336,7 +336,7 @@ export default function ParticipantSelector({
               return (
                 <div
                   key={p.id}
-                  className="relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all min-h-[160px] group bg-surface-container-low border border-outline-dim hover:border-primary/50 hover:bg-surface-container shadow-sm"
+                  className="relative rounded-xl p-2 sm:p-3 flex flex-col items-center justify-between text-center transition-all min-h-[140px] sm:min-h-[160px] group bg-surface-container-low border border-outline-dim hover:border-primary/50 hover:bg-surface-container shadow-sm"
                 >
                   {/* Fighter Avatar & Photo Icon (Round frame) */}
                   <div className="relative my-1">
@@ -344,21 +344,21 @@ export default function ParticipantSelector({
                       <img
                         src={p.photoUrl}
                         alt={p.name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-primary/40 flex-shrink-0 shadow-md"
+                        className="w-13 h-13 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-primary/40 flex-shrink-0 shadow-md"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full flex items-center justify-center text-base font-display font-black uppercase bg-surface-container-high border-2 border-outline-dim text-primary group-hover:border-primary/60 shadow-md">
+                      <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-sm sm:text-base font-display font-black uppercase bg-surface-container-high border-2 border-outline-dim text-primary group-hover:border-primary/60 shadow-md">
                         {p.name.substring(0, 2).toUpperCase()}
                       </div>
                     )}
 
                     {/* Camera Upload Button */}
                     <label
-                      className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-surface-container-highest border border-outline-subtle hover:border-primary flex items-center justify-center text-outline-subtle hover:text-white transition-colors cursor-pointer shadow-md"
+                      className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-surface-container-highest border border-outline-subtle hover:border-primary flex items-center justify-center text-outline-subtle hover:text-white transition-colors cursor-pointer shadow-md"
                       title="Subir foto de peleador"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <span className="material-symbols-outlined text-[12px]">photo_camera</span>
+                      <span className="material-symbols-outlined text-[10px] sm:text-[12px]">photo_camera</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -373,23 +373,23 @@ export default function ParticipantSelector({
 
                   {/* Fighter Name & Alias */}
                   <div className="w-full mt-1 min-w-0">
-                    <h4 className="text-xs font-bold uppercase truncate w-full text-white group-hover:text-primary transition-colors">
+                    <h4 className="text-[11px] sm:text-xs font-bold uppercase truncate w-full text-white group-hover:text-primary transition-colors">
                       {p.name}
                     </h4>
                     {p.alias ? (
-                      <span className="text-[10px] font-mono text-primary truncate block font-bold leading-tight mt-0.5">
+                      <span className="text-[9px] sm:text-[10px] font-mono text-primary truncate block font-bold leading-tight mt-0.5">
                         "{p.alias}"
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono text-outline-subtle block leading-tight mt-0.5">
+                      <span className="text-[9px] sm:text-[10px] font-mono text-outline-subtle block leading-tight mt-0.5">
                         Contendiente
                       </span>
                     )}
                   </div>
 
                   {/* Status Badge */}
-                  <div className="mt-2 w-full">
-                    <span className="inline-flex items-center justify-center gap-1 w-full py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider font-bold bg-surface-container border border-outline-dim text-on-surface-variant group-hover:border-primary/40 group-hover:text-primary transition-colors">
+                  <div className="mt-1.5 sm:mt-2 w-full">
+                    <span className="inline-flex items-center justify-center gap-1 w-full py-0.5 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-mono uppercase tracking-wider font-bold bg-surface-container border border-outline-dim text-on-surface-variant group-hover:border-primary/40 group-hover:text-primary transition-colors">
                       INSCRITO
                     </span>
                   </div>

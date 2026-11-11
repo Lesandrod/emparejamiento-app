@@ -41,14 +41,19 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
   };
 
   useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const initialOffset = isMobile ? 260 : 450;
+    const clashOffset = isMobile ? 25 : 45;
+    const reboundOffset = isMobile ? 85 : 160;
+
     const ctx = gsap.context(() => {
       // Starting positions
       gsap.set(letterboxTopRef.current, { y: 0 });
       gsap.set(letterboxBottomRef.current, { y: 0 });
       gsap.set(flashOverlayRef.current, { opacity: 0 });
       gsap.set(sparksRef.current, { opacity: 0, scale: 0.5 });
-      gsap.set(blueGloveRef.current, { x: -450, opacity: 0, rotation: -25 });
-      gsap.set(redGloveRef.current, { x: 450, opacity: 0, rotation: 25 });
+      gsap.set(blueGloveRef.current, { x: -initialOffset, opacity: 0, rotation: -25 });
+      gsap.set(redGloveRef.current, { x: initialOffset, opacity: 0, rotation: 25 });
       gsap.set(octagonLogoRef.current, { scale: 0.3, opacity: 0, rotation: -10 });
 
       gsap.set(textCard1Ref.current, { opacity: 0, y: 30, scale: 0.95 });
@@ -106,7 +111,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
       .to(
         blueGloveRef.current,
         {
-          x: -45,
+          x: -clashOffset,
           opacity: 1,
           rotation: -10,
           duration: 0.45,
@@ -117,7 +122,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
       .to(
         redGloveRef.current,
         {
-          x: 45,
+          x: clashOffset,
           opacity: 1,
           rotation: 10,
           duration: 0.45,
@@ -143,15 +148,15 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         sparksRef.current,
         {
           opacity: 1,
-          scale: 2.2,
+          scale: isMobile ? 1.6 : 2.2,
           duration: 0.25,
           ease: 'power2.out'
         },
         '-=0.05'
       )
       .to(containerRef.current, {
-        x: '+=12',
-        y: '-=10',
+        x: isMobile ? '+=6' : '+=12',
+        y: isMobile ? '-=5' : '-=10',
         duration: 0.05,
         repeat: 5,
         yoyo: true,
@@ -159,12 +164,12 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
       })
       .to(sparksRef.current, {
         opacity: 0,
-        scale: 2.8,
+        scale: isMobile ? 2.0 : 2.8,
         duration: 0.4,
         ease: 'power2.in'
       })
       .to([blueGloveRef.current, redGloveRef.current], {
-        x: (i) => (i === 0 ? -160 : 160),
+        x: (i) => (i === 0 ? -reboundOffset : reboundOffset),
         scale: 0.9,
         duration: 0.5,
         ease: 'power2.out'
@@ -206,22 +211,24 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
       {/* Cinematic Top Letterbox Bar */}
       <div
         ref={letterboxTopRef}
-        className="absolute top-0 left-0 right-0 h-16 sm:h-20 bg-black z-40 border-b border-white/5"
+        className="absolute top-0 left-0 right-0 h-14 sm:h-20 bg-black z-40 border-b border-white/5"
       >
-        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between text-xs font-mono text-zinc-400">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
-            <span className="text-white font-bold tracking-widest uppercase font-display">UFC TORNEO DEL PODER</span>
+        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 flex items-center justify-between text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-600 animate-ping"></span>
+            <span className="text-white font-bold tracking-widest uppercase font-display text-[11px] sm:text-xs">
+              UFC TORNEO DEL PODER
+            </span>
           </div>
 
           <button
             onClick={handleGoHome}
             type="button"
-            className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white font-sans font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-md"
+            className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white font-sans font-semibold text-[11px] sm:text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-md"
             title="Ir a inicio / lista de peleadores"
           >
-            <span className="material-symbols-outlined text-[16px] text-primary">home</span>
-            <span>Ir a Inicio</span>
+            <span className="material-symbols-outlined text-[15px] sm:text-[16px] text-primary">home</span>
+            <span>Inicio</span>
           </button>
         </div>
       </div>
@@ -229,15 +236,15 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
       {/* Cinematic Bottom Letterbox Bar */}
       <div
         ref={letterboxBottomRef}
-        className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 bg-black z-40 border-t border-white/5"
+        className="absolute bottom-0 left-0 right-0 h-14 sm:h-20 bg-black z-40 border-t border-white/5"
       >
-        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between text-xs font-mono text-zinc-400">
+        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 flex items-center justify-between text-xs font-mono text-zinc-400">
           <button
             onClick={handleGoHome}
             type="button"
-            className="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-dim text-zinc-300 hover:text-white font-sans font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-dim text-zinc-300 hover:text-white font-sans font-bold text-[11px] sm:text-xs transition-colors flex items-center gap-1 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <span className="material-symbols-outlined text-[15px] sm:text-[16px]">arrow_back</span>
             <span>Inicio</span>
           </button>
 
@@ -248,10 +255,10 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
           <button
             onClick={handleSkip}
             type="button"
-            className="px-4 py-2 rounded-lg bg-primary hover:bg-yellow-400 text-black font-bold tracking-wider uppercase text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-primary hover:bg-yellow-400 text-black font-bold tracking-wider uppercase text-[11px] sm:text-xs transition-colors flex items-center gap-1 cursor-pointer shadow-lg"
           >
             <span>{hasBracket ? 'Ver Fixture' : 'Continuar'}</span>
-            <span className="material-symbols-outlined text-[16px]">fast_forward</span>
+            <span className="material-symbols-outlined text-[15px] sm:text-[16px]">fast_forward</span>
           </button>
         </div>
       </div>
@@ -272,12 +279,12 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         className="absolute inset-0 bg-white pointer-events-none z-30"
       ></div>
 
-      {/* Center Clash Area (Elevated upwards for clear theatrical staging) */}
-      <div className="relative z-20 flex items-center justify-center w-full max-w-4xl h-64 sm:h-72 px-4 -translate-y-14 sm:-translate-y-20">
+      {/* Center Clash Area - Positioned Higher and Fully Responsive */}
+      <div className="relative z-20 flex items-center justify-center w-full max-w-4xl h-44 sm:h-64 px-4 -translate-y-20 sm:-translate-y-28 md:-translate-y-32">
         {/* Left: Blue Boxing Glove */}
         <div
           ref={blueGloveRef}
-          className="w-48 sm:w-64 h-48 sm:h-64 flex items-center justify-center pointer-events-none drop-shadow-[0_0_35px_rgba(56,189,248,0.5)]"
+          className="w-28 h-28 xs:w-36 xs:h-36 sm:w-52 sm:h-52 md:w-60 md:h-60 flex items-center justify-center pointer-events-none drop-shadow-[0_0_30px_rgba(56,189,248,0.45)]"
         >
           <img
             src="/blue_glove.png"
@@ -289,10 +296,10 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         {/* Center: Spark Burst on Impact */}
         <div
           ref={sparksRef}
-          className="absolute z-30 w-32 h-32 rounded-full pointer-events-none flex items-center justify-center"
+          className="absolute z-30 w-24 h-24 sm:w-32 sm:h-32 rounded-full pointer-events-none flex items-center justify-center"
         >
           <div className="w-full h-full rounded-full bg-gradient-to-r from-yellow-300 via-amber-400 to-red-500 blur-xl opacity-80 animate-pulse"></div>
-          <div className="absolute w-16 h-16 rounded-full bg-white blur-md"></div>
+          <div className="absolute w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white blur-md"></div>
         </div>
 
         {/* Center: Octagon Gold Emblem */}
@@ -300,11 +307,11 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
           ref={octagonLogoRef}
           className="absolute z-20 flex flex-col items-center justify-center pointer-events-none"
         >
-          <div className="w-22 sm:w-26 h-22 sm:h-26 rounded-2xl bg-[#111317] border-2 border-primary flex flex-col items-center justify-center shadow-2xl">
-            <span className="font-display font-black text-2xl sm:text-3xl text-primary tracking-widest">
+          <div className="w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#111317] border-2 border-primary flex flex-col items-center justify-center shadow-2xl">
+            <span className="font-display font-black text-xl xs:text-2xl sm:text-3xl text-primary tracking-widest leading-none">
               VS
             </span>
-            <span className="text-[8px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
+            <span className="text-[7px] sm:text-[8px] font-mono font-bold text-zinc-400 uppercase tracking-widest mt-1">
               OCTAGON
             </span>
           </div>
@@ -313,7 +320,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         {/* Right: Red Boxing Glove */}
         <div
           ref={redGloveRef}
-          className="w-48 sm:w-64 h-48 sm:h-64 flex items-center justify-center pointer-events-none drop-shadow-[0_0_35px_rgba(248,113,113,0.5)]"
+          className="w-28 h-28 xs:w-36 xs:h-36 sm:w-52 sm:h-52 md:w-60 md:h-60 flex items-center justify-center pointer-events-none drop-shadow-[0_0_30px_rgba(248,113,113,0.45)]"
         >
           <img
             src="/red_glove.png"
@@ -323,37 +330,37 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         </div>
       </div>
 
-      {/* Typography Cards (Positioned comfortably below the gloves with zero overlap) */}
-      <div className="absolute z-30 flex flex-col items-center justify-center text-center px-4 max-w-2xl pointer-events-none translate-y-28 sm:translate-y-32">
+      {/* Typography Cards (Positioned clearly below the gloves with ZERO overlap) */}
+      <div className="absolute z-30 flex flex-col items-center justify-center text-center px-4 max-w-xl pointer-events-none translate-y-20 sm:translate-y-28 md:translate-y-36">
         {/* Card 1 */}
-        <div ref={textCard1Ref} className="absolute">
-          <span className="text-xs sm:text-sm font-mono tracking-[0.3em] uppercase text-zinc-400 font-bold block mb-1">
+        <div ref={textCard1Ref} className="absolute flex flex-col items-center w-full">
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.25em] uppercase text-zinc-400 font-bold block mb-1">
             EL DESTINO ESTÁ ESCRITO
           </span>
-          <h2 className="text-2xl sm:text-4xl font-display font-black text-white tracking-tight uppercase">
+          <h2 className="text-xl sm:text-3xl md:text-4xl font-display font-black text-white tracking-tight uppercase">
             LA GLORIA SE GANA EN EL RING
           </h2>
         </div>
 
         {/* Card 2 */}
-        <div ref={textCard2Ref} className="absolute">
-          <span className="text-xs sm:text-sm font-mono tracking-[0.3em] uppercase text-red-400 font-bold block mb-1">
+        <div ref={textCard2Ref} className="absolute flex flex-col items-center w-full">
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.25em] uppercase text-red-400 font-bold block mb-1">
             SIN REGALOS • SIN EXCUSAS
           </span>
-          <h2 className="text-3xl sm:text-5xl font-display font-black text-primary tracking-tighter uppercase drop-shadow-[0_0_20px_rgba(254,207,82,0.4)]">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-black text-primary tracking-tighter uppercase drop-shadow-[0_0_20px_rgba(254,207,82,0.4)]">
             TORNEO DEL PODER
           </h2>
         </div>
 
         {/* Card 3: Final Call */}
-        <div ref={textCard3Ref} className="absolute">
-          <div className="px-4 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary font-mono text-xs font-bold tracking-widest uppercase inline-block mb-2">
+        <div ref={textCard3Ref} className="absolute flex flex-col items-center w-full">
+          <div className="px-3 sm:px-4 py-0.5 sm:py-1 rounded-full bg-primary/20 border border-primary/40 text-primary font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase inline-block mb-2 shadow-sm">
             CUADRO OFICIAL GENERADO
           </div>
-          <h1 className="text-2xl sm:text-4xl font-display font-black text-white uppercase tracking-tight">
+          <h1 className="text-xl sm:text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">
             QUE COMIENCE LA GUERRA
           </h1>
-          <p className="text-xs text-zinc-400 font-mono mt-1">
+          <p className="text-[10px] sm:text-xs text-zinc-400 font-mono mt-1">
             Cargando el árbol oficial de combates...
           </p>
         </div>

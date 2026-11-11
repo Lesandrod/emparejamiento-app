@@ -74,6 +74,44 @@ export default function Header({
           )}
         </nav>
 
+        {/* Mobile Navigation Icons */}
+        <div className="flex md:hidden items-center gap-1 text-xs">
+          <Link
+            href="/"
+            className={`p-2 rounded-lg transition-colors flex items-center justify-center ${
+              isRosterActive
+                ? 'text-primary bg-primary/10 border border-primary/30'
+                : 'text-on-surface-variant hover:text-white'
+            }`}
+            title="Peleadores"
+          >
+            <span className="material-symbols-outlined text-[20px]">groups</span>
+          </Link>
+
+          <Link
+            href="/fixture?direct=1"
+            className={`p-2 rounded-lg transition-colors flex items-center justify-center ${
+              isFixtureActive
+                ? 'text-primary bg-primary/10 border border-primary/30'
+                : 'text-on-surface-variant hover:text-white'
+            }`}
+            title="Árbol Fixture"
+          >
+            <span className="material-symbols-outlined text-[20px]">account_tree</span>
+          </Link>
+
+          {onOpenAdmin && (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="p-2 rounded-lg text-on-surface-variant hover:text-white transition-colors flex items-center justify-center"
+              title="Organizador [PIN]"
+            >
+              <span className="material-symbols-outlined text-[20px]">tune</span>
+            </button>
+          )}
+        </div>
+
         {/* Broadcast Status & Quick Actions */}
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-surface-container border border-outline-dim">
