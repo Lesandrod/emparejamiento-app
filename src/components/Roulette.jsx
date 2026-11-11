@@ -25,6 +25,7 @@ export default function Roulette({
   const [errorMessage, setErrorMessage] = useState('');
 
   const containerRef = useRef(null);
+  const cardsGridRef = useRef(null);
   const cardsRef = useRef([]);
   const handRef = useRef(null);
 
@@ -33,11 +34,12 @@ export default function Roulette({
     (p) => !p.revealed && p.id !== currentUser.id
   );
 
-  // State-driven shuffled deck so barajar genuinely randomizes positions
+  // State-driven shuffled deck with permanent envelope numbers and security seals
   const [deck, setDeck] = useState(() => {
     return candidatePool.map((p, idx) => ({
       ...p,
-      originalIndex: idx,
+      envelopeNumber: String(idx + 1).padStart(2, '0'),
+      sealCode: `UFC-${String(100 + (idx + 1) * 73).slice(-3)}`,
       uid: p.id || `card-${idx}-${p.name}`
     }));
   });
@@ -47,7 +49,8 @@ export default function Roulette({
     setDeck(
       candidatePool.map((p, idx) => ({
         ...p,
-        originalIndex: idx,
+        envelopeNumber: String(idx + 1).padStart(2, '0'),
+        sealCode: `UFC-${String(100 + (idx + 1) * 73).slice(-3)}`,
         uid: p.id || `card-${idx}-${p.name}`
       }))
     );
@@ -55,60 +58,93 @@ export default function Roulette({
 
   // Initial Entrance Animation
   useEffect(() => {
-    if (!containerRef.current) return;
-    const cards = containerRef.current.querySelectorAll('.mystery-card');
+    if (!cardsGridRef.current) return;
+    const cards = cardsGridRef.current.querySelectorAll('.mystery-card');
 
     gsap.fromTo(
       cards,
-      { y: 30, opacity: 0, scale: 0.95 },
+      { y: 35, opacity: 0, scale: 0.94 },
       {
         y: 0,
         opacity: 1,
         scale: 1,
-        stagger: 0.04,
-        duration: 0.35,
+        stagger: 0.05,
+        duration: 0.4,
         ease: 'power2.out',
         clearProps: 'all'
       }
     );
   }, []);
 
-  // Shuffle / Barajar Oponentes Real Action
+  // REAL DECK CHOCOLATEO & SHUFFLE
   const handleChocolatear = () => {
     if (isChocolateando || isRevealing || showFightAnimation) return;
+    if (!cardsGridRef.current) return;
+
+    const cards = Array.from(cardsGridRef.current.querySelectorAll('.mystery-card'));
+    if (!cards || cards.length === 0) return;
+
     setIsChocolateando(true);
     setSelectedCardId(null);
     playShuffleSound();
 
-    const cards = containerRef.current.querySelectorAll('.mystery-card');
-    if (!cards || cards.length === 0) {
-      setIsChocolateando(false);
-      return;
-    }
+    // 1. Calculate center of the grid to stack cards in the middle like a casino deck
+    const gridRect = cardsGridRef.current.getBoundingClientRect();
+    const gridCenterX = gridRect.left + gridRect.width / 2;
+    const gridCenterY = gridRect.top + gridRect.height / 2;
+
+    const offsets = cards.map((card) => {
+      const rect = card.getBoundingClientRect();
+      const cardCenterX = rect.left + rect.width / 2;
+      const cardCenterY = rect.top + rect.height / 2;
+      return {
+        dx: gridCenterX - cardCenterX,
+        dy: gridCenterY - cardCenterY
+      };
+    });
 
     const tl = gsap.timeline();
 
-    // 1. Lift & scatter cards outward across each other
+    // Phase 1: All cards lift and gather into a single deck stack in the dead center
     tl.to(cards, {
-      scale: 0.92,
-      y: (i) => (i % 2 === 0 ? -40 : 40),
-      x: (i) => (i % 2 === 0 ? 55 : -55),
-      rotationZ: (i) => (i % 2 === 0 ? 12 : -12),
-      duration: 0.22,
+      x: (i) => offsets[i].dx,
+      y: (i) => offsets[i].dy,
+      rotationZ: (i) => (i - cards.length / 2) * 3,
+      scale: 0.95,
+      duration: 0.38,
       ease: 'power2.inOut',
-      stagger: 0.02
+      stagger: 0.02,
+      onStart: () => playWhoosh()
     })
-    // 2. Mid-air casino exchange
+
+    // Phase 2: Deck cuts in two halves (Corte de mazo)
     .to(cards, {
-      x: () => (Math.random() - 0.5) * 180,
-      y: () => (Math.random() - 0.5) * 80,
-      rotationZ: () => (Math.random() - 0.5) * 22,
-      scale: 0.86,
-      opacity: 0.75,
-      duration: 0.26,
-      ease: 'power1.inOut'
+      x: (i) => offsets[i].dx + (i % 2 === 0 ? -85 : 85),
+      rotationZ: (i) => (i % 2 === 0 ? -12 : 12),
+      duration: 0.22,
+      ease: 'power2.out'
     })
-    // 3. Actually permute the deck array in React state
+
+    // Phase 3: The two halves crossover and weave into each other (Entrevero / Chocolateo)
+    .to(cards, {
+      x: (i) => offsets[i].dx + (i % 2 === 0 ? 75 : -75),
+      rotationZ: (i) => (i % 2 === 0 ? 12 : -12),
+      duration: 0.24,
+      ease: 'power1.inOut',
+      onStart: () => playShuffleSound()
+    })
+
+    // Phase 4: Slam back into single stack
+    .to(cards, {
+      x: (i) => offsets[i].dx,
+      y: (i) => offsets[i].dy,
+      rotationZ: 0,
+      scale: 0.98,
+      duration: 0.18,
+      ease: 'power2.in'
+    })
+
+    // Phase 5: Genuinely permute the deck order in React state
     .add(() => {
       setDeck((prevDeck) => {
         const next = [...prevDeck];
@@ -120,16 +156,16 @@ export default function Roulette({
       });
       playWhoosh();
     })
-    // 4. Slam back into the new layout with spring
+
+    // Phase 6: Deal out from center stack to the new grid positions with elastic bounce
     .to(cards, {
       x: 0,
       y: 0,
       rotationZ: 0,
       scale: 1,
-      opacity: 1,
-      duration: 0.32,
-      ease: 'back.out(1.5)',
-      stagger: 0.04,
+      duration: 0.36,
+      ease: 'back.out(1.3)',
+      stagger: 0.06,
       onComplete: () => {
         setIsChocolateando(false);
         gsap.set(cards, { clearProps: 'all' });
@@ -230,6 +266,7 @@ export default function Roulette({
   };
 
   const probability = deck.length > 0 ? Math.round(100 / deck.length) : 0;
+  const currentSelectedCard = selectedCardId !== null ? deck[selectedCardId] : null;
 
   return (
     <div
@@ -333,7 +370,7 @@ export default function Roulette({
               disabled={isChocolateando || isRevealing}
               className={`px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all flex items-center gap-2 shadow-sm cursor-pointer ${
                 isChocolateando
-                  ? 'bg-primary text-black border border-primary scale-105'
+                  ? 'bg-primary text-black border border-primary scale-105 shadow-md'
                   : 'bg-surface-container-high hover:bg-surface-container border border-outline-subtle hover:border-primary text-white'
               }`}
               id="shuffleBtn"
@@ -342,7 +379,7 @@ export default function Roulette({
               <span className={`material-symbols-outlined text-[18px] text-primary transition-transform duration-500 ${isChocolateando ? 'rotate-180 animate-spin text-black' : ''}`}>
                 shuffle
               </span>
-              <span>{isChocolateando ? 'Barajando Sobres...' : 'Barajar Oponentes'}</span>
+              <span>{isChocolateando ? 'Entreverando Mazo...' : 'Barajar Oponentes'}</span>
             </button>
             <button
               onClick={onCancel}
@@ -385,14 +422,15 @@ export default function Roulette({
         </div>
       </div>
 
-      {/* Sleek Minimal Mystery Cards Grid (Google Stitch) */}
+      {/* Sleek Minimal Mystery Cards Grid (Google Stitch with Live Shuffle Transform) */}
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+        ref={cardsGridRef}
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 relative"
         id="cardsGrid"
       >
         {deck.map((c, idx) => {
           const isSelected = selectedCardId === idx;
-          const slotNum = String(idx + 1).padStart(2, '0');
+          const slotPosition = String(idx + 1).padStart(2, '0');
 
           return (
             <div
@@ -401,10 +439,10 @@ export default function Roulette({
               onClick={() => handleSelectCard(idx)}
               className={`mystery-card group relative bg-gradient-to-b from-[#17181d] to-[#0f1013] hover:from-[#1d1f26] hover:to-[#14151a] border rounded-xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[350px] shadow-lg hover:shadow-red-500/10 hover:-translate-y-1 ${
                 isSelected
-                  ? 'border-primary bg-surface-container-low shadow-[0_0_20px_rgba(254,207,82,0.3)] opacity-100 scale-[1.02]'
+                  ? 'border-primary bg-surface-container-low shadow-[0_0_20px_rgba(254,207,82,0.3)] opacity-100 scale-[1.02] z-20'
                   : selectedCardId !== null
-                  ? 'border-outline-dim opacity-50'
-                  : 'border-outline-dim hover:border-red-500/60 opacity-100'
+                  ? 'border-outline-dim opacity-50 z-10'
+                  : 'border-outline-dim hover:border-red-500/60 opacity-100 z-10'
               }`}
             >
               <div
@@ -416,25 +454,27 @@ export default function Roulette({
               ></div>
 
               <div>
+                {/* Header: SOBRE #XX (Unique Envelope Number that physically moves with shuffle) */}
                 <div className="flex items-center justify-between pb-4 border-b border-outline-dim/70">
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                     <span className="text-[10px] font-mono tracking-widest text-red-400 font-bold uppercase">
-                      ESQUINA ROJA
+                      SOBRE #{c.envelopeNumber}
                     </span>
                   </div>
                   <span
-                    className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded border ${
+                    className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${
                       isSelected
                         ? 'text-primary border-primary bg-primary/10'
                         : 'text-outline-subtle group-hover:text-red-400 bg-surface-container border-outline-dim'
                     } transition-colors`}
                   >
-                    #{slotNum}
+                    POS #{slotPosition}
                   </span>
                 </div>
 
-                <div className="py-8 flex flex-col items-center justify-center text-center relative">
+                {/* Card Center: Envelope Seal and Icon */}
+                <div className="py-7 flex flex-col items-center justify-center text-center relative">
                   <div
                     className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center mb-3 transition-all shadow-inner ${
                       isSelected
@@ -454,17 +494,20 @@ export default function Roulette({
                   </div>
 
                   <span className="text-[10px] font-mono tracking-widest uppercase text-red-400/90 font-bold">
-                    SOBRE OFICIAL UFC
+                    SOBRE #{c.envelopeNumber} • UFC
                   </span>
                   <span className="text-sm font-display font-bold tracking-wider text-white uppercase mt-0.5">
                     Rival Sellado
                   </span>
-                  <span className="text-[10px] text-on-surface-variant mt-1.5 font-mono px-2 py-0.5 rounded bg-black/40 border border-outline-dim">
-                    CONFIDENCIAL
-                  </span>
+                  <div className="mt-1.5 flex items-center gap-1">
+                    <span className="text-[9px] text-primary font-mono px-2 py-0.5 rounded bg-black/50 border border-outline-dim">
+                      {c.sealCode}
+                    </span>
+                  </div>
                 </div>
               </div>
 
+              {/* Bottom Action Button */}
               <div className="w-full">
                 <button
                   type="button"
@@ -489,7 +532,7 @@ export default function Roulette({
       </div>
 
       {/* Revealed Fighter Section (Google Stitch Reveal Confirmation Bar) */}
-      {selectedCardId !== null && (
+      {selectedCardId !== null && currentSelectedCard && (
         <div
           className="mt-8 bg-surface-dim border border-outline-subtle rounded-xl p-6 transition-all duration-300 shadow-2xl"
           id="revealModal"
@@ -511,16 +554,16 @@ export default function Roulette({
                     Sobre Seleccionado
                   </span>
                   <span className="text-outline-subtle text-xs">•</span>
-                  <span className="text-[10px] font-mono text-on-surface-variant uppercase font-bold" id="revealedSlot">
-                    SOBRE #{String(selectedCardId + 1).padStart(2, '0')}
+                  <span className="text-[10px] font-mono text-primary uppercase font-bold" id="revealedSlot">
+                    SOBRE #{currentSelectedCard.envelopeNumber} ({currentSelectedCard.sealCode})
                   </span>
                 </div>
                 <h2 className="font-display text-xl font-semibold tracking-tight text-on-surface uppercase" id="revealedName">
-                  Rival Listo para Destapar
+                  Rival Listo en Sobre #{currentSelectedCard.envelopeNumber}
                 </h2>
                 <div className="flex items-center gap-4 mt-1 text-xs text-on-surface-variant font-mono">
-                  <span>Récord: <strong className="text-on-surface font-medium" id="revealedRecord">OFICIAL UFC</strong></span>
-                  <span>Categoría: <span className="text-on-surface" id="revealedWeight">WÉLTER 77.1 KG</span></span>
+                  <span>Posición en Mesa: <strong className="text-on-surface font-medium">#{String(selectedCardId + 1).padStart(2, '0')}</strong></span>
+                  <span>Categoría: <span className="text-on-surface">WÉLTER 77.1 KG</span></span>
                 </div>
               </div>
             </div>
