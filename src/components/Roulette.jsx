@@ -76,7 +76,7 @@ export default function Roulette({
     );
   }, []);
 
-  // REAL DECK CHOCOLATEO & SHUFFLE
+  // REAL DECK CHOCOLATEO & SHUFFLE (High-Performance GPU Animation)
   const handleChocolatear = () => {
     if (isChocolateando || isRevealing || showFightAnimation) return;
     if (!cardsGridRef.current) return;
@@ -88,7 +88,7 @@ export default function Roulette({
     setSelectedCardId(null);
     playShuffleSound();
 
-    // 1. Calculate center of the grid to stack cards in the middle like a casino deck
+    // Calculate center of the grid to stack cards in the middle like a casino deck
     const gridRect = cardsGridRef.current.getBoundingClientRect();
     const gridCenterX = gridRect.left + gridRect.width / 2;
     const gridCenterY = gridRect.top + gridRect.height / 2;
@@ -105,46 +105,42 @@ export default function Roulette({
 
     const tl = gsap.timeline();
 
-    // Phase 1: All cards lift and gather into a single deck stack in the dead center
+    // Phase 1: All cards swiftly gather into a single deck stack in the center
     tl.to(cards, {
       x: (i) => offsets[i].dx,
       y: (i) => offsets[i].dy,
-      rotationZ: (i) => (i - cards.length / 2) * 3,
+      rotationZ: (i) => (i - cards.length / 2) * 2.5,
       scale: 0.95,
-      duration: 0.38,
-      ease: 'power2.inOut',
-      stagger: 0.02,
+      duration: 0.22,
+      ease: 'power2.out',
+      stagger: 0.015,
       onStart: () => playWhoosh()
     })
 
-    // Phase 2: Deck cuts in two halves (Corte de mazo)
+    // Phase 2: Rapid deck cut & weave (Entrevero)
     .to(cards, {
-      x: (i) => offsets[i].dx + (i % 2 === 0 ? -85 : 85),
-      rotationZ: (i) => (i % 2 === 0 ? -12 : 12),
-      duration: 0.22,
-      ease: 'power2.out'
+      x: (i) => offsets[i].dx + (i % 2 === 0 ? -65 : 65),
+      rotationZ: (i) => (i % 2 === 0 ? -10 : 10),
+      duration: 0.15,
+      ease: 'power2.inOut'
     })
-
-    // Phase 3: The two halves crossover and weave into each other (Entrevero / Chocolateo)
     .to(cards, {
-      x: (i) => offsets[i].dx + (i % 2 === 0 ? 75 : -75),
-      rotationZ: (i) => (i % 2 === 0 ? 12 : -12),
-      duration: 0.24,
+      x: (i) => offsets[i].dx + (i % 2 === 0 ? 65 : -65),
+      rotationZ: (i) => (i % 2 === 0 ? 10 : -10),
+      duration: 0.16,
       ease: 'power1.inOut',
       onStart: () => playShuffleSound()
     })
-
-    // Phase 4: Slam back into single stack
     .to(cards, {
       x: (i) => offsets[i].dx,
       y: (i) => offsets[i].dy,
       rotationZ: 0,
       scale: 0.98,
-      duration: 0.18,
+      duration: 0.12,
       ease: 'power2.in'
     })
 
-    // Phase 5: Genuinely permute the deck order in React state
+    // Phase 3: Permute the deck in React state
     .add(() => {
       setDeck((prevDeck) => {
         const next = [...prevDeck];
@@ -157,18 +153,18 @@ export default function Roulette({
       playWhoosh();
     })
 
-    // Phase 6: Deal out from center stack to the new grid positions with elastic bounce
+    // Phase 4: Fast, snappy deal out into new slots
     .to(cards, {
       x: 0,
       y: 0,
       rotationZ: 0,
       scale: 1,
-      duration: 0.36,
-      ease: 'back.out(1.3)',
-      stagger: 0.06,
+      duration: 0.24,
+      ease: 'power2.out',
+      stagger: 0.03,
       onComplete: () => {
         setIsChocolateando(false);
-        gsap.set(cards, { clearProps: 'all' });
+        gsap.set(cards, { clearProps: 'transform' });
       }
     });
   };
@@ -210,50 +206,52 @@ export default function Roulette({
 
         const flipTl = gsap.timeline();
 
+        // 1. Hand swoops in swiftly (0.2s)
         flipTl.set(hand, {
           display: 'block',
-          x: targetX + 160,
-          y: targetY - 180,
-          scale: 1.15,
+          x: targetX + 130,
+          y: targetY - 140,
+          scale: 1.1,
           opacity: 0,
-          rotation: -25
+          rotation: -20
         });
 
         flipTl.to(hand, {
-          x: targetX + 30,
-          y: targetY - 15,
-          rotation: -5,
+          x: targetX + 25,
+          y: targetY - 10,
+          rotation: -4,
           scale: 1,
           opacity: 1,
-          duration: 0.38,
+          duration: 0.22,
           ease: 'power2.out'
         });
 
+        // 2. Pinch and lift card (0.16s)
         flipTl.to([hand, targetCard], {
           y: '-=15',
-          scale: 1.05,
-          duration: 0.18,
+          scale: 1.04,
+          duration: 0.16,
           ease: 'power1.inOut',
           onStart: () => playCardFlipSound()
         });
 
+        // 3. Hand sweeps away cleanly (0.18s)
         flipTl.to(
           hand,
           {
-            x: targetX + 220,
-            y: targetY - 220,
+            x: targetX + 180,
+            y: targetY - 180,
             opacity: 0,
-            duration: 0.35,
+            duration: 0.18,
             ease: 'power2.in'
           },
-          '+=0.1'
+          '+=0.05'
         );
 
+        // 4. Instantly launch fight animation without artificial lag
         flipTl.add(() => {
           setIsRevealing(false);
-          setTimeout(() => {
-            setShowFightAnimation(true);
-          }, 350);
+          setShowFightAnimation(true);
         });
       } else {
         setIsRevealing(false);
@@ -437,7 +435,7 @@ export default function Roulette({
               key={c.uid}
               ref={(el) => (cardsRef.current[idx] = el)}
               onClick={() => handleSelectCard(idx)}
-              className={`mystery-card group relative bg-gradient-to-b from-[#17181d] to-[#0f1013] hover:from-[#1d1f26] hover:to-[#14151a] border rounded-xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[350px] shadow-lg hover:shadow-red-500/10 hover:-translate-y-1 ${
+              className={`mystery-card group relative bg-gradient-to-b from-[#17181d] to-[#0f1013] hover:from-[#1d1f26] hover:to-[#14151a] border rounded-xl p-5 cursor-pointer flex flex-col justify-between min-h-[350px] shadow-lg hover:shadow-red-500/10 transition-[border-color,background-color,box-shadow,opacity] duration-150 transform-gpu will-change-transform ${
                 isSelected
                   ? 'border-primary bg-surface-container-low shadow-[0_0_20px_rgba(254,207,82,0.3)] opacity-100 scale-[1.02] z-20'
                   : selectedCardId !== null

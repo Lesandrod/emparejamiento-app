@@ -206,25 +206,26 @@ class BoxingAudioEngine {
     } catch {}
   }
 
-  // Rapid Casino Deck Riffle / Chocolateo Shuffle
+  // Rapid Casino Deck Riffle / Chocolateo Shuffle (Optimized & Zero Lag)
   playDeckShuffle() {
     try {
       this.init();
       if (!this.ctx) return;
       const t = this.ctx.currentTime;
-      for (let i = 0; i < 16; i++) {
-        const time = t + i * 0.04;
+      // 8 lightweight crisp card ticks instead of 16 heavy nodes
+      for (let i = 0; i < 8; i++) {
+        const time = t + i * 0.035;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = i % 2 === 0 ? 'triangle' : 'sine';
-        osc.frequency.setValueAtTime(320 + Math.random() * 350, time);
-        osc.frequency.exponentialRampToValueAtTime(90, time + 0.038);
-        gain.gain.setValueAtTime(0.14, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.038);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320 + Math.random() * 260, time);
+        osc.frequency.exponentialRampToValueAtTime(100, time + 0.025);
+        gain.gain.setValueAtTime(0.1, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.025);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(time);
-        osc.stop(time + 0.04);
+        osc.stop(time + 0.03);
       }
     } catch {}
   }

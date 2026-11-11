@@ -22,6 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
+      suppressHydrationWarning
       className={`h-full ${spaceGrotesk.variable} ${inter.variable}`}
     >
       <head>
@@ -32,7 +33,10 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         />
       </head>
-      <body className="min-h-full bg-[#090a0d] text-[#f1f1f4] font-sans flex flex-col antialiased selection:bg-[#d4af37] selection:text-black">
+      <body
+        suppressHydrationWarning
+        className="min-h-full bg-[#090a0d] text-[#f1f1f4] font-sans flex flex-col antialiased selection:bg-[#d4af37] selection:text-black"
+      >
         {children}
       </body>
     </html>
