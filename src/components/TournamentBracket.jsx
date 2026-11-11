@@ -392,7 +392,7 @@ export default function TournamentBracket({
           {/* LEFT WING: FLOWS FROM LEFT TO RIGHT TOWARD CENTER        */}
           {/* ======================================================== */}
           <div className="flex-1 flex items-stretch gap-6 sm:gap-8 justify-start">
-            {leftWingRounds.map((round) => (
+            {leftWingRounds.filter((r) => r.matches.length > 0).map((round) => (
               <div
                 key={`left_round_${round.roundNumber}`}
                 className="flex-1 flex flex-col justify-around min-w-[230px] max-w-[280px]"
@@ -465,7 +465,7 @@ export default function TournamentBracket({
           {/* RIGHT WING: FLOWS FROM RIGHT TO LEFT TOWARD CENTER       */}
           {/* ======================================================== */}
           <div className="flex-1 flex items-stretch gap-6 sm:gap-8 justify-end">
-            {[...rightWingRounds].reverse().map((round) => (
+            {[...rightWingRounds].filter((r) => r.matches.length > 0).reverse().map((round) => (
               <div
                 key={`right_round_${round.roundNumber}`}
                 className="flex-1 flex flex-col justify-around min-w-[230px] max-w-[280px]"
