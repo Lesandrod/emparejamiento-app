@@ -527,3 +527,220 @@ export async function setPairingPreference(giverId, receiverId) {
   }
   return { success: true };
 }
+
+// -------------------------------------------------------------
+// TOURNAMENT FIXTURE BRACKET SYSTEM
+// -------------------------------------------------------------
+const BRACKET_DOC = 'tournament_bracket';
+
+export async function getTournamentBracket() {
+  if (isFirebaseConfigured && db) {
+    try {
+      const snap = await getDoc(doc(db, CONFIG_COL, BRACKET_DOC));
+      if (snap.exists()) {
+        return snap.data();
+      }
+    } catch (e) {
+      console.warn('Error fetching bracket from Firestore:', e.message);
+    }
+  }
+
+  const local = readLocalStore();
+  return local.tournamentBracket || null;
+}
+
+export async function generateTournamentBracket() {
+  const { participants } = await getPairingData();
+  if (!participants || participants.length < 2) {
+    throw new Error('Se necesitan al menos 2 peleadores registrados para sortear el torneo.');
+  }
+
+  // Shuffle participants randomly
+  const pool = [...participants];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+
+  // Determine bracket size: 4, 8, 16
+  const count = pool.length;
+  let bracketSize = 4;
+  if (count > 8) bracketSize = 16;
+  else if (count > 4) bracketSize = 8;
+  else bracketSize = 4;
+
+  const totalRounds = Math.log2(bracketSize);
+
+  const roundTitles = {
+    4: ['Semifinales', 'Gran Final'],
+    8: ['Cuartos de Final', 'Semifinales', 'Gran Final'],
+    16: ['Octavos de Final', 'Cuartos de Final', 'Semifinales', 'Gran Final']
+  }[bracketSize] || ['Ronda 1', 'Ronda 2', 'Gran Final'];
+
+  const rounds = [];
+  let currentMatchCount = bracketSize / 2;
+
+  // Build rounds
+  for (let r = 1; r <= totalRounds; r++) {
+    const roundMatches = [];
+    const isFirstRound = r === 1;
+    const isFinalRound = r === totalRounds;
+
+    for (let m = 0; m < currentMatchCount; m++) {
+      const matchId = `m_${r}_${m}`;
+      const nextMatchId = isFinalRound ? null : `m_${r + 1}_${Math.floor(m / 2)}`;
+      const nextSlot = isFinalRound ? null : (m % 2 === 0 ? 1 : 2);
+
+      let fighter1 = null;
+      let fighter2 = null;
+
+      if (isFirstRound) {
+        const idx1 = m * 2;
+        const idx2 = m * 2 + 1;
+        if (pool[idx1]) {
+          fighter1 = {
+            id: pool[idx1].id,
+            name: pool[idx1].name,
+            alias: pool[idx1].alias || '',
+            photoUrl: pool[idx1].photoUrl || null
+          };
+        }
+        if (pool[idx2]) {
+          fighter2 = {
+            id: pool[idx2].id,
+            name: pool[idx2].name,
+            alias: pool[idx2].alias || '',
+            photoUrl: pool[idx2].photoUrl || null
+          };
+        }
+      }
+
+      roundMatches.push({
+        id: matchId,
+        matchNumber: roundMatches.length + 1,
+        round: r,
+        roundTitle: roundTitles[r - 1],
+        fighter1,
+        fighter2,
+        winner: null,
+        nextMatchId,
+        nextSlot
+      });
+    }
+
+    rounds.push({
+      roundNumber: r,
+      title: roundTitles[r - 1],
+      matches: roundMatches
+    });
+
+    currentMatchCount = currentMatchCount / 2;
+  }
+
+  const bracketData = {
+    id: `bracket_${Date.now()}`,
+    createdAt: Date.now(),
+    bracketSize,
+    totalRounds,
+    champion: null,
+    rounds
+  };
+
+  // Persist
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, CONFIG_COL, BRACKET_DOC), bracketData);
+    } catch (e) {
+      console.warn('Error saving bracket to Firestore:', e.message);
+    }
+  }
+
+  const local = readLocalStore();
+  local.tournamentBracket = bracketData;
+  writeLocalStore(local);
+
+  return bracketData;
+}
+
+export async function advanceTournamentWinner(matchId, winnerId) {
+  const bracket = await getTournamentBracket();
+  if (!bracket || !bracket.rounds) throw new Error('No existe un torneo activo.');
+
+  let targetMatch = null;
+  let targetRoundIdx = -1;
+
+  for (let rIdx = 0; rIdx < bracket.rounds.length; rIdx++) {
+    const found = bracket.rounds[rIdx].matches.find((m) => m.id === matchId);
+    if (found) {
+      targetMatch = found;
+      targetRoundIdx = rIdx;
+      break;
+    }
+  }
+
+  if (!targetMatch) throw new Error('Combate no encontrado en el árbol.');
+
+  let winningFighter = null;
+  if (targetMatch.fighter1 && targetMatch.fighter1.id === winnerId) {
+    winningFighter = targetMatch.fighter1;
+  } else if (targetMatch.fighter2 && targetMatch.fighter2.id === winnerId) {
+    winningFighter = targetMatch.fighter2;
+  }
+
+  if (!winningFighter) throw new Error('El peleador seleccionado no pertenece a este combate.');
+
+  targetMatch.winner = winningFighter;
+
+  // Advance to next match if not final
+  if (targetMatch.nextMatchId && targetRoundIdx + 1 < bracket.rounds.length) {
+    const nextRound = bracket.rounds[targetRoundIdx + 1];
+    const nextMatch = nextRound.matches.find((m) => m.id === targetMatch.nextMatchId);
+
+    if (nextMatch) {
+      if (targetMatch.nextSlot === 1) {
+        nextMatch.fighter1 = winningFighter;
+      } else {
+        nextMatch.fighter2 = winningFighter;
+      }
+      if (nextMatch.winner && nextMatch.winner.id === (targetMatch.nextSlot === 1 ? nextMatch.fighter1?.id : nextMatch.fighter2?.id)) {
+        // keep
+      } else {
+        nextMatch.winner = null;
+      }
+    }
+  } else {
+    // Grand Final Match! Crown Champion
+    bracket.champion = winningFighter;
+  }
+
+  // Persist
+  if (isFirebaseConfigured && db) {
+    try {
+      await setDoc(doc(db, CONFIG_COL, BRACKET_DOC), bracket);
+    } catch (e) {
+      console.warn('Error updating bracket in Firestore:', e.message);
+    }
+  }
+
+  const local = readLocalStore();
+  local.tournamentBracket = bracket;
+  writeLocalStore(local);
+
+  return bracket;
+}
+
+export async function resetTournamentBracket() {
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, CONFIG_COL, BRACKET_DOC));
+    } catch (e) {
+      console.warn('Error deleting bracket from Firestore:', e.message);
+    }
+  }
+
+  const local = readLocalStore();
+  delete local.tournamentBracket;
+  writeLocalStore(local);
+
+  return { success: true };
+}
