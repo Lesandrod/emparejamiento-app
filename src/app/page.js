@@ -256,7 +256,6 @@ export default function Home() {
             <ParticipantSelector
               participants={participants}
               pairs={pairs}
-              onSelectParticipant={() => {}}
               onOpenAdmin={() => setIsAdminOpen(true)}
               onRefreshParticipants={fetchPairingData}
             />

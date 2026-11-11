@@ -6,22 +6,13 @@ import ImageCropperModal from './ImageCropperModal';
 export default function ParticipantSelector({
   participants = [],
   pairs = [],
-  onSelectParticipant,
   onOpenAdmin,
   onRefreshParticipants
 }) {
-  const [selectedId, setSelectedId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [cropImageSrc, setCropImageSrc] = useState(null);
   const [cropParticipant, setCropParticipant] = useState(null);
   const [isUpdatingPhoto, setIsUpdatingPhoto] = useState(false);
-
-  // Unpaired participants
-  const unpairedList = participants.filter((p) => !p.revealed);
-  
-  // Default selection if none selected yet
-  const activeSelectedId = selectedId || (unpairedList.length > 0 ? unpairedList[0].id : '');
-  const selectedUser = unpairedList.find((p) => p.id === activeSelectedId);
 
   // Carousel Index for confirmed bouts ONLY
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -34,8 +25,9 @@ export default function ParticipantSelector({
   }, [pairs.length, carouselIndex]);
 
   // Filtered roster
-  const filteredRoster = unpairedList.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRoster = participants.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.alias && p.alias.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handlePrevSlide = () => {
@@ -46,12 +38,6 @@ export default function ParticipantSelector({
   const handleNextSlide = () => {
     if (pairs.length === 0) return;
     setCarouselIndex((prev) => (prev < pairs.length - 1 ? prev + 1 : 0));
-  };
-
-  const handleStartDraw = () => {
-    if (selectedUser) {
-      onSelectParticipant(selectedUser);
-    }
   };
 
   const handleSelectFile = (participant, file) => {
@@ -293,60 +279,6 @@ export default function ParticipantSelector({
       )}
 
       {/* ======================================================== */}
-      {/* ACTIVE FIGHTER SELECTION BAR                            */}
-      {/* ======================================================== */}
-      {selectedUser && (
-        <div className="bg-surface-dim border border-outline-dim rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container border-2 border-blue-500 flex-shrink-0 shadow-md">
-              {selectedUser.photoUrl ? (
-                <img
-                  src={selectedUser.photoUrl}
-                  alt={selectedUser.name}
-                  className="w-full h-full object-cover contrast-125 rounded-full"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center font-display font-black text-blue-400 text-lg uppercase bg-blue-950/40 rounded-full">
-                  {selectedUser.name.substring(0, 2).toUpperCase()}
-                </div>
-              )}
-            </div>
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-blue-400 uppercase font-bold tracking-wider">
-                  Peleador Seleccionado • Esquina Azul
-                </span>
-                <span className="w-2 h-2 rounded-full bg-blue-400" />
-              </div>
-              <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-xl sm:text-2xl font-display font-black text-white uppercase truncate">
-                  {selectedUser.name}
-                </span>
-                {selectedUser.alias && (
-                  <span className="text-xs sm:text-sm font-mono text-primary font-bold">
-                    "{selectedUser.alias}"
-                  </span>
-                )}
-              </div>
-              <div className="text-xs text-on-surface-variant font-mono">
-                Presiona "Confirmar y Sacar Carta" para descubrir su rival a ciegas en el octágono.
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={handleStartDraw}
-            className="w-full sm:w-auto px-7 py-3 rounded-lg bg-primary hover:bg-yellow-400 text-black text-xs font-bold tracking-wider uppercase transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[18px]">sports_mma</span>
-            <span>Confirmar y Sacar Carta</span>
-          </button>
-        </div>
-      )}
-
-      {/* ======================================================== */}
       {/* FULL WIDTH: PELEADORES DISPONIBLES (TARJETAS CUADRADAS)   */}
       {/* ======================================================== */}
       <section className="w-full bg-surface-dim border border-outline-dim rounded-xl p-5 sm:p-6 flex flex-col gap-4 shadow-lg">
@@ -356,14 +288,14 @@ export default function ParticipantSelector({
             <div className="w-1.5 h-4 bg-primary rounded-full"></div>
             <div>
               <h3 className="font-display font-bold text-base text-white tracking-wide uppercase">
-                Peleadores Disponibles
+                Peleadores Inscritos
               </h3>
               <p className="text-[11px] text-on-surface-variant">
-                Selecciona tu nombre para asignarte a la Esquina Azul
+                Roster oficial de contendientes del Torneo del Poder
               </p>
             </div>
             <span className="px-2.5 py-0.5 rounded bg-surface-container border border-outline-dim text-primary text-xs font-bold font-mono ml-1">
-              {unpairedList.length} en Espera
+              {participants.length} Peleadores
             </span>
           </div>
 
@@ -393,7 +325,7 @@ export default function ParticipantSelector({
           </div>
         </div>
 
-        {/* FULL WIDTH GRID: SQUARES (ESTILO AMIGO SECRETO) */}
+        {/* FULL WIDTH GRID: ROSTER DE CONTENDIENTES */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 max-h-[520px] overflow-y-auto p-1.5">
           {filteredRoster.length === 0 ? (
             <div className="col-span-full py-12 text-center text-xs text-on-surface-variant font-mono">
@@ -401,50 +333,32 @@ export default function ParticipantSelector({
             </div>
           ) : (
             filteredRoster.map((p) => {
-              const isSelected = p.id === activeSelectedId;
-
               return (
                 <div
                   key={p.id}
-                  onClick={() => setSelectedId(p.id)}
-                  className={`relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all cursor-pointer min-h-[155px] group ${
-                    isSelected
-                      ? 'bg-surface-container border-2 border-primary shadow-[0_0_15px_rgba(254,207,82,0.18)]'
-                      : 'bg-surface-container-low border border-outline-dim hover:border-outline-subtle hover:bg-surface-container'
-                  }`}
+                  className="relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all min-h-[160px] group bg-surface-container-low border border-outline-dim hover:border-primary/50 hover:bg-surface-container shadow-sm"
                 >
-                  {/* Selection Indicator */}
-                  {isSelected && (
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface-container shadow-sm" />
-                  )}
-
                   {/* Fighter Avatar & Photo Icon (Round frame) */}
                   <div className="relative my-1">
                     {p.photoUrl ? (
                       <img
                         src={p.photoUrl}
                         alt={p.name}
-                        className="w-14 h-14 rounded-full object-cover border border-outline-subtle flex-shrink-0 shadow-sm"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-primary/40 flex-shrink-0 shadow-md"
                       />
                     ) : (
-                      <div
-                        className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-display font-black uppercase ${
-                          isSelected
-                            ? 'bg-primary/10 text-primary border border-primary/30'
-                            : 'bg-surface-container-high border border-outline-dim text-on-surface'
-                        }`}
-                      >
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center text-base font-display font-black uppercase bg-surface-container-high border-2 border-outline-dim text-primary group-hover:border-primary/60 shadow-md">
                         {p.name.substring(0, 2).toUpperCase()}
                       </div>
                     )}
 
                     {/* Camera Upload Button */}
                     <label
-                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-container-highest border border-outline-subtle hover:border-primary flex items-center justify-center text-outline-subtle hover:text-white transition-colors cursor-pointer shadow"
+                      className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-surface-container-highest border border-outline-subtle hover:border-primary flex items-center justify-center text-outline-subtle hover:text-white transition-colors cursor-pointer shadow-md"
                       title="Subir foto de peleador"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <span className="material-symbols-outlined text-[11px]">photo_camera</span>
+                      <span className="material-symbols-outlined text-[12px]">photo_camera</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -459,34 +373,24 @@ export default function ParticipantSelector({
 
                   {/* Fighter Name & Alias */}
                   <div className="w-full mt-1 min-w-0">
-                    <h4
-                      className={`text-xs font-bold uppercase truncate w-full ${
-                        isSelected ? 'text-white font-extrabold' : 'text-on-surface group-hover:text-primary'
-                      } transition-colors`}
-                    >
+                    <h4 className="text-xs font-bold uppercase truncate w-full text-white group-hover:text-primary transition-colors">
                       {p.name}
                     </h4>
                     {p.alias ? (
-                      <span className="text-[10px] font-mono text-primary truncate block font-semibold leading-tight mt-0.5">
+                      <span className="text-[10px] font-mono text-primary truncate block font-bold leading-tight mt-0.5">
                         "{p.alias}"
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono text-transparent block leading-tight select-none mt-0.5">
-                        -
+                      <span className="text-[10px] font-mono text-outline-subtle block leading-tight mt-0.5">
+                        Contendiente
                       </span>
                     )}
                   </div>
 
                   {/* Status Badge */}
                   <div className="mt-2 w-full">
-                    <span
-                      className={`inline-flex items-center justify-center gap-1 w-full py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider font-bold transition-colors ${
-                        isSelected
-                          ? 'bg-primary text-black shadow-sm'
-                          : 'bg-surface-container border border-outline-dim text-on-surface-variant group-hover:border-outline-subtle group-hover:text-white'
-                      }`}
-                    >
-                      {isSelected ? '✓ ELEGIDO' : 'DISPONIBLE'}
+                    <span className="inline-flex items-center justify-center gap-1 w-full py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider font-bold bg-surface-container border border-outline-dim text-on-surface-variant group-hover:border-primary/40 group-hover:text-primary transition-colors">
+                      INSCRITO
                     </span>
                   </div>
                 </div>
@@ -545,7 +449,7 @@ export default function ParticipantSelector({
               Aún no hay combates programados en la cartelera
             </p>
             <p className="text-[11px] text-outline-subtle max-w-sm mx-auto font-mono">
-              Selecciona a tu peleador en las tarjetas cuadradas y dale a "Confirmar y Sacar Carta" para pactar la primera pelea.
+              Presiona "Sortear Torneo del Poder" en la parte superior para armar el fixture oficial de combates.
             </p>
           </div>
         ) : (
