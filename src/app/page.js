@@ -5,6 +5,7 @@ import ParticipantSelector from '@/components/ParticipantSelector';
 import TournamentBracket from '@/components/TournamentBracket';
 import RockyCinematicIntro from '@/components/RockyCinematicIntro';
 import AdminModal from '@/components/AdminModal';
+import PinPromptModal from '@/components/PinPromptModal';
 import { playShuffleSound, playBoxingBell } from '@/utils/audio';
 
 export default function Home() {
@@ -15,6 +16,15 @@ export default function Home() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isDrawingTournament, setIsDrawingTournament] = useState(false);
+
+  // PIN Prompt Modal State
+  const [pinModal, setPinModal] = useState({
+    isOpen: false,
+    title: '',
+    description: '',
+    actionLabel: '',
+    onConfirm: null
+  });
 
   const fetchPairingData = async () => {
     try {
@@ -29,45 +39,77 @@ export default function Home() {
     }
   };
 
-  const fetchTournamentData = async () => {
+  const fetchTournamentDataSilently = async () => {
     try {
       const res = await fetch('/api/tournament');
       const data = await res.json();
-      if (data.bracket) {
+      if (data.bracket && data.bracket.rounds?.length > 0) {
         setTournamentBracket(data.bracket);
       } else {
         setTournamentBracket(null);
       }
     } catch (e) {
-      console.error('Error al cargar fixture:', e);
-    } finally {
-      setLoading(false);
+      console.error('Error al actualizar fixture:', e);
     }
   };
 
   useEffect(() => {
     const init = async () => {
       await fetchPairingData();
-      await fetchTournamentData();
+      try {
+        const res = await fetch('/api/tournament');
+        const data = await res.json();
+        if (data.bracket && data.bracket.rounds?.length > 0) {
+          setTournamentBracket(data.bracket);
+          // Si ya hay árbol y entran/recargan, mostrar la animación cinemática primero
+          setViewMode('cinematic');
+        } else {
+          setTournamentBracket(null);
+          setViewMode('roster');
+        }
+      } catch (e) {
+        console.error('Error al cargar fixture:', e);
+        setViewMode('roster');
+      } finally {
+        setLoading(false);
+      }
     };
     init();
 
-    // Auto-refresh every 6 seconds for live scoreboard
+    // Auto-refresh every 6 seconds for live scoreboard without changing viewMode
     const interval = setInterval(() => {
       fetchPairingData();
-      fetchTournamentData();
+      fetchTournamentDataSilently();
     }, 6000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Main Action: Instant Random Draw + Rocky Cinematic + Fixture Tree
-  const handleStartTournamentDraw = async () => {
+  // Action: Launch Cinematic then View Tree
+  const handleViewTree = () => {
+    setViewMode('cinematic');
+  };
+
+  // Trigger PIN Prompt to Sortear / Re-sortear
+  const handleRequestDraw = () => {
     if (participants.length < 2) {
       alert('Se necesitan al menos 2 peleadores registrados para sortear el torneo.');
       return;
     }
 
+    setPinModal({
+      isOpen: true,
+      title: tournamentBracket ? 'Re-sortear Torneo' : 'Sortear Torneo del Poder',
+      description: 'Ingresa la clave de organizador para generar un nuevo cruce de combates y actualizar el fixture.',
+      actionLabel: 'Sortear',
+      onConfirm: async (pin) => {
+        await executeTournamentDraw(pin);
+      }
+    });
+  };
+
+  // Main Action: Instant Random Draw + Rocky Cinematic + Fixture Tree (PIN-Protected)
+  const executeTournamentDraw = async (pin) => {
     setIsDrawingTournament(true);
     playShuffleSound();
     playBoxingBell(1);
@@ -76,7 +118,7 @@ export default function Home() {
       const res = await fetch('/api/tournament', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'draw' })
+        body: JSON.stringify({ action: 'draw', pin })
       });
       const data = await res.json();
       if (data.bracket) {
@@ -94,17 +136,32 @@ export default function Home() {
     }
   };
 
-  const handleResetTournamentBracket = async () => {
-    if (!window.confirm('¿Confirmas borrar el árbol del Torneo del Poder?')) return;
+  // Trigger PIN Prompt to Reset Tree
+  const handleRequestResetBracket = () => {
+    setPinModal({
+      isOpen: true,
+      title: 'Borrar Árbol del Torneo',
+      description: 'Ingresa la clave de organizador para BORRAR definitivamente el fixture actual.',
+      actionLabel: 'Borrar Árbol',
+      onConfirm: async (pin) => {
+        await executeResetTournamentBracket(pin);
+      }
+    });
+  };
+
+  const executeResetTournamentBracket = async (pin) => {
     try {
       const res = await fetch('/api/tournament', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reset' })
+        body: JSON.stringify({ action: 'reset', pin })
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         setTournamentBracket(null);
         setViewMode('roster');
+      } else if (data.error) {
+        alert(data.error);
       }
     } catch (e) {
       console.error('Error al borrar el árbol:', e);
@@ -155,7 +212,7 @@ export default function Home() {
             {tournamentBracket && (
               <button
                 type="button"
-                onClick={() => setViewMode('bracket')}
+                onClick={handleViewTree}
                 className={`px-3.5 py-2 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
                   viewMode === 'bracket'
                     ? 'text-white border-b-2 border-[#d4af37]'
@@ -211,9 +268,9 @@ export default function Home() {
         {viewMode === 'bracket' && (
           <TournamentBracket
             bracket={tournamentBracket}
-            onRefreshBracket={fetchTournamentData}
-            onReDraw={handleStartTournamentDraw}
-            onResetBracket={handleResetTournamentBracket}
+            onRefreshBracket={fetchTournamentDataSilently}
+            onReDraw={handleRequestDraw}
+            onResetBracket={handleRequestResetBracket}
             onBackToRoster={() => setViewMode('roster')}
             onOpenAdmin={() => setIsAdminOpen(true)}
           />
@@ -245,7 +302,7 @@ export default function Home() {
                 {tournamentBracket && (
                   <>
                     <button
-                      onClick={() => setViewMode('bracket')}
+                      onClick={handleViewTree}
                       type="button"
                       className="w-full sm:w-auto px-6 py-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary/60 text-primary hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
                     >
@@ -253,7 +310,7 @@ export default function Home() {
                       <span>Ver Árbol Fixture</span>
                     </button>
                     <button
-                      onClick={handleResetTournamentBracket}
+                      onClick={handleRequestResetBracket}
                       type="button"
                       className="w-full sm:w-auto px-5 py-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 text-red-300 hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
                       title="Borrar árbol del torneo"
@@ -265,7 +322,7 @@ export default function Home() {
                 )}
 
                 <button
-                  onClick={handleStartTournamentDraw}
+                  onClick={handleRequestDraw}
                   disabled={isDrawingTournament || participants.length < 2}
                   type="button"
                   className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary hover:bg-yellow-400 text-black font-display font-black text-sm uppercase tracking-widest transition-all shadow-[0_0_25px_rgba(254,207,82,0.4)] hover:shadow-[0_0_35px_rgba(254,207,82,0.6)] cursor-pointer flex items-center justify-center gap-2 flex-shrink-0"
@@ -322,11 +379,21 @@ export default function Home() {
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
         hasTournamentBracket={Boolean(tournamentBracket)}
-        onResetTournament={handleResetTournamentBracket}
+        onResetTournament={handleRequestResetBracket}
         onRefreshParticipants={async () => {
           await fetchPairingData();
-          await fetchTournamentData();
+          await fetchTournamentDataSilently();
         }}
+      />
+
+      {/* PIN Authorization Modal for Draw, Re-draw, and Reset */}
+      <PinPromptModal
+        isOpen={pinModal.isOpen}
+        title={pinModal.title}
+        description={pinModal.description}
+        actionLabel={pinModal.actionLabel}
+        onConfirm={pinModal.onConfirm}
+        onClose={() => setPinModal((prev) => ({ ...prev, isOpen: false }))}
       />
     </div>
   );

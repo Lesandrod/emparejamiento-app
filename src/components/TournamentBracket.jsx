@@ -93,33 +93,15 @@ export default function TournamentBracket({
     }
   };
 
-  const handleReDraw = async () => {
-    if (!window.confirm('¿Deseas re-sortear el Torneo del Poder? Se iniciará la cinemática de Rocky y se generará un nuevo fixture.')) {
-      return;
-    }
+  const handleReDraw = () => {
     if (onReDraw) {
-      await onReDraw();
-    } else if (onRefreshBracket) {
-      setIsResetting(true);
-      try {
-        const res = await fetch('/api/tournament', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'draw' })
-        });
-        if (res.ok) await onRefreshBracket();
-      } finally {
-        setIsResetting(false);
-      }
+      onReDraw();
     }
   };
 
-  const handleReset = async () => {
-    if (!window.confirm('¿Estás seguro de que deseas BORRAR el árbol del Torneo del Poder?')) {
-      return;
-    }
+  const handleReset = () => {
     if (onResetBracket) {
-      await onResetBracket();
+      onResetBracket();
     }
   };
 

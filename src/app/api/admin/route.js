@@ -22,6 +22,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Clave de administrador incorrecta.' }, { status: 403 });
     }
 
+    if (action === 'verify') {
+      return NextResponse.json({ success: true, message: 'Clave válida' });
+    }
+
     if (action === 'seed') {
       await seedPairingDatabase();
       return NextResponse.json({ success: true });
