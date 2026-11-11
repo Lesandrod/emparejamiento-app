@@ -562,12 +562,14 @@ export async function generateTournamentBracket() {
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
 
-  // Determine bracket size: 4, 8, 16
   const count = pool.length;
-  let bracketSize = 4;
-  if (count > 8) bracketSize = 16;
-  else if (count > 4) bracketSize = 8;
-  else bracketSize = 4;
+
+  // Determine bracket size: power of 2 (4, 8, 16, 32)
+  let bracketSize = 2;
+  while (bracketSize < count) {
+    bracketSize *= 2;
+  }
+  if (count >= 3 && bracketSize < 4) bracketSize = 4;
 
   const totalRounds = Math.log2(bracketSize);
 
@@ -577,8 +579,50 @@ export async function generateTournamentBracket() {
     16: ['Octavos de Final', 'Cuartos de Final', 'Semifinales', 'Gran Final']
   }[bracketSize] || ['Ronda 1', 'Ronda 2', 'Gran Final'];
 
+  // Handle Odd / BYE count:
+  const numByes = bracketSize - count;
+  const byeMatchSlots = new Set();
+
+  if (numByes > 0) {
+    const totalFirstRoundMatches = bracketSize / 2;
+    // Distribute byes alternating left and right wings
+    for (let b = 0; b < numByes; b++) {
+      const matchIdx = b % 2 === 0
+        ? Math.floor(b / 2) // left wing matches (0, 1...)
+        : totalFirstRoundMatches - 1 - Math.floor(b / 2); // right wing matches (3, 2...)
+      byeMatchSlots.add(matchIdx * 2 + 1); // slot 2 is the BYE
+    }
+  }
+
+  // Prepare fighter slots for Round 1
+  const firstRoundSlots = [];
+  let fighterIdx = 0;
+
+  for (let s = 0; s < bracketSize; s++) {
+    if (byeMatchSlots.has(s)) {
+      firstRoundSlots.push({
+        id: `bye_${s}`,
+        isBye: true,
+        name: 'PASE LIBRE (BYE)',
+        alias: 'Avanza Automático',
+        photoUrl: null
+      });
+    } else if (fighterIdx < pool.length) {
+      firstRoundSlots.push({
+        id: pool[fighterIdx].id,
+        name: pool[fighterIdx].name,
+        alias: pool[fighterIdx].alias || '',
+        photoUrl: pool[fighterIdx].photoUrl || null
+      });
+      fighterIdx++;
+    } else {
+      firstRoundSlots.push(null);
+    }
+  }
+
   const rounds = [];
   let currentMatchCount = bracketSize / 2;
+  let globalBoutNumber = 1;
 
   // Build rounds
   for (let r = 1; r <= totalRounds; r++) {
@@ -588,41 +632,60 @@ export async function generateTournamentBracket() {
 
     for (let m = 0; m < currentMatchCount; m++) {
       const matchId = `m_${r}_${m}`;
-      const nextMatchId = isFinalRound ? null : `m_${r + 1}_${Math.floor(m / 2)}`;
-      const nextSlot = isFinalRound ? null : (m % 2 === 0 ? 1 : 2);
+      const isLeft = m < currentMatchCount / 2;
+      const side = isFinalRound ? 'center' : (isLeft ? 'left' : 'right');
+
+      let nextMatchId = null;
+      let nextSlot = null;
+
+      if (!isFinalRound) {
+        if (r + 1 === totalRounds) {
+          nextMatchId = `m_${r + 1}_0`;
+          nextSlot = isLeft ? 1 : 2;
+        } else {
+          // Half for left wing, half for right wing
+          const halfCount = currentMatchCount / 2;
+          if (isLeft) {
+            nextMatchId = `m_${r + 1}_${Math.floor(m / 2)}`;
+            nextSlot = (m % 2 === 0 ? 1 : 2);
+          } else {
+            const rightOffset = m - halfCount;
+            const nextHalf = (currentMatchCount / 2) / 2;
+            nextMatchId = `m_${r + 1}_${nextHalf + Math.floor(rightOffset / 2)}`;
+            nextSlot = (rightOffset % 2 === 0 ? 1 : 2);
+          }
+        }
+      }
 
       let fighter1 = null;
       let fighter2 = null;
+      let winner = null;
+      let isByeMatch = false;
 
       if (isFirstRound) {
-        const idx1 = m * 2;
-        const idx2 = m * 2 + 1;
-        if (pool[idx1]) {
-          fighter1 = {
-            id: pool[idx1].id,
-            name: pool[idx1].name,
-            alias: pool[idx1].alias || '',
-            photoUrl: pool[idx1].photoUrl || null
-          };
-        }
-        if (pool[idx2]) {
-          fighter2 = {
-            id: pool[idx2].id,
-            name: pool[idx2].name,
-            alias: pool[idx2].alias || '',
-            photoUrl: pool[idx2].photoUrl || null
-          };
+        fighter1 = firstRoundSlots[m * 2] || null;
+        fighter2 = firstRoundSlots[m * 2 + 1] || null;
+
+        // Auto advance if opponent is a BYE
+        if (fighter1 && fighter2 && fighter2.isBye) {
+          winner = fighter1;
+          isByeMatch = true;
+        } else if (fighter2 && fighter1 && fighter1.isBye) {
+          winner = fighter2;
+          isByeMatch = true;
         }
       }
 
       roundMatches.push({
         id: matchId,
-        matchNumber: roundMatches.length + 1,
+        matchNumber: globalBoutNumber++,
         round: r,
         roundTitle: roundTitles[r - 1],
+        side,
         fighter1,
         fighter2,
-        winner: null,
+        winner,
+        isByeMatch,
         nextMatchId,
         nextSlot
       });
@@ -637,11 +700,29 @@ export async function generateTournamentBracket() {
     currentMatchCount = currentMatchCount / 2;
   }
 
+  // Pre-advance BYE winners into Round 2 slots
+  if (rounds.length > 1) {
+    const round1 = rounds[0];
+    const round2 = rounds[1];
+
+    round1.matches.forEach((m) => {
+      if (m.isByeMatch && m.winner && m.nextMatchId) {
+        const nextM = round2.matches.find((n) => n.id === m.nextMatchId);
+        if (nextM) {
+          if (m.nextSlot === 1) nextM.fighter1 = m.winner;
+          else nextM.fighter2 = m.winner;
+        }
+      }
+    });
+  }
+
   const bracketData = {
     id: `bracket_${Date.now()}`,
     createdAt: Date.now(),
     bracketSize,
     totalRounds,
+    participantCount: count,
+    numByes,
     champion: null,
     rounds
   };
