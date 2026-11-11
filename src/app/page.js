@@ -30,10 +30,10 @@ export default function Home() {
   useEffect(() => {
     fetchPairingData();
 
-    // Auto-refresh every 8 seconds for live updates between participants on their phones
+    // Auto-refresh every 7 seconds for live updates between phones
     const interval = setInterval(() => {
       fetchPairingData();
-    }, 8000);
+    }, 7000);
 
     return () => clearInterval(interval);
   }, []);
@@ -48,35 +48,35 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#f7f8fa] text-[#090a0f] antialiased">
-      {/* Header */}
-      <header className="border-b border-[#e5e7eb] bg-white sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto h-14 flex items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 bg-[#090a0f]" />
-            <span className="font-bold text-xs uppercase tracking-widest text-[#090a0f]">
-              Emparejamiento en Vivo
+    <div className="min-h-screen flex flex-col justify-between bg-[#040711] text-[#f1f5f9] antialiased">
+      {/* Boxing Event Header */}
+      <header className="border-b border-neutral-800 bg-[#060a17]/90 backdrop-blur-md sticky top-0 z-40 boxing-ring-ropes pt-3">
+        <div className="max-w-5xl mx-auto h-14 flex items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">🥊</span>
+            <span className="font-black text-xs sm:text-sm uppercase tracking-widest text-white italic">
+              SPARRING FIGHT NIGHT
             </span>
-            <span className="ml-2 px-1.5 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-mono font-bold uppercase tracking-wider border border-emerald-300">
-              Público
+            <span className="hidden sm:inline-block px-2 py-0.5 bg-gradient-to-r from-blue-600 to-red-600 text-white text-[9px] font-mono font-bold uppercase tracking-wider border border-white/20">
+              RING OFICIAL
             </span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsAdminOpen(true)}
-            className="sharp-outline-btn px-3 py-1.5 text-[10px]"
+            className="fight-btn-blue px-3 py-1.5 text-[10px]"
           >
-            Organizador
+            Organizador [PIN]
           </button>
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Fight Arena */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
         {loading ? (
-          <div className="text-xs font-mono uppercase tracking-widest text-neutral-400">
-            Cargando sorteo...
+          <div className="text-xs font-mono uppercase tracking-widest text-blue-400 font-bold flex items-center gap-2">
+            <span className="animate-spin">🥊</span> Cargando cartelera de combates...
           </div>
         ) : !activeUser ? (
           <ParticipantSelector
@@ -96,14 +96,14 @@ export default function Home() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-[#e5e7eb] py-3.5 px-4 text-center bg-white">
-        <p className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-          Sorteo de Emparejamiento • Resultados públicos y en tiempo real
+      {/* Boxing Ring Footer */}
+      <footer className="border-t border-neutral-800 py-3.5 px-4 text-center bg-[#060a17]">
+        <p className="text-[10px] font-mono uppercase tracking-wider text-neutral-500">
+          Boxing Sparring Matchmaker • Esquina Azul vs Esquina Roja • Resultados Oficiales en Vivo
         </p>
       </footer>
 
-      {/* Admin Modal */}
+      {/* Admin Panel Modal */}
       <AdminModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}

@@ -63,7 +63,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   };
 
   const handleResetDraw = async () => {
-    if (!window.confirm('¿Estás seguro de reiniciar todas las parejas? Todos volverán a quedar libres.')) {
+    if (!window.confirm('¿Reiniciar todos los combates pactados? Todos los boxeadores volverán a estar libres en el ring.')) {
       return;
     }
     setLoading(true);
@@ -74,7 +74,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         body: JSON.stringify({ pin: adminPin, action: 'reset' })
       });
       if (res.ok) {
-        setNotice('Todas las parejas han sido reiniciadas.');
+        setNotice('Todos los combates han sido reiniciados.');
         await loadAdminStatus(adminPin);
         if (onRefreshParticipants) await onRefreshParticipants();
       }
@@ -85,7 +85,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   };
 
   const handleUnpairDuo = async (pairId, pairNumber) => {
-    if (!window.confirm(`¿Deseas romper la Pareja #${pairNumber}? Ambos participantes podrán volver a sacar papelito.`)) {
+    if (!window.confirm(`¿Disolver el Combate #${pairNumber}? Ambos peleadores podrán volver a sortear rival.`)) {
       return;
     }
     setLoading(true);
@@ -96,12 +96,12 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         body: JSON.stringify({ pin: adminPin, action: 'unpair', pairId })
       });
       if (res.ok) {
-        setNotice(`Pareja #${pairNumber} disuelta correctamente.`);
+        setNotice(`Combate #${pairNumber} disuelto correctamente.`);
         await loadAdminStatus(adminPin);
         if (onRefreshParticipants) await onRefreshParticipants();
       }
     } catch {
-      setNotice('Error al romper la pareja.');
+      setNotice('Error al disolver combate.');
     } finally {
       setLoading(false);
       setTimeout(() => setNotice(''), 3000);
@@ -129,7 +129,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   };
 
   const handleDeleteParticipant = async (id) => {
-    if (!window.confirm('¿Eliminar participante del sorteo?')) return;
+    if (!window.confirm('¿Eliminar peleador de la cartelera?')) return;
     setLoading(true);
     try {
       const res = await fetch('/api/admin', {
@@ -155,7 +155,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         body: JSON.stringify({ pin: adminPin, action: 'setPreference', giverId, receiverId })
       });
       if (res.ok) {
-        setNotice('Preferencia de pareja guardada.');
+        setNotice('Combate predefinido guardado.');
         await loadAdminStatus(adminPin);
       }
     } finally {
@@ -203,22 +203,22 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white border border-[#090a0f] shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="w-full max-w-2xl bg-[#090d18] border border-neutral-700 shadow-2xl flex flex-col max-h-[90vh] text-white">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#e5e7eb] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-neutral-800 flex items-center justify-between bg-[#040813]">
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-[#090a0f]">
-              Panel de Organizador
+            <h2 className="text-sm font-black uppercase tracking-wider text-amber-400 font-mono">
+              🥊 Panel de Organizador de Sparring
             </h2>
             <span className="text-[10px] font-mono text-neutral-400">
-              Control de Sorteo y Parejas
+              Control de Cartelera, Peleas y Esquinas
             </span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-neutral-400 hover:text-black font-mono text-sm px-2 py-1"
+            className="text-neutral-400 hover:text-white font-mono text-sm px-2 py-1"
           >
             [Cerrar]
           </button>
@@ -228,30 +228,30 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         {!isAuthenticated ? (
           <form onSubmit={handleLogin} className="p-6 space-y-4 max-w-sm mx-auto w-full">
             <div className="space-y-1">
-              <label className="text-[10px] font-mono uppercase tracking-wider text-neutral-500">
-                PIN de Acceso
+              <label className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+                Clave de Acceso
               </label>
               <input
                 type="password"
-                placeholder="Ingresa la clave"
+                placeholder="Ingresa la clave (ej. admin123)"
                 value={adminPin}
                 onChange={(e) => {
                   setAdminPin(e.target.value);
                   setAuthError('');
                 }}
-                className="w-full h-10 px-3 bg-[#f9fafb] border border-[#d1d5db] text-[#090a0f] text-xs font-mono outline-none focus:border-black"
+                className="w-full h-10 px-3 bg-[#060a14] border border-neutral-700 text-white text-xs font-mono outline-none focus:border-amber-400"
                 autoFocus
               />
             </div>
 
             {authError && (
-              <div className="text-xs text-red-600 font-mono">{authError}</div>
+              <div className="text-xs text-red-400 font-mono">{authError}</div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="sharp-primary-btn w-full h-10"
+              className="fight-btn-blue w-full h-10 text-xs"
             >
               {loading ? 'Verificando...' : 'Acceder al panel'}
             </button>
@@ -259,67 +259,67 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         ) : (
           <div className="p-6 overflow-y-auto space-y-6 flex-1">
             {notice && (
-              <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-mono text-center">
+              <div className="p-2.5 bg-emerald-950/80 border border-emerald-500 text-emerald-200 text-xs font-mono text-center">
                 {notice}
               </div>
             )}
 
             {/* Metrics */}
             <div className="grid grid-cols-3 gap-2 text-center font-mono">
-              <div className="p-3 bg-[#f9fafb] border border-[#e5e7eb]">
-                <div className="text-lg font-bold text-[#090a0f]">{participants.length}</div>
-                <div className="text-[9px] uppercase text-neutral-500">Participantes</div>
+              <div className="p-3 bg-[#060a14] border border-neutral-800">
+                <div className="text-lg font-bold text-white">{participants.length}</div>
+                <div className="text-[9px] uppercase text-neutral-400">Boxeadores</div>
               </div>
-              <div className="p-3 bg-[#f9fafb] border border-[#e5e7eb]">
-                <div className="text-lg font-bold text-emerald-700">{pairs.length}</div>
-                <div className="text-[9px] uppercase text-neutral-500">Parejas Formadas</div>
+              <div className="p-3 bg-[#060a14] border border-neutral-800">
+                <div className="text-lg font-bold text-amber-400">{pairs.length}</div>
+                <div className="text-[9px] uppercase text-neutral-400">Combates</div>
               </div>
-              <div className="p-3 bg-[#f9fafb] border border-[#e5e7eb]">
-                <div className="text-lg font-bold text-neutral-500">
+              <div className="p-3 bg-[#060a14] border border-neutral-800">
+                <div className="text-lg font-bold text-blue-400">
                   {participants.filter((p) => !p.revealed).length}
                 </div>
-                <div className="text-[9px] uppercase text-neutral-500">Pendientes</div>
+                <div className="text-[9px] uppercase text-neutral-400">Sin rival</div>
               </div>
             </div>
 
-            {/* Formed Pairs Section */}
+            {/* Formed Fights Section */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-neutral-500">
-                <span>Parejas Oficiales Formadas ({pairs.length})</span>
+              <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+                <span>Combates Oficiales en Cartelera ({pairs.length})</span>
                 {pairs.length > 0 && (
                   <button
                     type="button"
                     onClick={handleResetDraw}
-                    className="text-red-600 hover:underline"
+                    className="text-red-400 hover:underline"
                   >
-                    [Reiniciar todas las parejas]
+                    [Reiniciar todos los combates]
                   </button>
                 )}
               </div>
 
               {pairs.length === 0 ? (
-                <div className="p-4 border border-dashed border-neutral-200 text-center text-xs font-mono text-neutral-400">
-                  No hay parejas formadas todavía.
+                <div className="p-4 border border-dashed border-neutral-800 text-center text-xs font-mono text-neutral-500">
+                  No hay combates pactados aún.
                 </div>
               ) : (
-                <div className="border border-[#e5e7eb] divide-y divide-[#f1f2f4] bg-white max-h-48 overflow-y-auto">
+                <div className="border border-neutral-800 divide-y divide-neutral-800 bg-[#060a14] max-h-48 overflow-y-auto">
                   {pairs.map((p) => (
                     <div key={p.id} className="p-2.5 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-neutral-400">#{p.pairNumber}</span>
-                        <span className="font-semibold">{p.member1.name}</span>
-                        <span className="text-neutral-400">⇄</span>
-                        <span className="font-semibold">{p.member2.name}</span>
+                        <span className="font-mono font-bold text-amber-400">#{p.pairNumber}</span>
+                        <span className="font-bold text-blue-400">{p.member1.name}</span>
+                        <span className="text-neutral-500">VS</span>
+                        <span className="font-bold text-red-400">{p.member2.name}</span>
                         {p.trioMember && (
-                          <span className="text-neutral-600 font-semibold">(+ {p.trioMember.name})</span>
+                          <span className="text-amber-300 font-semibold">(+ {p.trioMember.name})</span>
                         )}
                       </div>
                       <button
                         type="button"
                         onClick={() => handleUnpairDuo(p.id, p.pairNumber)}
-                        className="text-amber-700 hover:text-amber-900 font-mono text-[10px] font-bold px-2 py-0.5 border border-amber-300 hover:bg-amber-50"
+                        className="text-amber-400 hover:text-amber-300 font-mono text-[10px] font-bold px-2 py-0.5 border border-amber-600/60 hover:bg-amber-950/40"
                       >
-                        Romper pareja
+                        Disolver pelea
                       </button>
                     </div>
                   ))}
@@ -327,65 +327,65 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
               )}
             </div>
 
-            {/* Add Participant */}
+            {/* Add Fighter */}
             <form onSubmit={handleAddParticipant} className="space-y-1.5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 block">
-                Agregar nuevo participante
+              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
+                Inscribir nuevo boxeador
               </span>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Nombre y apellido"
+                  placeholder="Nombre del boxeador"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="flex-1 h-9 px-3 bg-[#f9fafb] border border-[#d1d5db] text-[#090a0f] text-xs outline-none focus:border-black"
+                  className="flex-1 h-9 px-3 bg-[#060a14] border border-neutral-700 text-white text-xs outline-none focus:border-amber-400"
                   required
                 />
-                <button type="submit" disabled={loading} className="sharp-outline-btn px-4 h-9">
-                  Agregar
+                <button type="submit" disabled={loading} className="fight-btn-blue px-4 h-9 text-xs">
+                  Inscribir
                 </button>
               </div>
             </form>
 
-            {/* Participants Table & Rigged Preferences */}
+            {/* Fighters Table & Rigged Matchups */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 block">
-                Participantes y Preferencias Secretas
+              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
+                Boxeadores y Combates Predefinidos (Truco de Organizador)
               </span>
 
-              <div className="max-h-56 overflow-y-auto border border-[#e5e7eb] bg-white">
+              <div className="max-h-56 overflow-y-auto border border-neutral-800 bg-[#060a14]">
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-[#f9fafb] text-neutral-500 border-b border-[#e5e7eb] text-[10px] font-mono uppercase sticky top-0">
+                  <thead className="bg-[#040813] text-neutral-400 border-b border-neutral-800 text-[10px] font-mono uppercase sticky top-0">
                     <tr>
-                      <th className="p-2.5 font-medium">Participante</th>
+                      <th className="p-2.5 font-medium">Boxeador</th>
                       <th className="p-2.5 font-medium">Estado</th>
-                      <th className="p-2.5 font-medium">Preferencia secreta</th>
+                      <th className="p-2.5 font-medium">Pelea fijada</th>
                       <th className="p-2.5 text-right"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f1f2f4]">
+                  <tbody className="divide-y divide-neutral-800/80">
                     {participants.map((p) => {
                       const currentPrefId = preferences[p.id] || '';
 
                       return (
-                        <tr key={p.id} className="hover:bg-[#f9fafb]">
-                          <td className="p-2.5 font-medium text-neutral-900">
+                        <tr key={p.id} className="hover:bg-[#090f1e]">
+                          <td className="p-2.5 font-medium text-white">
                             <div className="flex items-center gap-2">
                               {p.photoUrl ? (
                                 <img
                                   src={p.photoUrl}
                                   alt={p.name}
-                                  className="w-7 h-7 rounded-full object-cover border border-neutral-300 flex-shrink-0"
+                                  className="w-7 h-7 rounded-full object-cover border border-neutral-600 flex-shrink-0"
                                 />
                               ) : (
-                                <div className="w-7 h-7 rounded-full bg-neutral-200 border border-neutral-300 flex items-center justify-center text-[10px] text-neutral-600 font-bold flex-shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-neutral-800 border border-neutral-600 flex items-center justify-center text-[10px] text-neutral-200 font-bold flex-shrink-0">
                                   {p.name.charAt(0)}
                                 </div>
                               )}
                               <span className="truncate">{p.name}</span>
                               <label
-                                className="cursor-pointer text-[9px] font-mono uppercase px-1.5 py-0.5 border border-neutral-300 hover:border-black bg-neutral-50 text-neutral-600 ml-1"
-                                title="Subir y recortar foto"
+                                className="cursor-pointer text-[9px] font-mono uppercase px-1.5 py-0.5 border border-neutral-700 hover:border-amber-400 bg-neutral-900 text-neutral-300 ml-1"
+                                title="Subir y recortar foto de boxeador"
                               >
                                 {p.photoUrl ? 'Editar' : '+ Foto'}
                                 <input
@@ -402,22 +402,22 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                           </td>
 
                           <td className="p-2.5 font-mono text-[10px] uppercase">
-                            <span className={p.revealed ? 'text-emerald-700 font-semibold' : 'text-neutral-400'}>
-                              {p.revealed ? `Pareja #${p.pairNumber}` : 'Libre'}
+                            <span className={p.revealed ? 'text-amber-400 font-bold' : 'text-blue-400'}>
+                              {p.revealed ? `Combate #${p.pairNumber}` : 'Sin rival'}
                             </span>
                           </td>
 
                           <td className="p-2.5 font-medium">
                             {p.revealed ? (
-                              <span className="text-neutral-400 text-[10px] font-mono">Emparejado</span>
+                              <span className="text-neutral-500 text-[10px] font-mono">Pactado</span>
                             ) : (
                               <select
                                 value={currentPrefId}
                                 onChange={(e) => handleSetPreference(p.id, e.target.value)}
                                 className={`text-[10px] font-mono h-7 px-1.5 border outline-none cursor-pointer max-w-[160px] truncate ${
                                   currentPrefId
-                                    ? 'bg-amber-50 border-amber-400 text-amber-900 font-bold'
-                                    : 'bg-[#f9fafb] border-[#d1d5db] text-neutral-500'
+                                    ? 'bg-amber-950 border-amber-500 text-amber-200 font-bold'
+                                    : 'bg-[#090e1b] border-neutral-700 text-neutral-300'
                                 }`}
                               >
                                 <option value="">(Al azar - Sin fijar)</option>
@@ -425,7 +425,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                                   .filter((other) => other.id !== p.id && !other.revealed)
                                   .map((other) => (
                                     <option key={other.id} value={other.id}>
-                                      Fijar con: {other.name}
+                                      Pelear con: {other.name}
                                     </option>
                                   ))}
                               </select>
@@ -436,7 +436,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                             <button
                               type="button"
                               onClick={() => handleDeleteParticipant(p.id)}
-                              className="text-neutral-400 hover:text-red-600 font-mono text-xs px-2 py-0.5"
+                              className="text-neutral-500 hover:text-red-400 font-mono text-xs px-2 py-0.5"
                             >
                               [X]
                             </button>

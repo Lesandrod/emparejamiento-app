@@ -2,7 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { playShuffleSound, playClickSound, playCardFlipSound, playWinSound } from '@/utils/audio';
+import BoxingFightAnimation from './BoxingFightAnimation';
+import {
+  playWhoosh,
+  playClickSound,
+  playCardFlipSound,
+  playBoxingBell
+} from '@/utils/audio';
 
 export default function Roulette({
   currentUser,
@@ -15,48 +21,44 @@ export default function Roulette({
   const [isRevealing, setIsRevealing] = useState(false);
   const [revealedPartner, setRevealedPartner] = useState(null);
   const [revealedPair, setRevealedPair] = useState(null);
-  const [isDone, setIsDone] = useState(false);
+  const [showFightAnimation, setShowFightAnimation] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [readyForInteraction, setReadyForInteraction] = useState(false);
 
   const containerRef = useRef(null);
   const cardsRef = useRef([]);
   const handRef = useRef(null);
 
-  // Eligible candidate cards for this spin: unpaired participants excluding currentUser
+  // Eligible opponents for this sparring draw
   const candidatePool = participants.filter(
     (p) => !p.revealed && p.id !== currentUser.id
   );
 
-  // 1. Initial dealing animation: cards fly in crisp and fast
+  // Initial dealing animation with athletic speed
   useEffect(() => {
     if (!containerRef.current) return;
     const cards = containerRef.current.querySelectorAll('.card-item');
 
     gsap.fromTo(
       cards,
-      { y: 30, opacity: 0, scale: 0.95 },
+      { y: 35, opacity: 0, scale: 0.95 },
       {
         y: 0,
         opacity: 1,
         scale: 1,
-        stagger: 0.04,
+        stagger: 0.035,
         duration: 0.35,
         ease: 'power2.out',
-        clearProps: 'all',
-        onComplete: () => {
-          setReadyForInteraction(true);
-        }
+        clearProps: 'all'
       }
     );
   }, []);
 
-  // 2. Chocolatear (Fast snappy shuffle)
+  // Chocolatear (Fast snappy shuffle with boxing whoosh)
   const handleChocolatear = () => {
-    if (isChocolateando || isRevealing || isDone) return;
+    if (isChocolateando || isRevealing || showFightAnimation) return;
     setIsChocolateando(true);
     setSelectedCardId(null);
-    playShuffleSound();
+    playWhoosh();
 
     const cards = containerRef.current.querySelectorAll('.card-item');
     const tl = gsap.timeline({
@@ -66,23 +68,20 @@ export default function Roulette({
       }
     });
 
-    // Fast gather to center
     tl.to(cards, {
       x: 0,
       y: 0,
       scale: 0.88,
-      duration: 0.18,
+      duration: 0.16,
       ease: 'power2.inOut'
     })
-      // Riffle vibration
       .to(cards, {
-        x: () => (Math.random() - 0.5) * 20,
-        y: () => (Math.random() - 0.5) * 12,
-        rotationZ: () => (Math.random() - 0.5) * 14,
+        x: () => (Math.random() - 0.5) * 25,
+        y: () => (Math.random() - 0.5) * 16,
+        rotationZ: () => (Math.random() - 0.5) * 15,
         duration: 0.16,
         ease: 'rough'
       })
-      // Return cleanly to places
       .to(cards, {
         x: 0,
         y: 0,
@@ -94,21 +93,21 @@ export default function Roulette({
       });
   };
 
-  // 3. Card click handler
+  // Select card
   const handleSelectCard = (index) => {
-    if (isChocolateando || isRevealing || isDone) return;
+    if (isChocolateando || isRevealing || showFightAnimation) return;
     playClickSound();
     setSelectedCardId(index);
   };
 
-  // 4. Confirm Card Pick & 3D Realistic Hand Flip
+  // Confirm Selection & 3D Flip with Hand, then launch Boxing Fight
   const handleConfirmFlip = async () => {
-    if (selectedCardId === null || isRevealing || isDone) return;
+    if (selectedCardId === null || isRevealing || showFightAnimation) return;
     setIsRevealing(true);
     setErrorMessage('');
 
-    let partnerResult = null;
-    let pairResult = null;
+    let partnerData = null;
+    let pairData = null;
 
     try {
       const res = await fetch('/api/draw', {
@@ -118,10 +117,10 @@ export default function Roulette({
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        throw new Error(data.error || 'Error en el sorteo');
+        throw new Error(data.error || 'Error en el emparejamiento');
       }
-      partnerResult = data.partner;
-      pairResult = data.pair;
+      partnerData = data.partner;
+      pairData = data.pair;
       setRevealedPartner(data.partner);
       setRevealedPair(data.pair);
     } catch (e) {
@@ -130,7 +129,7 @@ export default function Roulette({
       return;
     }
 
-    // Realistic Hand Animation & 3D Flip
+    // 3D Flip
     const targetCard = cardsRef.current[selectedCardId];
     const hand = handRef.current;
 
@@ -143,7 +142,7 @@ export default function Roulette({
 
       const flipTl = gsap.timeline();
 
-      // Hand enters from top right and grabs card
+      // Hand enters
       flipTl.set(hand, {
         display: 'block',
         x: targetX + 160,
@@ -159,52 +158,54 @@ export default function Roulette({
         rotation: -5,
         scale: 1,
         opacity: 1,
-        duration: 0.42,
+        duration: 0.38,
         ease: 'power2.out'
       });
 
-      // Hand lifts card slightly
+      // Lift card
       flipTl.to([hand, targetCard], {
-        y: '-=18',
+        y: '-=16',
         scale: 1.05,
-        duration: 0.2,
+        duration: 0.18,
         ease: 'power1.inOut',
         onStart: () => playCardFlipSound()
       });
 
-      // 3D Flip Execution
+      // 3D Card Flip
       const innerCard = targetCard.querySelector('.card-inner');
       flipTl.to(
         innerCard,
         {
           rotateY: 180,
-          duration: 0.55,
+          duration: 0.5,
           ease: 'power2.inOut'
         },
-        '+=0.05'
+        '+=0.04'
       );
 
-      // Hand withdraws smoothly
+      // Hand withdraws
       flipTl.to(
         hand,
         {
           x: targetX + 220,
           y: targetY - 220,
           opacity: 0,
-          duration: 0.45,
+          duration: 0.35,
           ease: 'power2.in'
         },
-        '-=0.3'
+        '-=0.25'
       );
 
+      // Trigger Boxing Fight Animation after flip
       flipTl.add(() => {
-        playWinSound();
-        setIsDone(true);
         setIsRevealing(false);
+        setTimeout(() => {
+          setShowFightAnimation(true);
+        }, 300);
       });
     } else {
-      setIsDone(true);
       setIsRevealing(false);
+      setShowFightAnimation(true);
     }
   };
 
@@ -213,7 +214,7 @@ export default function Roulette({
       ref={containerRef}
       className="relative w-full max-w-4xl mx-auto space-y-5 select-none"
     >
-      {/* Photorealistic Grab Hand */}
+      {/* Photorealistic Hand for card flip */}
       <div
         ref={handRef}
         className="absolute pointer-events-none z-50 hidden will-change-transform"
@@ -226,25 +227,25 @@ export default function Roulette({
         />
       </div>
 
-      {/* Top Header Bar */}
-      <div className="sharp-card p-5 sm:p-6 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Header Card (Blue Corner Fighter) */}
+      <div className="fight-card-blue p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {currentUser.photoUrl ? (
             <img
               src={currentUser.photoUrl}
               alt={currentUser.name}
-              className="w-11 h-11 rounded-full object-cover border border-neutral-300 flex-shrink-0"
+              className="w-12 h-12 rounded-full object-cover border-2 border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.6)] flex-shrink-0"
             />
           ) : (
-            <div className="w-11 h-11 rounded-full bg-[#090a0f] text-white flex items-center justify-center font-bold text-sm uppercase flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-blue-900 border-2 border-blue-400 text-blue-200 flex items-center justify-center font-black text-base uppercase flex-shrink-0">
               {currentUser.name.charAt(0)}
             </div>
           )}
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">
-              Turno de sorteo
+            <div className="text-[10px] font-mono uppercase tracking-widest text-blue-400 font-bold flex items-center gap-1.5">
+              <span>🔵 ESQUINA AZUL • PELEADOR EN RING</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#090a0f] uppercase">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase italic">
               {currentUser.name}
             </h1>
           </div>
@@ -252,229 +253,154 @@ export default function Roulette({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
-          {!isDone && (
-            <>
-              <button
-                type="button"
-                onClick={handleChocolatear}
-                disabled={isChocolateando || isRevealing}
-                className="sharp-outline-btn px-4 h-10 text-xs font-mono uppercase flex items-center gap-1.5"
-              >
-                <span>🔀</span> {isChocolateando ? 'Mezclando...' : 'Chocolatear'}
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={isChocolateando || isRevealing}
-                className="sharp-outline-btn px-3 h-10 text-xs font-mono text-neutral-400 hover:text-black"
-              >
-                Cancelar
-              </button>
-            </>
-          )}
+          <button
+            type="button"
+            onClick={handleChocolatear}
+            disabled={isChocolateando || isRevealing}
+            className="fight-btn-blue px-3.5 h-10 text-[11px] font-mono flex items-center gap-1.5"
+          >
+            <span>🥊</span> {isChocolateando ? 'Mezclando...' : 'Chocolatear cartas'}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isChocolateando || isRevealing}
+            className="px-3 h-10 text-xs font-mono uppercase text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 transition-colors"
+          >
+            Salir
+          </button>
         </div>
       </div>
 
-      {/* Status or Error Notice */}
+      {/* Error Notice */}
       {errorMessage && (
-        <div className="p-3 bg-red-50 border border-red-300 text-red-800 text-xs font-mono text-center">
+        <div className="p-3 bg-red-950/80 border border-red-500 text-red-200 text-xs font-mono text-center">
           {errorMessage}
         </div>
       )}
 
-      {/* Main Table Arena */}
-      {!isDone ? (
-        <div className="sharp-card p-5 sm:p-8 bg-[#090a0f] text-white space-y-6">
-          <div className="flex items-center justify-between border-b border-neutral-800 pb-3 text-[11px] font-mono uppercase tracking-wider text-neutral-400">
-            <span>
-              {selectedCardId !== null
-                ? 'Carta elegida • Confirma para voltear'
-                : 'Toca una carta de la mesa'}
-            </span>
-            <span>{candidatePool.length} opciones en mesa</span>
-          </div>
+      {/* Main Table: The Sparring Ring Canvas */}
+      <div className="fight-card p-5 sm:p-8 bg-[#090d18] border border-blue-900/40 space-y-6 relative overflow-hidden boxing-ring-ropes pt-7">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3 text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+          <span>
+            {selectedCardId !== null
+              ? 'Rival seleccionado • Confirma para subir al ring'
+              : 'Toca una carta para elegir tu rival a ciegas'}
+          </span>
+          <span className="text-amber-400 font-bold">
+            {candidatePool.length} rivales en mesa
+          </span>
+        </div>
 
-          {/* Cards Grid: 3 per row on mobile, 4-5 on desktop */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4 justify-items-center py-2 pb-24 sm:pb-2">
-            {candidatePool.map((c, idx) => {
-              const isSelected = selectedCardId === idx;
+        {/* Cards Grid: 3 per row on mobile */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4 justify-items-center py-2 pb-24 sm:pb-2">
+          {candidatePool.map((c, idx) => {
+            const isSelected = selectedCardId === idx;
 
-              return (
+            return (
+              <div
+                key={c.id || idx}
+                ref={(el) => (cardsRef.current[idx] = el)}
+                onClick={() => handleSelectCard(idx)}
+                className={`card-item relative w-24 sm:w-28 h-36 sm:h-40 cursor-pointer ${
+                  isSelected ? 'card-selected-glow' : ''
+                }`}
+                style={{ perspective: '1000px' }}
+              >
                 <div
-                  key={c.id || idx}
-                  ref={(el) => (cardsRef.current[idx] = el)}
-                  onClick={() => handleSelectCard(idx)}
-                  className={`card-item relative w-24 sm:w-28 h-36 sm:h-40 cursor-pointer ${
-                    isSelected ? 'card-selected-glow' : ''
-                  }`}
-                  style={{ perspective: '1000px' }}
+                  className="card-inner w-full h-full relative"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transition: isRevealing ? 'none' : 'transform 0.15s ease-out'
+                  }}
                 >
+                  {/* Back of Card (Red Corner Sparring Card) */}
                   <div
-                    className="card-inner w-full h-full relative"
+                    className={`card-face-back absolute inset-0 border flex flex-col items-center justify-between p-2 shadow-xl ${
+                      isSelected
+                        ? 'bg-gradient-to-b from-[#38060c] to-[#160305] border-amber-400'
+                        : 'bg-gradient-to-b from-[#180407] to-[#0c0204] border-red-900/60 hover:border-red-500'
+                    }`}
+                    style={{ backfaceVisibility: 'hidden' }}
+                  >
+                    <div className="w-full flex justify-between text-[9px] font-mono text-red-400 font-bold">
+                      <span>RIVAL</span>
+                      <span>#{idx + 1}</span>
+                    </div>
+
+                    {/* Boxing Gloves Icon Graphic */}
+                    <div className="w-10 h-10 flex items-center justify-center text-xl filter drop-shadow">
+                      🥊
+                    </div>
+
+                    <span className="text-[9px] font-mono uppercase tracking-widest text-red-300 font-bold">
+                      {isSelected ? 'Elegido' : 'Esquina Roja'}
+                    </span>
+                  </div>
+
+                  {/* Front of Card (Revealed Partner) */}
+                  <div
+                    className="card-face-front absolute inset-0 bg-[#160305] text-white border-2 border-red-500 flex flex-col items-center justify-center p-2 shadow-2xl"
                     style={{
-                      transformStyle: 'preserve-3d',
-                      transition: isRevealing ? 'none' : 'transform 0.15s ease-out'
+                      backfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)'
                     }}
                   >
-                    {/* Back of Card (Face Down on Table) */}
-                    <div
-                      className={`card-face-back absolute inset-0 border flex flex-col items-center justify-between p-2 shadow-md ${
-                        isSelected
-                          ? 'bg-neutral-900 border-amber-400'
-                          : 'bg-[#18181b] border-neutral-700 hover:border-neutral-400'
-                      }`}
-                      style={{ backfaceVisibility: 'hidden' }}
-                    >
-                      <div className="w-full flex justify-between text-[9px] font-mono text-neutral-500">
-                        <span>#</span>
-                        <span>{idx + 1}</span>
-                      </div>
-
-                      {/* Geometric diamond pattern */}
-                      <div className="w-10 h-10 border border-neutral-600 rotate-45 flex items-center justify-center">
-                        <div className="w-4 h-4 bg-neutral-600 rotate-45" />
-                      </div>
-
-                      <span className="text-[9px] font-mono uppercase tracking-widest text-neutral-400">
-                        {isSelected ? 'Elegida' : 'Papelito'}
-                      </span>
-                    </div>
-
-                    {/* Front of Card (Revealed Partner) */}
-                    <div
-                      className="card-face-front absolute inset-0 bg-white text-[#090a0f] border-2 border-[#090a0f] flex flex-col items-center justify-center p-2 shadow-2xl"
-                      style={{
-                        backfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)'
-                      }}
-                    >
-                      {revealedPartner && (
-                        <>
-                          {revealedPartner.photoUrl ? (
-                            <img
-                              src={revealedPartner.photoUrl}
-                              alt={revealedPartner.name}
-                              className="w-12 h-12 rounded-full object-cover border border-neutral-300 mb-1"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-neutral-200 text-[#090a0f] font-bold text-base flex items-center justify-center mb-1">
-                              {revealedPartner.name.charAt(0)}
-                            </div>
-                          )}
-                          <div className="text-[9px] font-mono uppercase text-neutral-500">
-                            Tu Pareja
+                    {revealedPartner && (
+                      <>
+                        {revealedPartner.photoUrl ? (
+                          <img
+                            src={revealedPartner.photoUrl}
+                            alt={revealedPartner.name}
+                            className="w-12 h-12 rounded-full object-cover border-2 border-red-400 mb-1"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-red-900 text-white font-bold text-base flex items-center justify-center mb-1 border-2 border-red-400">
+                            {revealedPartner.name.charAt(0)}
                           </div>
-                          <div className="text-xs font-bold uppercase text-center truncate w-full">
-                            {revealedPartner.name}
-                          </div>
-                        </>
-                      )}
-                    </div>
+                        )}
+                        <div className="text-[8px] font-mono uppercase text-red-400 font-bold">
+                          🔴 Esquina Roja
+                        </div>
+                        <div className="text-xs font-black uppercase text-center truncate w-full text-white">
+                          {revealedPartner.name}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Fixed bottom bar for Mobile & Sticky confirmation */}
-          <div
-            className={`fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-black/90 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-neutral-800 sm:border-0 z-40 transition-all ${
-              selectedCardId !== null ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none sm:hidden'
-            }`}
-          >
-            <div className="max-w-md mx-auto flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleConfirmFlip}
-                disabled={isRevealing}
-                className="sharp-primary-btn w-full h-12 text-xs font-bold uppercase tracking-wider bg-amber-400 hover:bg-amber-300 text-black border-0 shadow-lg"
-              >
-                {isRevealing ? 'Volteando papelito...' : 'Sí, dar vuelta a esta carta'}
-              </button>
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
-      ) : (
-        /* Sorteo Result Banner (100% Public Pairing) */
-        <div className="sharp-card p-6 sm:p-10 bg-white border border-[#090a0f] shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300">
-          <div className="inline-block bg-emerald-100 text-emerald-900 border border-emerald-300 px-3 py-1 text-xs font-mono font-bold uppercase tracking-widest">
-            🎉 ¡Pareja #{revealedPair?.pairNumber || ''} Formada Oficialmente!
-          </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-[#090a0f] uppercase tracking-tight">
-            ¡Tu pareja asignada es {revealedPartner?.name}!
-          </h2>
-
-          <p className="text-xs text-neutral-500 max-w-md mx-auto">
-            Esta unión es pública y ya ha sido publicada en el tablero general en tiempo real.
-          </p>
-
-          {/* Duo Visual Cards */}
-          <div className="flex items-center justify-center gap-4 sm:gap-8 pt-2">
-            {/* Member 1: Current User */}
-            <div className="flex flex-col items-center space-y-2 p-4 bg-neutral-50 border border-neutral-200 w-36 sm:w-44">
-              {currentUser.photoUrl ? (
-                <img
-                  src={currentUser.photoUrl}
-                  alt={currentUser.name}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-neutral-400"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-neutral-200 text-neutral-800 font-bold text-xl flex items-center justify-center">
-                  {currentUser.name.charAt(0)}
-                </div>
-              )}
-              <div className="text-[10px] font-mono text-neutral-400 uppercase">
-                Integrante 1
-              </div>
-              <div className="text-sm font-bold uppercase text-[#090a0f] truncate w-full text-center">
-                {currentUser.name}
-              </div>
-            </div>
-
-            {/* Central Linking Icon */}
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 rounded-full bg-[#090a0f] text-white flex items-center justify-center font-bold text-lg shadow-md">
-                ⇄
-              </div>
-              <span className="text-[9px] font-mono uppercase text-neutral-500 mt-1 font-semibold">
-                Dúo
-              </span>
-            </div>
-
-            {/* Member 2: Revealed Partner */}
-            <div className="flex flex-col items-center space-y-2 p-4 bg-neutral-50 border border-neutral-200 w-36 sm:w-44">
-              {revealedPartner?.photoUrl ? (
-                <img
-                  src={revealedPartner.photoUrl}
-                  alt={revealedPartner.name}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-amber-400"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-900 font-bold text-xl flex items-center justify-center border-2 border-amber-400">
-                  {revealedPartner?.name.charAt(0)}
-                </div>
-              )}
-              <div className="text-[10px] font-mono text-neutral-400 uppercase">
-                Integrante 2
-              </div>
-              <div className="text-sm font-bold uppercase text-[#090a0f] truncate w-full text-center">
-                {revealedPartner?.name}
-              </div>
-            </div>
-          </div>
-
-          {/* Return Button */}
-          <div className="pt-4 max-w-sm mx-auto">
+        {/* Floating Bottom Bar for Mobile Confirmation */}
+        <div
+          className={`fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-[#060911]/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-red-900/60 sm:border-0 z-40 transition-all ${
+            selectedCardId !== null ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none sm:hidden'
+          }`}
+        >
+          <div className="max-w-md mx-auto">
             <button
               type="button"
-              onClick={onFinishAndReturn}
-              className="sharp-primary-btn w-full h-12 text-xs font-bold uppercase"
+              onClick={handleConfirmFlip}
+              disabled={isRevealing}
+              className="fight-btn-gold w-full h-12 text-xs font-black uppercase tracking-wider"
             >
-              Volver al tablero de parejas
+              {isRevealing ? '¡Subiendo al ring...!' : '🥊 ¡Confirmar rival y pelear!'}
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Epic Boxing Fight Animation Overlay */}
+      {showFightAnimation && revealedPartner && revealedPair && (
+        <BoxingFightAnimation
+          fighterBlue={currentUser}
+          fighterRed={revealedPartner}
+          pairNumber={revealedPair.pairNumber}
+          onComplete={onFinishAndReturn}
+        />
       )}
     </div>
   );
