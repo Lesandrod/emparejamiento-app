@@ -76,7 +76,7 @@ export default function Roulette({
     );
   }, []);
 
-  // REAL DECK CHOCOLATEO & SHUFFLE (High-Performance GPU Animation)
+  // REAL CASINO DECK CHOCOLATEO & SHUFFLE (High-Performance 60fps GPU Animation)
   const handleChocolatear = () => {
     if (isChocolateando || isRevealing || showFightAnimation) return;
     if (!cardsGridRef.current) return;
@@ -88,84 +88,98 @@ export default function Roulette({
     setSelectedCardId(null);
     playShuffleSound();
 
-    // Calculate center of the grid to stack cards in the middle like a casino deck
+    const n = cards.length;
+
+    // Generate a verified random permutation where cards genuinely change places
+    let perm = Array.from({ length: n }, (_, i) => i);
+    if (n > 1) {
+      for (let attempts = 0; attempts < 10; attempts++) {
+        for (let i = n - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [perm[i], perm[j]] = [perm[j], perm[i]];
+        }
+        const moved = perm.filter((p, i) => p !== i).length;
+        if (moved >= Math.floor(n * 0.7)) break;
+      }
+    }
+
+    const rects = cards.map((c) => c.getBoundingClientRect());
     const gridRect = cardsGridRef.current.getBoundingClientRect();
     const gridCenterX = gridRect.left + gridRect.width / 2;
     const gridCenterY = gridRect.top + gridRect.height / 2;
 
-    const offsets = cards.map((card) => {
-      const rect = card.getBoundingClientRect();
-      const cardCenterX = rect.left + rect.width / 2;
-      const cardCenterY = rect.top + rect.height / 2;
-      return {
-        dx: gridCenterX - cardCenterX,
-        dy: gridCenterY - cardCenterY
-      };
+    const centerOffsets = rects.map((r) => ({
+      dx: gridCenterX - (r.left + r.width / 2),
+      dy: gridCenterY - (r.top + r.height / 2)
+    }));
+
+    const targetOffsets = cards.map((_, i) => ({
+      dx: rects[perm[i]].left - rects[i].left,
+      dy: rects[perm[i]].top - rects[i].top
+    }));
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // Apply permuted deck to React state so DOM matches final visual destination
+        const newDeck = new Array(deck.length);
+        deck.forEach((card, oldIdx) => {
+          newDeck[perm[oldIdx]] = card;
+        });
+        setDeck(newDeck);
+        setIsChocolateando(false);
+        gsap.set(cards, { clearProps: 'all' });
+      }
     });
 
-    const tl = gsap.timeline();
-
-    // Phase 1: All cards swiftly gather into a single deck stack in the center
+    // Phase 1: All cards swiftly gather into a central deck stack
     tl.to(cards, {
-      x: (i) => offsets[i].dx,
-      y: (i) => offsets[i].dy,
-      rotationZ: (i) => (i - cards.length / 2) * 2.5,
-      scale: 0.95,
+      x: (i) => centerOffsets[i].dx,
+      y: (i) => centerOffsets[i].dy,
+      rotationZ: (i) => (i - n / 2) * 2.5,
+      scale: 0.94,
       duration: 0.22,
       ease: 'power2.out',
       stagger: 0.015,
       onStart: () => playWhoosh()
     })
 
-    // Phase 2: Rapid deck cut & weave (Entrevero)
+    // Phase 2: Deck cuts into two side-by-side packs
     .to(cards, {
-      x: (i) => offsets[i].dx + (i % 2 === 0 ? -65 : 65),
-      rotationZ: (i) => (i % 2 === 0 ? -10 : 10),
-      duration: 0.15,
+      x: (i) => centerOffsets[i].dx + (i % 2 === 0 ? -75 : 75),
+      rotationZ: (i) => (i % 2 === 0 ? -12 : 12),
+      duration: 0.16,
       ease: 'power2.inOut'
     })
+
+    // Phase 3: The packs crossover and weave through each other (True Chocolateo / Riffle)
     .to(cards, {
-      x: (i) => offsets[i].dx + (i % 2 === 0 ? 65 : -65),
+      x: (i) => centerOffsets[i].dx + (i % 2 === 0 ? 70 : -70),
       rotationZ: (i) => (i % 2 === 0 ? 10 : -10),
-      duration: 0.16,
+      duration: 0.18,
       ease: 'power1.inOut',
       onStart: () => playShuffleSound()
     })
+
+    // Phase 4: Gather back tightly in center deck
     .to(cards, {
-      x: (i) => offsets[i].dx,
-      y: (i) => offsets[i].dy,
+      x: (i) => centerOffsets[i].dx,
+      y: (i) => centerOffsets[i].dy,
       rotationZ: 0,
       scale: 0.98,
-      duration: 0.12,
+      duration: 0.14,
       ease: 'power2.in'
     })
 
-    // Phase 3: Permute the deck in React state
-    .add(() => {
-      setDeck((prevDeck) => {
-        const next = [...prevDeck];
-        for (let i = next.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [next[i], next[j]] = [next[j], next[i]];
-        }
-        return next;
-      });
-      playWhoosh();
-    })
-
-    // Phase 4: Fast, snappy deal out into new slots
+    // Phase 5: Deal out each card directly to its new random target slot
     .to(cards, {
-      x: 0,
-      y: 0,
+      x: (i) => targetOffsets[i].dx,
+      y: (i) => targetOffsets[i].dy,
       rotationZ: 0,
       scale: 1,
-      duration: 0.24,
-      ease: 'power2.out',
-      stagger: 0.03,
-      onComplete: () => {
-        setIsChocolateando(false);
-        gsap.set(cards, { clearProps: 'transform' });
-      }
+      duration: 0.32,
+      ease: 'power3.out',
+      stagger: 0.035,
+      onStart: () => playWhoosh()
     });
   };
 

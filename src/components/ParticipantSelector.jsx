@@ -377,7 +377,7 @@ export default function ParticipantSelector({
         </div>
 
         {/* FULL WIDTH GRID: SQUARES (ESTILO AMIGO SECRETO) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 max-h-[520px] overflow-y-auto pr-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 max-h-[520px] overflow-y-auto p-1.5">
           {filteredRoster.length === 0 ? (
             <div className="col-span-full py-12 text-center text-xs text-on-surface-variant font-mono">
               No se encontraron peleadores disponibles en la lista.
@@ -390,15 +390,15 @@ export default function ParticipantSelector({
                 <div
                   key={p.id}
                   onClick={() => setSelectedId(p.id)}
-                  className={`relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all cursor-pointer border min-h-[145px] group ${
+                  className={`relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all cursor-pointer min-h-[145px] group ${
                     isSelected
-                      ? 'bg-surface-container border-blue-500 ring-1 ring-blue-500/70 shadow-md scale-[1.03]'
-                      : 'bg-surface-container-low border-outline-dim hover:border-outline-subtle hover:bg-surface-container'
+                      ? 'bg-surface-container border-2 border-primary shadow-[0_0_15px_rgba(254,207,82,0.18)]'
+                      : 'bg-surface-container-low border border-outline-dim hover:border-outline-subtle hover:bg-surface-container'
                   }`}
                 >
-                  {/* Selection Dot */}
+                  {/* Selection Indicator */}
                   {isSelected && (
-                    <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-400 shadow-sm" />
+                    <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface-container shadow-sm" />
                   )}
 
                   {/* Fighter Avatar & Photo Icon */}
@@ -413,7 +413,7 @@ export default function ParticipantSelector({
                       <div
                         className={`w-14 h-14 rounded-xl flex items-center justify-center text-sm font-display font-black uppercase ${
                           isSelected
-                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
+                            ? 'bg-primary/10 text-primary border border-primary/30'
                             : 'bg-surface-container-high border border-outline-dim text-on-surface'
                         }`}
                       >
@@ -450,15 +450,15 @@ export default function ParticipantSelector({
                   </h4>
 
                   {/* Status Badge */}
-                  <div className="mt-1.5 w-full">
+                  <div className="mt-2 w-full">
                     <span
-                      className={`inline-block w-full py-0.5 rounded text-[10px] font-mono uppercase tracking-wider font-semibold transition-colors ${
+                      className={`inline-flex items-center justify-center gap-1 w-full py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider font-bold transition-colors ${
                         isSelected
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-surface-container border border-outline-dim text-on-surface-variant group-hover:border-outline-subtle'
+                          ? 'bg-primary text-black shadow-sm'
+                          : 'bg-surface-container border border-outline-dim text-on-surface-variant group-hover:border-outline-subtle group-hover:text-white'
                       }`}
                     >
-                      {isSelected ? '✓ Elegido' : 'Disponible'}
+                      {isSelected ? '✓ ELEGIDO' : 'DISPONIBLE'}
                     </span>
                   </div>
                 </div>
