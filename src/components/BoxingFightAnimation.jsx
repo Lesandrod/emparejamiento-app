@@ -245,11 +245,11 @@ export default function BoxingFightAnimation({
 
       {/* Top Header */}
       <div className="w-full relative z-20 pt-6 px-4 text-center">
-        <div className="inline-block px-3.5 py-1 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 text-[11px] font-mono text-[#d4af37] font-bold tracking-widest mb-1 shadow-md uppercase">
-          Combate Estelar #{String(pairNumber || '1').padStart(2, '0')} • Sorteo Confirmado
+        <div className="inline-block px-4 py-1.5 rounded-full border border-cyan-400/50 bg-cyan-950/60 text-xs font-orbitron text-[#00f2fe] font-bold tracking-widest mb-2 shadow-[0_0_15px_rgba(0,242,254,0.4)] uppercase">
+          COMBATE ESTELAR #{String(pairNumber || '1').padStart(2, '0')} • DUELO PACTADO
         </div>
-        <h1 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight uppercase">
-          ¡Combate <span className="text-[#d4af37]">Oficial</span> Pactado!
+        <h1 className="text-3xl sm:text-5xl font-orbitron font-black text-white tracking-tight uppercase drop-shadow-[0_0_25px_rgba(0,242,254,0.6)]">
+          ¡COMBATE <span className="text-[#00f2fe]">OFICIAL</span> CONFIRMADO!
         </h1>
       </div>
 
@@ -258,7 +258,7 @@ export default function BoxingFightAnimation({
         {/* Left: Blue Boxing Glove */}
         <div
           ref={blueGloveRef}
-          className="absolute -left-32 sm:-left-40 top-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 pointer-events-none filter drop-shadow-[0_0_35px_rgba(56,189,248,0.7)] will-change-transform"
+          className="absolute -left-32 sm:-left-40 top-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 pointer-events-none filter drop-shadow-[0_0_40px_rgba(0,242,254,0.8)] will-change-transform"
         >
           <img
             src="/blue_glove.png"
@@ -270,7 +270,7 @@ export default function BoxingFightAnimation({
         {/* Right: Red Boxing Glove */}
         <div
           ref={redGloveRef}
-          className="absolute -right-32 sm:-right-40 top-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 pointer-events-none filter drop-shadow-[0_0_35px_rgba(248,113,113,0.7)] will-change-transform"
+          className="absolute -right-32 sm:-right-40 top-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 pointer-events-none filter drop-shadow-[0_0_40px_rgba(255,42,95,0.8)] will-change-transform"
         >
           <img
             src="/red_glove.png"
@@ -284,15 +284,15 @@ export default function BoxingFightAnimation({
           ref={vsBadgeRef}
           className="z-30 flex flex-col items-center justify-center opacity-0 pointer-events-none"
         >
-          <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl bg-gradient-to-br from-[#1c1f27] via-[#111317] to-[#090a0d] border-2 border-[#d4af37]/60 flex flex-col items-center justify-center shadow-2xl">
-            <span className="font-display font-black text-2xl sm:text-3xl text-[#d4af37] tracking-wider">
+          <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl bg-gradient-to-br from-[#18233a] via-[#0d1422] to-[#060a12] border-2 border-[#00f2fe] flex flex-col items-center justify-center shadow-[0_0_30px_rgba(0,242,254,0.8)]">
+            <span className="font-orbitron font-black text-2xl sm:text-3xl text-[#00f2fe] tracking-wider">
               VS
             </span>
-            <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+            <span className="text-[8px] font-orbitron font-bold text-cyan-300 uppercase tracking-widest">
               OCTAGON
             </span>
           </div>
-          <div className="bg-[#111317] px-3 py-0.5 rounded-full border border-[#d4af37]/30 text-[9px] font-mono text-[#d4af37] mt-2">
+          <div className="bg-[#0b101c] px-3.5 py-1 rounded-full border border-cyan-400/40 text-[10px] font-orbitron font-bold text-[#00f2fe] mt-2 shadow-[0_0_10px_rgba(0,242,254,0.3)]">
             UFC 305 MATCHMAKER
           </div>
         </div>
@@ -305,8 +305,8 @@ export default function BoxingFightAnimation({
       >
         <div className="grid grid-cols-2 gap-3 sm:gap-6 items-stretch">
           {/* Blue Corner Fighter */}
-          <div className="bg-[#111317] border border-blue-400/40 rounded-xl p-4 sm:p-5 flex flex-col items-center text-center space-y-2 shadow-xl">
-            <span className="text-[10px] font-mono font-bold text-[#38bdf8] tracking-wider uppercase">
+          <div className="bg-gradient-to-br from-[#0e1628]/95 to-[#070b16]/95 border-2 border-cyan-400 rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center space-y-2 shadow-[0_0_25px_rgba(0,242,254,0.35)]">
+            <span className="text-[10px] font-orbitron font-bold text-[#00f2fe] tracking-wider uppercase">
               Esquina Azul
             </span>
 
@@ -314,26 +314,26 @@ export default function BoxingFightAnimation({
               <img
                 src={fighterBlue.photoUrl}
                 alt={fighterBlue.name}
-                className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl object-cover border-2 border-[#38bdf8] shadow-[0_0_15px_rgba(56,189,248,0.5)]"
+                className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl object-cover border-2 border-[#00f2fe] shadow-[0_0_15px_rgba(0,242,254,0.6)]"
               />
             ) : (
-              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl bg-blue-500/20 border-2 border-[#38bdf8] text-[#38bdf8] font-display font-black text-2xl flex items-center justify-center">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl bg-cyan-950 border-2 border-[#00f2fe] text-[#00f2fe] font-orbitron font-black text-2xl flex items-center justify-center">
                 {fighterBlue.name.substring(0, 2).toUpperCase()}
               </div>
             )}
 
-            <div className="text-base sm:text-2xl font-display font-black text-white truncate w-full uppercase">
+            <div className="text-base sm:text-2xl font-orbitron font-black text-white truncate w-full uppercase">
               {fighterBlue.name}
             </div>
 
-            <div className="text-[10px] font-mono text-[#38bdf8] tracking-wider">
-              74.8 kg • Naucalpan
+            <div className="text-[10px] font-mono text-cyan-300 tracking-wider">
+              74.8 kg • Contendiente
             </div>
           </div>
 
           {/* Red Corner Fighter */}
-          <div className="bg-[#111317] border border-red-400/40 rounded-xl p-4 sm:p-5 flex flex-col items-center text-center space-y-2 shadow-xl">
-            <span className="text-[10px] font-mono font-bold text-[#f87171] tracking-wider uppercase">
+          <div className="bg-gradient-to-bl from-[#240e18]/95 to-[#0e070c]/95 border-2 border-[#ff2a5f] rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center space-y-2 shadow-[0_0_25px_rgba(255,42,95,0.35)]">
+            <span className="text-[10px] font-orbitron font-bold text-[#ff2a5f] tracking-wider uppercase">
               Esquina Roja
             </span>
 
@@ -341,20 +341,20 @@ export default function BoxingFightAnimation({
               <img
                 src={fighterRed.photoUrl}
                 alt={fighterRed.name}
-                className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl object-cover border-2 border-[#f87171] shadow-[0_0_15px_rgba(248,113,113,0.5)]"
+                className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl object-cover border-2 border-[#ff2a5f] shadow-[0_0_15px_rgba(255,42,95,0.6)]"
               />
             ) : (
-              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl bg-red-500/20 border-2 border-[#f87171] text-[#f87171] font-display font-black text-2xl flex items-center justify-center">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl bg-red-950 border-2 border-[#ff2a5f] text-[#ff2a5f] font-orbitron font-black text-2xl flex items-center justify-center">
                 {fighterRed.name.substring(0, 2).toUpperCase()}
               </div>
             )}
 
-            <div className="text-base sm:text-2xl font-display font-black text-white truncate w-full uppercase">
+            <div className="text-base sm:text-2xl font-orbitron font-black text-white truncate w-full uppercase">
               {fighterRed.name}
             </div>
 
-            <div className="text-[10px] font-mono text-[#f87171] tracking-wider">
-              75.1 kg • Jalisco
+            <div className="text-[10px] font-mono text-red-300 tracking-wider">
+              75.1 kg • Contendiente
             </div>
           </div>
         </div>
@@ -364,10 +364,10 @@ export default function BoxingFightAnimation({
           <button
             type="button"
             onClick={onComplete}
-            className="w-full h-12 rounded-lg bg-[#d4af37] hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase transition-all shadow-lg shadow-[#d4af37]/20 flex items-center justify-center gap-2 cursor-pointer"
+            className="neo-button-cyan w-full h-12 rounded-xl font-orbitron font-extrabold text-xs sm:text-sm tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[18px]">format_list_bulleted</span>
-            <span>Ver en Cartelera Oficial</span>
+            <span>VER EN CARTELERA OFICIAL</span>
           </button>
         </div>
       </div>
