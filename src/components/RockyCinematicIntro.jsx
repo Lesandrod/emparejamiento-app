@@ -43,7 +43,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
   useEffect(() => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
     const initialOffset = isMobile ? 260 : 450;
-    const clashOffset = isMobile ? 25 : 45;
+    const clashOffset = isMobile ? 12 : 18; // Knuckle-to-knuckle direct collision
     const reboundOffset = isMobile ? 85 : 160;
 
     const ctx = gsap.context(() => {
@@ -281,7 +281,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
 
       {/* Center Clash Area - Positioned Higher and Fully Responsive */}
       <div className="relative z-20 flex items-center justify-center w-full max-w-4xl h-44 sm:h-64 px-4 -translate-y-20 sm:-translate-y-28 md:-translate-y-32">
-        {/* Left: Blue Boxing Glove */}
+        {/* Left: Blue Boxing Glove (Flipped horizontally so knuckles face center) */}
         <div
           ref={blueGloveRef}
           className="w-28 h-28 xs:w-36 xs:h-36 sm:w-52 sm:h-52 md:w-60 md:h-60 flex items-center justify-center pointer-events-none drop-shadow-[0_0_30px_rgba(56,189,248,0.45)]"
@@ -289,7 +289,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
           <img
             src="/blue_glove.png"
             alt="Guante Azul"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain -scale-x-100"
           />
         </div>
 
@@ -317,7 +317,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
           </div>
         </div>
 
-        {/* Right: Red Boxing Glove */}
+        {/* Right: Red Boxing Glove (Flipped horizontally so knuckles face center) */}
         <div
           ref={redGloveRef}
           className="w-28 h-28 xs:w-36 xs:h-36 sm:w-52 sm:h-52 md:w-60 md:h-60 flex items-center justify-center pointer-events-none drop-shadow-[0_0_30px_rgba(248,113,113,0.45)]"
@@ -325,7 +325,7 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
           <img
             src="/red_glove.png"
             alt="Guante Rojo"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain -scale-x-100"
           />
         </div>
       </div>
