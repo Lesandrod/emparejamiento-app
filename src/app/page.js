@@ -205,20 +205,18 @@ export default function Home() {
               <span>Peleadores ({participants.length})</span>
             </button>
 
-            {tournamentBracket && (
-              <button
-                type="button"
-                onClick={handleViewTree}
-                className={`px-3.5 py-2 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
-                  viewMode === 'bracket'
-                    ? 'text-white border-b-2 border-[#d4af37]'
-                    : 'text-on-surface-variant hover:text-white'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[15px] text-[#d4af37]">account_tree</span>
-                <span>Árbol Fixture</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleViewTree}
+              className={`px-3.5 py-2 font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'bracket'
+                  ? 'text-white border-b-2 border-[#d4af37]'
+                  : 'text-on-surface-variant hover:text-white'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px] text-[#d4af37]">account_tree</span>
+              <span>Árbol Fixture</span>
+            </button>
 
             <button
               type="button"
@@ -304,44 +302,47 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                {tournamentBracket && (
-                  <>
-                    <button
-                      onClick={handleViewTree}
-                      type="button"
-                      className="w-full sm:w-auto px-6 py-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary/60 text-primary hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">account_tree</span>
-                      <span>Ver Árbol Fixture</span>
-                    </button>
-                    <button
-                      onClick={handleRequestResetBracket}
-                      type="button"
-                      className="w-full sm:w-auto px-5 py-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 text-red-300 hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
-                      title="Borrar árbol del torneo"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">delete_forever</span>
-                      <span>Borrar Árbol</span>
-                    </button>
-                  </>
-                )}
+              <div className="relative z-10 flex flex-wrap items-center gap-3 w-full md:w-auto">
+                {/* BOTÓN VER FIXTURE (PROMINENTE AMARILLO) */}
+                <button
+                  onClick={handleViewTree}
+                  type="button"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-primary hover:bg-yellow-400 text-black font-display font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(254,207,82,0.4)] hover:shadow-[0_0_35px_rgba(254,207,82,0.6)] cursor-pointer flex items-center justify-center gap-2 flex-shrink-0"
+                >
+                  <span className="material-symbols-outlined text-[20px]">account_tree</span>
+                  <span>Ver Fixture del Torneo</span>
+                </button>
 
+                {/* BOTÓN SORTEAR / RE-SORTEAR (MÁS PEQUEÑO Y DISCRETO) */}
                 <button
                   onClick={handleRequestDraw}
                   disabled={isDrawingTournament || participants.length < 2}
                   type="button"
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary hover:bg-yellow-400 text-black font-display font-black text-sm uppercase tracking-widest transition-all shadow-[0_0_25px_rgba(254,207,82,0.4)] hover:shadow-[0_0_35px_rgba(254,207,82,0.6)] cursor-pointer flex items-center justify-center gap-2 flex-shrink-0"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-dim hover:border-primary/50 text-zinc-300 hover:text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 flex-shrink-0 shadow-sm"
+                  title="Generar o reorganizar cruces aleatorios (requiere PIN)"
                 >
-                  <span className="material-symbols-outlined text-[20px]">sports_mma</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary">shuffle</span>
                   <span>
                     {isDrawingTournament
                       ? 'Sorteando...'
                       : tournamentBracket
-                      ? 'Re-sortear Torneo'
-                      : 'Sortear Torneo del Poder'}
+                      ? 'Re-sortear'
+                      : 'Sortear Torneo'}
                   </span>
                 </button>
+
+                {/* BOTÓN BORRAR ÁRBOL (DISCRETO / PELIGRO) */}
+                {tournamentBracket && (
+                  <button
+                    onClick={handleRequestResetBracket}
+                    type="button"
+                    className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-300 hover:text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                    title="Borrar árbol del torneo (requiere PIN)"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">delete_forever</span>
+                    <span>Borrar Árbol</span>
+                  </button>
+                )}
               </div>
             </div>
 
