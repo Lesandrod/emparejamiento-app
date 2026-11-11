@@ -205,6 +205,29 @@ class BoxingAudioEngine {
       osc.stop(t + 0.04);
     } catch {}
   }
+
+  // Rapid Casino Deck Riffle / Chocolateo Shuffle
+  playDeckShuffle() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      for (let i = 0; i < 16; i++) {
+        const time = t + i * 0.04;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = i % 2 === 0 ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(320 + Math.random() * 350, time);
+        osc.frequency.exponentialRampToValueAtTime(90, time + 0.038);
+        gain.gain.setValueAtTime(0.14, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.038);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(time);
+        osc.stop(time + 0.04);
+      }
+    } catch {}
+  }
 }
 
 export const boxingAudio = new BoxingAudioEngine();
@@ -226,7 +249,7 @@ export function playClickSound() {
   boxingAudio.playTick();
 }
 export function playShuffleSound() {
-  boxingAudio.playWhoosh();
+  boxingAudio.playDeckShuffle();
 }
 export function playCardFlipSound() {
   boxingAudio.playWhoosh();

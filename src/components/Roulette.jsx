@@ -6,7 +6,8 @@ import BoxingFightAnimation from './BoxingFightAnimation';
 import {
   playWhoosh,
   playClickSound,
-  playCardFlipSound
+  playCardFlipSound,
+  playShuffleSound
 } from '@/utils/audio';
 
 export default function Roulette({
@@ -32,6 +33,26 @@ export default function Roulette({
     (p) => !p.revealed && p.id !== currentUser.id
   );
 
+  // State-driven shuffled deck so barajar genuinely randomizes positions
+  const [deck, setDeck] = useState(() => {
+    return candidatePool.map((p, idx) => ({
+      ...p,
+      originalIndex: idx,
+      uid: p.id || `card-${idx}-${p.name}`
+    }));
+  });
+
+  // Keep deck in sync if participants list changes
+  useEffect(() => {
+    setDeck(
+      candidatePool.map((p, idx) => ({
+        ...p,
+        originalIndex: idx,
+        uid: p.id || `card-${idx}-${p.name}`
+      }))
+    );
+  }, [participants.length, currentUser.id]);
+
   // Initial Entrance Animation
   useEffect(() => {
     if (!containerRef.current) return;
@@ -52,42 +73,68 @@ export default function Roulette({
     );
   }, []);
 
-  // Shuffle / Barajar Oponentes
+  // Shuffle / Barajar Oponentes Real Action
   const handleChocolatear = () => {
     if (isChocolateando || isRevealing || showFightAnimation) return;
     setIsChocolateando(true);
     setSelectedCardId(null);
-    playWhoosh();
+    playShuffleSound();
 
     const cards = containerRef.current.querySelectorAll('.mystery-card');
-    const tl = gsap.timeline({
+    if (!cards || cards.length === 0) {
+      setIsChocolateando(false);
+      return;
+    }
+
+    const tl = gsap.timeline();
+
+    // 1. Lift & scatter cards outward across each other
+    tl.to(cards, {
+      scale: 0.92,
+      y: (i) => (i % 2 === 0 ? -40 : 40),
+      x: (i) => (i % 2 === 0 ? 55 : -55),
+      rotationZ: (i) => (i % 2 === 0 ? 12 : -12),
+      duration: 0.22,
+      ease: 'power2.inOut',
+      stagger: 0.02
+    })
+    // 2. Mid-air casino exchange
+    .to(cards, {
+      x: () => (Math.random() - 0.5) * 180,
+      y: () => (Math.random() - 0.5) * 80,
+      rotationZ: () => (Math.random() - 0.5) * 22,
+      scale: 0.86,
+      opacity: 0.75,
+      duration: 0.26,
+      ease: 'power1.inOut'
+    })
+    // 3. Actually permute the deck array in React state
+    .add(() => {
+      setDeck((prevDeck) => {
+        const next = [...prevDeck];
+        for (let i = next.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [next[i], next[j]] = [next[j], next[i]];
+        }
+        return next;
+      });
+      playWhoosh();
+    })
+    // 4. Slam back into the new layout with spring
+    .to(cards, {
+      x: 0,
+      y: 0,
+      rotationZ: 0,
+      scale: 1,
+      opacity: 1,
+      duration: 0.32,
+      ease: 'back.out(1.5)',
+      stagger: 0.04,
       onComplete: () => {
         setIsChocolateando(false);
         gsap.set(cards, { clearProps: 'all' });
       }
     });
-
-    tl.to(cards, {
-      scale: 0.92,
-      duration: 0.15,
-      ease: 'power2.inOut'
-    })
-      .to(cards, {
-        x: () => (Math.random() - 0.5) * 26,
-        y: () => (Math.random() - 0.5) * 16,
-        rotationZ: () => (Math.random() - 0.5) * 8,
-        duration: 0.18,
-        ease: 'rough'
-      })
-      .to(cards, {
-        x: 0,
-        y: 0,
-        rotationZ: 0,
-        scale: 1,
-        stagger: 0.02,
-        duration: 0.22,
-        ease: 'power2.out'
-      });
   };
 
   const handleSelectCard = (index) => {
@@ -182,7 +229,7 @@ export default function Roulette({
     }
   };
 
-  const probability = candidatePool.length > 0 ? Math.round(100 / candidatePool.length) : 0;
+  const probability = deck.length > 0 ? Math.round(100 / deck.length) : 0;
 
   return (
     <div
@@ -284,14 +331,18 @@ export default function Roulette({
             <button
               onClick={handleChocolatear}
               disabled={isChocolateando || isRevealing}
-              className="px-4 py-2.5 bg-surface-container-high hover:bg-surface-container border border-outline-subtle hover:border-primary text-white rounded-lg text-xs font-semibold tracking-wider uppercase transition-all flex items-center gap-2 shadow-sm group cursor-pointer"
+              className={`px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all flex items-center gap-2 shadow-sm cursor-pointer ${
+                isChocolateando
+                  ? 'bg-primary text-black border border-primary scale-105'
+                  : 'bg-surface-container-high hover:bg-surface-container border border-outline-subtle hover:border-primary text-white'
+              }`}
               id="shuffleBtn"
               type="button"
             >
-              <span className={`material-symbols-outlined text-[18px] text-primary transition-transform duration-300 ${isChocolateando ? 'rotate-180 animate-spin' : 'group-hover:rotate-180'}`}>
+              <span className={`material-symbols-outlined text-[18px] text-primary transition-transform duration-500 ${isChocolateando ? 'rotate-180 animate-spin text-black' : ''}`}>
                 shuffle
               </span>
-              <span>{isChocolateando ? 'Barajando...' : 'Barajar Oponentes'}</span>
+              <span>{isChocolateando ? 'Barajando Sobres...' : 'Barajar Oponentes'}</span>
             </button>
             <button
               onClick={onCancel}
@@ -325,7 +376,7 @@ export default function Roulette({
         </div>
         <div className="flex items-center gap-3 text-[11px] font-mono text-on-surface-variant">
           <span className="px-2 py-0.5 rounded bg-surface-container border border-outline-dim text-white font-semibold">
-            {candidatePool.length} SOBRES DISPONIBLES
+            {deck.length} SOBRES DISPONIBLES
           </span>
           <span className="text-outline-subtle hidden sm:inline">•</span>
           <span className="text-outline-subtle hidden sm:inline">
@@ -339,13 +390,13 @@ export default function Roulette({
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
         id="cardsGrid"
       >
-        {candidatePool.map((c, idx) => {
+        {deck.map((c, idx) => {
           const isSelected = selectedCardId === idx;
           const slotNum = String(idx + 1).padStart(2, '0');
 
           return (
             <div
-              key={c.id || idx}
+              key={c.uid}
               ref={(el) => (cardsRef.current[idx] = el)}
               onClick={() => handleSelectCard(idx)}
               className={`mystery-card group relative bg-gradient-to-b from-[#17181d] to-[#0f1013] hover:from-[#1d1f26] hover:to-[#14151a] border rounded-xl p-5 cursor-pointer transition-all duration-300 flex flex-col justify-between min-h-[350px] shadow-lg hover:shadow-red-500/10 hover:-translate-y-1 ${
@@ -421,7 +472,7 @@ export default function Roulette({
                     e.stopPropagation();
                     handleConfirmDestapar(idx);
                   }}
-                  disabled={isRevealing}
+                  disabled={isRevealing || isChocolateando}
                   className={`w-full py-2.5 border rounded-lg text-xs font-mono font-bold tracking-wider uppercase transition-all text-center flex items-center justify-center gap-1.5 shadow-sm cursor-pointer ${
                     isSelected
                       ? 'bg-primary text-black border-primary hover:bg-yellow-400'
@@ -477,7 +528,7 @@ export default function Roulette({
             <div className="flex items-center gap-3 w-full md:w-auto justify-end">
               <button
                 onClick={() => setSelectedCardId(null)}
-                disabled={isRevealing}
+                disabled={isRevealing || isChocolateando}
                 className="px-4 py-2 border border-outline-dim hover:bg-surface-container text-on-surface-variant hover:text-on-surface rounded-lg text-xs font-medium tracking-wide transition-colors cursor-pointer"
                 id="cancelRevealBtn"
                 type="button"
@@ -486,7 +537,7 @@ export default function Roulette({
               </button>
               <button
                 onClick={() => handleConfirmDestapar(selectedCardId)}
-                disabled={isRevealing}
+                disabled={isRevealing || isChocolateando}
                 className="px-5 py-2 bg-primary hover:bg-yellow-400 text-black rounded-lg text-xs font-semibold tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 type="button"
               >
