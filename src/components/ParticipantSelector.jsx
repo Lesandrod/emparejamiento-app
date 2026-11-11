@@ -145,20 +145,20 @@ export default function ParticipantSelector({
             {/* BLUE CORNER */}
             <div className="lg:col-span-4 flex flex-col sm:flex-row items-center sm:items-start gap-6 relative group">
               <div className="relative shrink-0">
-                <div className="w-32 h-40 rounded-xl bg-surface-container-high border-2 border-blue-500 overflow-hidden flex items-end justify-center shadow-lg relative">
+                <div className="w-28 sm:w-32 h-28 sm:h-32 rounded-full bg-surface-container-high border-2 border-blue-500 overflow-hidden flex items-center justify-center shadow-lg relative">
                   {currentPair.member1.photoUrl ? (
                     <img
                       src={currentPair.member1.photoUrl}
                       alt={currentPair.member1.name}
-                      className="w-full h-full object-cover relative z-10 contrast-125"
+                      className="w-full h-full object-cover relative z-10 contrast-125 rounded-full"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-blue-950/60 text-blue-400 font-display font-black text-3xl uppercase">
+                    <div className="w-full h-full flex items-center justify-center bg-blue-950/60 text-blue-400 font-display font-black text-3xl uppercase rounded-full">
                       {currentPair.member1.name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-blue-600 text-white text-[9px] font-mono font-bold uppercase tracking-wider">
-                    ESQUINA AZUL
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-blue-600 text-white text-[8px] font-mono font-bold uppercase tracking-wider z-20 whitespace-nowrap shadow">
+                    AZUL
                   </span>
                 </div>
                 <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-blue-950 border border-blue-500 text-blue-400 text-[10px] font-mono font-bold rounded-full whitespace-nowrap shadow">
@@ -172,10 +172,15 @@ export default function ParticipantSelector({
                     Peleador Confirmado
                   </span>
                 </div>
-                <h2 className="text-3xl lg:text-4xl font-display font-black text-white tracking-tight uppercase truncate">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white tracking-tight uppercase truncate">
                   {currentPair.member1.name}
                 </h2>
-                <p className="text-xs text-blue-400 font-mono mt-1">
+                {currentPair.member1.alias && (
+                  <p className="text-xs text-primary font-mono font-bold mt-0.5">
+                    "{currentPair.member1.alias}"
+                  </p>
+                )}
+                <p className="text-xs text-blue-400 font-mono mt-0.5">
                   Esquina Azul Oficial
                 </p>
 
@@ -213,20 +218,20 @@ export default function ParticipantSelector({
             {/* RED CORNER */}
             <div className="lg:col-span-4 flex flex-col sm:flex-row-reverse items-center sm:items-start gap-6 relative group">
               <div className="relative shrink-0">
-                <div className="w-32 h-40 rounded-xl bg-surface-container-high border-2 border-red-500 overflow-hidden flex items-end justify-center shadow-lg relative">
+                <div className="w-28 sm:w-32 h-28 sm:h-32 rounded-full bg-surface-container-high border-2 border-red-500 overflow-hidden flex items-center justify-center shadow-lg relative">
                   {currentPair.member2.photoUrl ? (
                     <img
                       src={currentPair.member2.photoUrl}
                       alt={currentPair.member2.name}
-                      className="w-full h-full object-cover relative z-10 contrast-125"
+                      className="w-full h-full object-cover relative z-10 contrast-125 rounded-full"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-red-950/60 text-red-400 font-display font-black text-3xl uppercase">
+                    <div className="w-full h-full flex items-center justify-center bg-red-950/60 text-red-400 font-display font-black text-3xl uppercase rounded-full">
                       {currentPair.member2.name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-red-600 text-white text-[9px] font-mono font-bold uppercase tracking-wider">
-                    ESQUINA ROJA
+                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-red-600 text-white text-[8px] font-mono font-bold uppercase tracking-wider z-20 whitespace-nowrap shadow">
+                    ROJA
                   </span>
                 </div>
                 <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 bg-red-950 border border-red-500 text-red-400 text-[10px] font-mono font-bold rounded-full whitespace-nowrap shadow">
@@ -240,10 +245,15 @@ export default function ParticipantSelector({
                     Peleador Confirmado
                   </span>
                 </div>
-                <h2 className="text-3xl lg:text-4xl font-display font-black text-white tracking-tight uppercase truncate">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white tracking-tight uppercase truncate">
                   {currentPair.member2.name}
                 </h2>
-                <p className="text-xs text-red-400 font-mono mt-1">
+                {currentPair.member2.alias && (
+                  <p className="text-xs text-primary font-mono font-bold mt-0.5">
+                    "{currentPair.member2.alias}"
+                  </p>
+                )}
+                <p className="text-xs text-red-400 font-mono mt-0.5">
                   Esquina Roja Oficial
                 </p>
 
@@ -288,15 +298,15 @@ export default function ParticipantSelector({
       {selectedUser && (
         <div className="bg-surface-dim border border-outline-dim rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="w-14 h-14 rounded-xl overflow-hidden bg-surface-container border-2 border-blue-500 flex-shrink-0 shadow-md">
+            <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container border-2 border-blue-500 flex-shrink-0 shadow-md">
               {selectedUser.photoUrl ? (
                 <img
                   src={selectedUser.photoUrl}
                   alt={selectedUser.name}
-                  className="w-full h-full object-cover contrast-125"
+                  className="w-full h-full object-cover contrast-125 rounded-full"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center font-display font-black text-blue-400 text-lg uppercase bg-blue-950/40">
+                <div className="w-full h-full flex items-center justify-center font-display font-black text-blue-400 text-lg uppercase bg-blue-950/40 rounded-full">
                   {selectedUser.name.substring(0, 2).toUpperCase()}
                 </div>
               )}
@@ -309,8 +319,15 @@ export default function ParticipantSelector({
                 </span>
                 <span className="w-2 h-2 rounded-full bg-blue-400" />
               </div>
-              <div className="text-xl sm:text-2xl font-display font-black text-white uppercase truncate">
-                {selectedUser.name}
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-xl sm:text-2xl font-display font-black text-white uppercase truncate">
+                  {selectedUser.name}
+                </span>
+                {selectedUser.alias && (
+                  <span className="text-xs sm:text-sm font-mono text-primary font-bold">
+                    "{selectedUser.alias}"
+                  </span>
+                )}
               </div>
               <div className="text-xs text-on-surface-variant font-mono">
                 Presiona "Confirmar y Sacar Carta" para descubrir su rival a ciegas en el octágono.
@@ -390,7 +407,7 @@ export default function ParticipantSelector({
                 <div
                   key={p.id}
                   onClick={() => setSelectedId(p.id)}
-                  className={`relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all cursor-pointer min-h-[145px] group ${
+                  className={`relative rounded-xl p-3 flex flex-col items-center justify-between text-center transition-all cursor-pointer min-h-[155px] group ${
                     isSelected
                       ? 'bg-surface-container border-2 border-primary shadow-[0_0_15px_rgba(254,207,82,0.18)]'
                       : 'bg-surface-container-low border border-outline-dim hover:border-outline-subtle hover:bg-surface-container'
@@ -401,17 +418,17 @@ export default function ParticipantSelector({
                     <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface-container shadow-sm" />
                   )}
 
-                  {/* Fighter Avatar & Photo Icon */}
+                  {/* Fighter Avatar & Photo Icon (Round frame) */}
                   <div className="relative my-1">
                     {p.photoUrl ? (
                       <img
                         src={p.photoUrl}
                         alt={p.name}
-                        className="w-14 h-14 rounded-xl object-cover border border-outline-subtle flex-shrink-0"
+                        className="w-14 h-14 rounded-full object-cover border border-outline-subtle flex-shrink-0 shadow-sm"
                       />
                     ) : (
                       <div
-                        className={`w-14 h-14 rounded-xl flex items-center justify-center text-sm font-display font-black uppercase ${
+                        className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-display font-black uppercase ${
                           isSelected
                             ? 'bg-primary/10 text-primary border border-primary/30'
                             : 'bg-surface-container-high border border-outline-dim text-on-surface'
@@ -423,7 +440,7 @@ export default function ParticipantSelector({
 
                     {/* Camera Upload Button */}
                     <label
-                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-container-highest border border-outline-subtle hover:border-primary flex items-center justify-center text-outline-subtle hover:text-white transition-colors cursor-pointer"
+                      className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-container-highest border border-outline-subtle hover:border-primary flex items-center justify-center text-outline-subtle hover:text-white transition-colors cursor-pointer shadow"
                       title="Subir foto de peleador"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -440,14 +457,25 @@ export default function ParticipantSelector({
                     </label>
                   </div>
 
-                  {/* Fighter Name */}
-                  <h4
-                    className={`text-xs font-bold uppercase truncate w-full mt-1 ${
-                      isSelected ? 'text-white font-extrabold' : 'text-on-surface group-hover:text-primary'
-                    } transition-colors`}
-                  >
-                    {p.name}
-                  </h4>
+                  {/* Fighter Name & Alias */}
+                  <div className="w-full mt-1 min-w-0">
+                    <h4
+                      className={`text-xs font-bold uppercase truncate w-full ${
+                        isSelected ? 'text-white font-extrabold' : 'text-on-surface group-hover:text-primary'
+                      } transition-colors`}
+                    >
+                      {p.name}
+                    </h4>
+                    {p.alias ? (
+                      <span className="text-[10px] font-mono text-primary truncate block font-semibold leading-tight mt-0.5">
+                        "{p.alias}"
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono text-transparent block leading-tight select-none mt-0.5">
+                        -
+                      </span>
+                    )}
+                  </div>
 
                   {/* Status Badge */}
                   <div className="mt-2 w-full">
@@ -573,8 +601,8 @@ export default function ParticipantSelector({
                         <h4 className="text-xs font-bold text-white truncate uppercase">
                           {pair.member1.name}
                         </h4>
-                        <span className="text-[9px] text-blue-400 font-mono block">
-                          Azul
+                        <span className="text-[9px] text-blue-400 font-mono block truncate">
+                          {pair.member1.alias ? `“${pair.member1.alias}”` : 'Esquina Azul'}
                         </span>
                       </div>
                     </div>
@@ -590,8 +618,8 @@ export default function ParticipantSelector({
                         <h4 className="text-xs font-bold text-white truncate uppercase">
                           {pair.member2.name}
                         </h4>
-                        <span className="text-[9px] text-red-400 font-mono block">
-                          Roja
+                        <span className="text-[9px] text-red-400 font-mono block truncate">
+                          {pair.member2.alias ? `“${pair.member2.alias}”` : 'Esquina Roja'}
                         </span>
                       </div>
                       {pair.member2.photoUrl ? (

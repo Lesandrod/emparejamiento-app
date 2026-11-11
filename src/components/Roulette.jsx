@@ -303,22 +303,21 @@ export default function Roulette({
         <div className="absolute -right-8 -top-8 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-5 sm:gap-7">
-            {/* Fighter Photo */}
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-surface-container-high border-2 border-blue-500/40 flex-shrink-0 shadow-md">
+            {/* Fighter Photo (Round Frame) */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-surface-container-high border-2 border-blue-500/50 flex-shrink-0 shadow-md flex items-center justify-center">
               {currentUser.photoUrl ? (
                 <img
                   alt={currentUser.name}
-                  className="w-full h-full object-cover contrast-125 brightness-95 scale-105"
+                  className="w-full h-full object-cover contrast-125 brightness-95 rounded-full"
                   src={currentUser.photoUrl}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-blue-950/40 text-blue-400 font-display font-black text-2xl uppercase">
+                <div className="w-full h-full flex items-center justify-center bg-blue-950/40 text-blue-400 font-display font-black text-2xl uppercase rounded-full">
                   {currentUser.name.substring(0, 2).toUpperCase()}
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-              <span className="absolute bottom-1.5 left-1.5 right-1.5 text-center text-[9px] font-mono uppercase bg-blue-600 text-white font-bold tracking-widest px-1 py-0.5 rounded shadow">
-                ESQUINA AZUL
+              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-center text-[8px] font-mono uppercase bg-blue-600 text-white font-bold tracking-widest px-2 py-0.5 rounded-full shadow z-20 whitespace-nowrap">
+                AZUL
               </span>
             </div>
 
@@ -331,7 +330,7 @@ export default function Roulette({
                 </span>
                 <span className="text-outline-subtle text-xs">•</span>
                 <span className="text-[11px] font-mono text-on-surface-variant font-medium">
-                  Gimnasio: Mexbox MMA
+                  Torneo del Poder
                 </span>
               </div>
 
@@ -339,9 +338,11 @@ export default function Roulette({
                 <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white uppercase">
                   {currentUser.name}
                 </h1>
-                <span className="text-xs sm:text-sm font-mono text-primary uppercase font-bold tracking-wider">
-                  “El Destructor”
-                </span>
+                {currentUser.alias && (
+                  <span className="text-xs sm:text-sm font-mono text-primary uppercase font-bold tracking-wider">
+                    “{currentUser.alias}”
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-3 text-xs text-on-surface-variant pt-2 border-t border-outline-dim/60">

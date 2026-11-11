@@ -221,11 +221,13 @@ export async function spinPublicPair(currentUserId) {
     member1: {
       id: currentPerson.id,
       name: currentPerson.name,
+      alias: currentPerson.alias || '',
       photoUrl: currentPerson.photoUrl || null
     },
     member2: {
       id: chosenPartner.id,
       name: chosenPartner.name,
+      alias: chosenPartner.alias || '',
       photoUrl: chosenPartner.photoUrl || null
     },
     createdAt: Date.now()
@@ -412,14 +414,16 @@ export async function resetAllPairings() {
 }
 
 // Add participant
-export async function addParticipant(name) {
+export async function addParticipant(name, alias = '') {
   if (!name || !name.trim()) throw new Error('Nombre inválido');
   const cleanName = name.trim();
+  const cleanAlias = (alias || '').trim();
   const newId = String(Date.now());
 
   const newP = {
     id: newId,
     name: cleanName,
+    alias: cleanAlias,
     revealed: false,
     partnerId: null,
     pairNumber: null,
@@ -429,6 +433,7 @@ export async function addParticipant(name) {
   if (isFirebaseConfigured && db) {
     await setDoc(doc(db, PARTICIPANTS_COL, newId), {
       name: cleanName,
+      alias: cleanAlias,
       revealed: false,
       partnerId: null,
       pairNumber: null,
@@ -441,6 +446,25 @@ export async function addParticipant(name) {
   }
 
   return newP;
+}
+
+// Update participant name & alias
+export async function updateParticipant(participantId, { name, alias }) {
+  if (!participantId) throw new Error('ID requerido');
+  const updates = {};
+  if (name !== undefined && name !== null) updates.name = name.trim();
+  if (alias !== undefined && alias !== null) updates.alias = alias.trim();
+
+  if (isFirebaseConfigured && db) {
+    await updateDoc(doc(db, PARTICIPANTS_COL, participantId), updates);
+  } else {
+    const local = readLocalStore();
+    local.participants = local.participants.map((p) =>
+      p.id === participantId ? { ...p, ...updates } : p
+    );
+    writeLocalStore(local);
+  }
+  return { success: true };
 }
 
 // Delete participant

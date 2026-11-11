@@ -368,10 +368,10 @@ export default function BoxingFightAnimation({
               <img
                 src={fighterBlue.photoUrl}
                 alt={fighterBlue.name}
-                className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl object-cover border-2 border-blue-500 shadow-md"
+                className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover border-2 border-blue-500 shadow-md"
               />
             ) : (
-              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl bg-blue-950/60 border-2 border-blue-500 text-blue-400 font-display font-black text-2xl flex items-center justify-center">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-blue-950/60 border-2 border-blue-500 text-blue-400 font-display font-black text-2xl flex items-center justify-center">
                 {fighterBlue.name.substring(0, 2).toUpperCase()}
               </div>
             )}
@@ -379,6 +379,12 @@ export default function BoxingFightAnimation({
             <div className="text-base sm:text-2xl font-display font-extrabold text-white truncate w-full uppercase">
               {fighterBlue.name}
             </div>
+
+            {fighterBlue.alias && (
+              <div className="text-xs font-mono text-primary font-bold">
+                “{fighterBlue.alias}”
+              </div>
+            )}
 
             <div className="text-[10px] font-mono text-on-surface-variant tracking-wider">
               74.8 kg • Contendiente Oficial
@@ -395,10 +401,10 @@ export default function BoxingFightAnimation({
               <img
                 src={fighterRed.photoUrl}
                 alt={fighterRed.name}
-                className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl object-cover border-2 border-red-500 shadow-md"
+                className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover border-2 border-red-500 shadow-md"
               />
             ) : (
-              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-xl bg-red-950/60 border-2 border-red-500 text-red-400 font-display font-black text-2xl flex items-center justify-center">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-red-950/60 border-2 border-red-500 text-red-400 font-display font-black text-2xl flex items-center justify-center">
                 {fighterRed.name.substring(0, 2).toUpperCase()}
               </div>
             )}
@@ -406,6 +412,12 @@ export default function BoxingFightAnimation({
             <div className="text-base sm:text-2xl font-display font-extrabold text-white truncate w-full uppercase">
               {fighterRed.name}
             </div>
+
+            {fighterRed.alias && (
+              <div className="text-xs font-mono text-primary font-bold">
+                “{fighterRed.alias}”
+              </div>
+            )}
 
             <div className="text-[10px] font-mono text-on-surface-variant tracking-wider">
               75.1 kg • Contendiente Oficial

@@ -15,6 +15,12 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   const [pairs, setPairs] = useState([]);
   const [preferences, setPreferences] = useState({});
   const [newName, setNewName] = useState('');
+  const [newAlias, setNewAlias] = useState('');
+
+  // Participant Editing
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editAlias, setEditAlias] = useState('');
 
   // Photo Cropper
   const [cropImageSrc, setCropImageSrc] = useState(null);
@@ -116,15 +122,60 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
       const res = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: adminPin, action: 'add', name: newName.trim() })
+        body: JSON.stringify({
+          pin: adminPin,
+          action: 'add',
+          name: newName.trim(),
+          alias: newAlias.trim()
+        })
       });
       if (res.ok) {
         setNewName('');
+        setNewAlias('');
         await loadAdminStatus(adminPin);
         if (onRefreshParticipants) await onRefreshParticipants();
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStartEdit = (p) => {
+    setEditingId(p.id);
+    setEditName(p.name || '');
+    setEditAlias(p.alias || '');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditName('');
+    setEditAlias('');
+  };
+
+  const handleSaveEdit = async (id) => {
+    if (!editName.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pin: adminPin,
+          action: 'update',
+          participantId: id,
+          name: editName.trim(),
+          alias: editAlias.trim()
+        })
+      });
+      if (res.ok) {
+        setEditingId(null);
+        setNotice('Peleador actualizado.');
+        await loadAdminStatus(adminPin);
+        if (onRefreshParticipants) await onRefreshParticipants();
+      }
+    } finally {
+      setLoading(false);
+      setTimeout(() => setNotice(''), 2500);
     }
   };
 
@@ -337,19 +388,26 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
               <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block">
                 Inscribir Peleador al Roster
               </span>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <input
                   type="text"
-                  placeholder="Nombre de peleador"
+                  placeholder="Nombre de peleador *"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="flex-1 h-9 px-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-white text-xs outline-none focus:border-[#d4af37]"
+                  className="sm:col-span-6 h-9 px-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-white text-xs outline-none focus:border-[#d4af37]"
                   required
+                />
+                <input
+                  type="text"
+                  placeholder='Alias / Apodo (Ej: El Destructor)'
+                  value={newAlias}
+                  onChange={(e) => setNewAlias(e.target.value)}
+                  className="sm:col-span-4 h-9 px-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-amber-300 text-xs outline-none focus:border-[#d4af37]"
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 h-9 rounded-lg bg-[#d4af37] text-black text-xs font-black uppercase tracking-wider"
+                  className="sm:col-span-2 h-9 rounded-lg bg-[#d4af37] text-black text-xs font-black uppercase tracking-wider hover:bg-yellow-400 transition-colors cursor-pointer"
                 >
                   Inscribir
                 </button>
@@ -359,55 +417,102 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
             {/* Matchmaker Rigging Preferences */}
             <div className="space-y-1.5">
               <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block">
-                Combates Predefinidos (Preferencias de Matchmaker)
+                Combates Predefinidos y Gestión de Peleadores
               </span>
 
-              <div className="max-h-56 overflow-y-auto border border-[rgba(255,255,255,0.07)] rounded-lg bg-[#161920]">
+              <div className="max-h-64 overflow-y-auto border border-[rgba(255,255,255,0.07)] rounded-lg bg-[#161920]">
                 <table className="w-full text-xs text-left font-mono">
                   <thead className="bg-[#1c1f27] text-zinc-400 border-b border-[rgba(255,255,255,0.07)] text-[10px] sticky top-0">
                     <tr>
-                      <th className="p-2.5 font-medium">PELEADOR</th>
+                      <th className="p-2.5 font-medium">PELEADOR Y ALIAS</th>
                       <th className="p-2.5 font-medium">ESTADO</th>
                       <th className="p-2.5 font-medium">RIVAL PREFIJADO</th>
-                      <th className="p-2.5 text-right"></th>
+                      <th className="p-2.5 text-right">ACCIONES</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[rgba(255,255,255,0.07)]">
                     {participants.map((p) => {
                       const currentPrefId = preferences[p.id] || '';
+                      const isEditing = editingId === p.id;
 
                       return (
                         <tr key={p.id} className="hover:bg-[#1c1f27]/50">
                           <td className="p-2.5 font-medium text-white">
-                            <div className="flex items-center gap-2">
-                              {p.photoUrl ? (
-                                <img
-                                  src={p.photoUrl}
-                                  alt={p.name}
-                                  className="w-7 h-7 rounded-lg object-cover border border-[#38bdf8] flex-shrink-0"
-                                />
-                              ) : (
-                                <div className="w-7 h-7 rounded-lg bg-[#1c1f27] border border-[rgba(255,255,255,0.07)] flex items-center justify-center text-[10px] text-zinc-300 font-bold flex-shrink-0">
-                                  {p.name.charAt(0)}
-                                </div>
-                              )}
-                              <span className="truncate font-display font-bold">{p.name}</span>
-                              <label
-                                className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-[rgba(255,255,255,0.1)] hover:border-[#d4af37] bg-[#1c1f27] text-zinc-400 rounded ml-1"
-                                title="Subir foto"
-                              >
-                                {p.photoUrl ? 'Foto' : '+Foto'}
+                            {isEditing ? (
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    handleSelectFileForCrop(p, e.target.files?.[0]);
-                                    e.target.value = '';
-                                  }}
-                                  className="hidden"
+                                  type="text"
+                                  value={editName}
+                                  onChange={(e) => setEditName(e.target.value)}
+                                  placeholder="Nombre *"
+                                  className="h-7 px-2 bg-[#111317] border border-[#d4af37] rounded text-white text-xs w-32 font-sans outline-none"
+                                  required
                                 />
-                              </label>
-                            </div>
+                                <input
+                                  type="text"
+                                  value={editAlias}
+                                  onChange={(e) => setEditAlias(e.target.value)}
+                                  placeholder="Alias / Apodo"
+                                  className="h-7 px-2 bg-[#111317] border border-[#d4af37] rounded text-primary text-xs w-28 font-mono outline-none"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveEdit(p.id)}
+                                  className="text-xs px-2 py-1 bg-primary text-black font-bold rounded cursor-pointer"
+                                  title="Guardar cambios"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={handleCancelEdit}
+                                  className="text-xs px-2 py-1 bg-[#23242a] text-zinc-400 hover:text-white rounded cursor-pointer"
+                                  title="Cancelar"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                {p.photoUrl ? (
+                                  <img
+                                    src={p.photoUrl}
+                                    alt={p.name}
+                                    className="w-8 h-8 rounded-full object-cover border border-[#38bdf8] flex-shrink-0 shadow-sm"
+                                  />
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-[#1c1f27] border border-[rgba(255,255,255,0.07)] flex items-center justify-center text-[10px] text-zinc-300 font-bold flex-shrink-0">
+                                    {p.name.charAt(0)}
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <div className="truncate font-display font-bold text-white flex items-center gap-1.5">
+                                    <span>{p.name}</span>
+                                    {p.alias && (
+                                      <span className="text-primary font-mono text-[10px] font-normal truncate">
+                                        "{p.alias}"
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <label
+                                  className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-[rgba(255,255,255,0.1)] hover:border-[#d4af37] bg-[#1c1f27] text-zinc-400 rounded ml-1"
+                                  title="Subir foto"
+                                >
+                                  {p.photoUrl ? 'Foto' : '+Foto'}
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      handleSelectFileForCrop(p, e.target.files?.[0]);
+                                      e.target.value = '';
+                                    }}
+                                    className="hidden"
+                                  />
+                                </label>
+                              </div>
+                            )}
                           </td>
 
                           <td className="p-2.5 text-[10px]">
@@ -442,13 +547,26 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                           </td>
 
                           <td className="p-2.5 text-right whitespace-nowrap">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteParticipant(p.id)}
-                              className="text-zinc-500 hover:text-red-400 text-xs px-2 py-0.5"
-                            >
-                              [X]
-                            </button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              {!isEditing && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEdit(p)}
+                                  className="text-primary hover:text-yellow-400 text-[11px] px-2 py-0.5 border border-primary/30 rounded bg-primary/10 hover:bg-primary/20 cursor-pointer"
+                                  title="Editar nombre y alias"
+                                >
+                                  Editar
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteParticipant(p.id)}
+                                className="text-zinc-500 hover:text-red-400 text-xs px-2 py-0.5 cursor-pointer"
+                                title="Eliminar peleador"
+                              >
+                                [X]
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

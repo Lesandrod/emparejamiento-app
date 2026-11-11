@@ -4,6 +4,7 @@ import {
   resetAllPairings,
   unpairDuo,
   addParticipant,
+  updateParticipant,
   deleteParticipant,
   setPairingPreference,
   updateParticipantPhoto,
@@ -44,8 +45,16 @@ export async function POST(request) {
 
     if (action === 'add') {
       if (!name) return NextResponse.json({ error: 'Nombre requerido' }, { status: 400 });
-      const newP = await addParticipant(name);
+      const { alias } = body;
+      const newP = await addParticipant(name, alias);
       return NextResponse.json({ success: true, participant: newP });
+    }
+
+    if (action === 'update') {
+      if (!participantId) return NextResponse.json({ error: 'ID requerido' }, { status: 400 });
+      const { alias } = body;
+      await updateParticipant(participantId, { name, alias });
+      return NextResponse.json({ success: true });
     }
 
     if (action === 'delete') {
