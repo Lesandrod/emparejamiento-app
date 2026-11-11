@@ -406,7 +406,7 @@ export default function Roulette({
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
           </span>
           <span className="text-xs font-mono tracking-widest uppercase font-bold text-white">
-            SOBRES SELLADOS UFC • SELECCIONA EL RIVAL EN ESQUINA ROJA
+            SOBRES SELLADOS • TORNEO DEL PODER • SELECCIONA EL RIVAL EN ESQUINA ROJA
           </span>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-mono text-on-surface-variant">

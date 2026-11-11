@@ -14,8 +14,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "UFC FIGHT NIGHT • Matchmaker Studio",
-  description: "Sistema oficial de emparejamiento y cartelera UFC",
+  title: "Torneo del Poder • Matchmaker Studio",
+  description: "Sistema oficial de emparejamiento y cartelera del Torneo del Poder",
 };
 
 export default function RootLayout({ children }) {

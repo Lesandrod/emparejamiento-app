@@ -58,14 +58,14 @@ export default function Home() {
               <span className="px-2.5 py-1 rounded bg-[#d4af37] text-black font-display font-black text-xl tracking-tighter leading-none shadow-sm">
                 UFC
               </span>
-              <span className="font-display font-bold text-xs tracking-widest text-white uppercase">
-                FIGHT NIGHT
+              <span className="font-display font-bold text-xs sm:text-sm tracking-widest text-white uppercase">
+                TORNEO DEL PODER
               </span>
             </div>
             <div className="h-4 w-px bg-outline-dim hidden sm:block"></div>
             <div className="hidden sm:flex items-center gap-2">
               <span className="px-2 py-0.5 rounded bg-surface-container text-[#d4af37] font-mono text-[11px] font-bold tracking-wider uppercase border border-[#d4af37]/30">
-                UFC 305
+                EDICIÓN OFICIAL
               </span>
               <span className="text-xs text-on-surface-variant font-medium hidden md:inline">
                 / MATCHMAKER STUDIO
@@ -156,11 +156,11 @@ export default function Home() {
       <footer className="mt-auto border-t border-[rgba(255,255,255,0.07)] bg-[#090a0d] py-5 text-xs text-zinc-500">
         <div className="max-w-[1720px] mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="font-display font-bold text-white tracking-wider text-sm">UFC</span>
+            <span className="font-display font-bold text-white tracking-wider text-sm">TORNEO DEL PODER</span>
             <span>•</span>
             <span>Matchmaker Studio</span>
             <span>•</span>
-            <span className="text-zinc-600">Reglamento Unificado MMA</span>
+            <span className="text-zinc-600">Reglamento Oficial MMA</span>
           </div>
           <div className="flex items-center gap-4 text-xs">
             <button

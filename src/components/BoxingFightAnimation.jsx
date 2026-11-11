@@ -347,7 +347,7 @@ export default function BoxingFightAnimation({
             </span>
           </div>
           <div className="bg-surface-dim px-3.5 py-1 rounded-full border border-outline-dim text-[10px] font-mono font-bold text-on-surface-variant mt-2 shadow-sm">
-            UFC 305 MATCHMAKER
+            TORNEO DEL PODER • MATCHMAKER
           </div>
         </div>
       </div>
