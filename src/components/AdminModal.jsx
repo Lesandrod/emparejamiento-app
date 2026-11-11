@@ -129,7 +129,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   };
 
   const handleDeleteParticipant = async (id) => {
-    if (!window.confirm('¿Eliminar peleador?')) return;
+    if (!window.confirm('¿Eliminar peleador del roster oficial?')) return;
     setLoading(true);
     try {
       const res = await fetch('/api/admin', {
@@ -204,24 +204,26 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md select-none">
-      <div className="w-full max-w-2xl bg-[#090d18] border border-cyan-500/40 rounded-2xl shadow-[0_0_35px_rgba(0,240,255,0.2)] flex flex-col max-h-[90vh] text-white overflow-hidden">
+      <div className="w-full max-w-2xl bg-[#111317] border border-[rgba(255,255,255,0.07)] rounded-xl shadow-2xl flex flex-col max-h-[90vh] text-white overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-blue-900/40 flex items-center justify-between bg-[#060a16]">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00f0ff]" />
+        <div className="p-4 sm:p-5 border-b border-[rgba(255,255,255,0.07)] flex items-center justify-between bg-[#161920]/80">
+          <div className="flex items-center gap-3">
+            <span className="px-2 py-0.5 rounded bg-[#d4af37] text-black font-display font-black text-sm tracking-tight">
+              UFC
+            </span>
             <div>
-              <h2 className="text-base font-ufc font-bold text-white tracking-wider">
-                PANEL DE ORGANIZADOR <span className="text-cyan-400">UFC MATCHMAKER</span>
+              <h2 className="text-sm font-display font-bold text-white tracking-wider uppercase">
+                Panel Matchmaker Apex
               </h2>
-              <span className="text-[10px] font-mono-tech text-neutral-400">
-                GESTIÓN DE COMBATES Y PREFERENCIAS
+              <span className="text-[10px] text-zinc-400 font-mono">
+                Gestión Oficial de Cartelera y Combates
               </span>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-neutral-400 hover:text-white font-mono-tech text-xs"
+            className="text-zinc-400 hover:text-white font-mono text-xs"
           >
             [CERRAR]
           </button>
@@ -231,98 +233,98 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         {!isAuthenticated ? (
           <form onSubmit={handleLogin} className="p-6 space-y-4 max-w-sm mx-auto w-full">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-mono-tech text-neutral-400">
-                CLAVE DE ACCESO (PIN)
+              <label className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">
+                CLAVE DE ORGANIZADOR (PIN)
               </label>
               <input
                 type="password"
-                placeholder="Ingresa la clave"
+                placeholder="Ingresa clave"
                 value={adminPin}
                 onChange={(e) => {
                   setAdminPin(e.target.value);
                   setAuthError('');
                 }}
-                className="w-full h-11 px-3.5 bg-[#060912] border border-cyan-500/40 rounded-xl text-white text-xs font-mono-tech outline-none focus:border-cyan-400 focus:shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+                className="w-full h-10 px-3.5 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-white text-xs font-mono outline-none focus:border-[#d4af37]"
                 autoFocus
               />
             </div>
 
             {authError && (
-              <div className="text-xs text-red-400 font-mono-tech">{authError}</div>
+              <div className="text-xs text-red-400 font-mono">{authError}</div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="btn-neo-cyan w-full h-11 text-xs"
+              className="w-full h-10 rounded-lg bg-[#d4af37] hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase transition-all shadow"
             >
-              {loading ? 'ACCEDIENDO...' : 'INGRESAR'}
+              {loading ? 'Verificando...' : 'Acceder al Panel'}
             </button>
           </form>
         ) : (
           <div className="p-6 overflow-y-auto space-y-6 flex-1">
             {notice && (
-              <div className="p-2.5 bg-cyan-950/80 border border-cyan-400 text-cyan-200 text-xs font-mono-tech text-center rounded-xl">
+              <div className="p-2.5 bg-emerald-950/80 border border-emerald-500 text-emerald-200 text-xs font-mono text-center rounded-lg">
                 {notice}
               </div>
             )}
 
             {/* Metrics */}
-            <div className="grid grid-cols-3 gap-2.5 text-center font-mono-tech">
-              <div className="p-3 bg-[#060912] border border-blue-900/40 rounded-xl">
-                <div className="text-xl font-bold text-white font-ufc">{participants.length}</div>
-                <div className="text-[9px] text-neutral-400">ROSTER</div>
+            <div className="grid grid-cols-3 gap-2.5 text-center font-mono">
+              <div className="p-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg">
+                <div className="text-xl font-bold text-white font-display">{participants.length}</div>
+                <div className="text-[9px] text-zinc-400 uppercase">Roster Total</div>
               </div>
-              <div className="p-3 bg-[#060912] border border-blue-900/40 rounded-xl">
-                <div className="text-xl font-bold text-amber-400 font-ufc">{pairs.length}</div>
-                <div className="text-[9px] text-neutral-400">COMBATES</div>
+              <div className="p-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg">
+                <div className="text-xl font-bold text-[#d4af37] font-display">{pairs.length}</div>
+                <div className="text-[9px] text-zinc-400 uppercase">Combates</div>
               </div>
-              <div className="p-3 bg-[#060912] border border-blue-900/40 rounded-xl">
-                <div className="text-xl font-bold text-cyan-400 font-ufc">
+              <div className="p-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg">
+                <div className="text-xl font-bold text-[#38bdf8] font-display">
                   {participants.filter((p) => !p.revealed).length}
                 </div>
-                <div className="text-[9px] text-neutral-400">DISPONIBLES</div>
+                <div className="text-[9px] text-zinc-400 uppercase">En Espera</div>
               </div>
             </div>
 
             {/* Formed Fights */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-[10px] font-mono-tech text-neutral-400">
-                <span>COMBATES EN CARTELERA ({pairs.length})</span>
+              <div className="flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-bold uppercase tracking-wider">Combates en Cartelera ({pairs.length})</span>
                 {pairs.length > 0 && (
                   <button
                     type="button"
                     onClick={handleResetDraw}
-                    className="text-red-400 hover:underline"
+                    className="text-red-400 hover:underline text-xs"
                   >
-                    [REINICIAR TODO]
+                    [Reiniciar Cartelera]
                   </button>
                 )}
               </div>
 
               {pairs.length === 0 ? (
-                <div className="p-4 border border-dashed border-blue-900/40 rounded-xl text-center text-xs font-mono-tech text-neutral-500">
-                  NO HAY COMBATES REGISTRADOS AÚN.
+                <div className="p-4 border border-dashed border-[rgba(255,255,255,0.07)] rounded-lg text-center text-xs font-mono text-zinc-500">
+                  No hay combates registrados aún.
                 </div>
               ) : (
-                <div className="border border-blue-900/40 rounded-xl divide-y divide-blue-900/30 bg-[#060912] max-h-48 overflow-y-auto font-mono-tech">
+                <div className="border border-[rgba(255,255,255,0.07)] rounded-lg divide-y divide-[rgba(255,255,255,0.07)] bg-[#161920] max-h-48 overflow-y-auto font-mono text-xs">
                   {pairs.map((p) => (
-                    <div key={p.id} className="p-3 flex items-center justify-between text-xs">
+                    <div key={p.id} className="p-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-amber-400">#{p.pairNumber}</span>
-                        <span className="font-bold text-cyan-400">{p.member1.name}</span>
-                        <span className="text-neutral-500">VS</span>
-                        <span className="font-bold text-red-400">{p.member2.name}</span>
+                        <span className="font-bold text-[#d4af37]">#{p.pairNumber}</span>
+                        <span className="font-bold text-[#38bdf8]">{p.member1.name}</span>
+                        <span className="text-zinc-500">VS</span>
+                        <span className="font-bold text-[#f87171]">{p.member2.name}</span>
                         {p.trioMember && (
-                          <span className="text-neutral-400">(+{p.trioMember.name})</span>
+                          <span className="text-zinc-400">(+{p.trioMember.name})</span>
                         )}
                       </div>
                       <button
                         type="button"
                         onClick={() => handleUnpairDuo(p.id, p.pairNumber)}
-                        className="text-amber-400 hover:text-amber-300 text-[10px] px-2 py-0.5 border border-amber-500/50 rounded-lg hover:bg-amber-950/40"
+                        className="text-amber-400 hover:text-amber-300 text-[10px] px-2 py-0.5 border border-amber-500/50 rounded hover:bg-amber-950/40"
                       >
-                        [DISOLVER]
+                        [Disolver]
                       </button>
                     </div>
                   ))}
@@ -332,8 +334,8 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
 
             {/* Add Fighter */}
             <form onSubmit={handleAddParticipant} className="space-y-1.5">
-              <span className="text-[10px] font-mono-tech text-neutral-400 block">
-                INSCRIBIR PELEADOR AL ROSTER
+              <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block">
+                Inscribir Peleador al Roster
               </span>
               <div className="flex gap-2">
                 <input
@@ -341,24 +343,28 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                   placeholder="Nombre de peleador"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="flex-1 h-10 px-3.5 bg-[#060912] border border-cyan-500/40 rounded-xl text-white text-xs outline-none focus:border-cyan-400"
+                  className="flex-1 h-9 px-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-white text-xs outline-none focus:border-[#d4af37]"
                   required
                 />
-                <button type="submit" disabled={loading} className="btn-neo-cyan px-4 h-10 text-xs">
-                  INSCRIBIR
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 h-9 rounded-lg bg-[#d4af37] text-black text-xs font-black uppercase tracking-wider"
+                >
+                  Inscribir
                 </button>
               </div>
             </form>
 
             {/* Matchmaker Rigging Preferences */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-mono-tech text-neutral-400 block">
-                COMBATES PREDEFINIDOS (PREFERENCIAS)
+              <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block">
+                Combates Predefinidos (Preferencias de Matchmaker)
               </span>
 
-              <div className="max-h-56 overflow-y-auto border border-blue-900/40 rounded-xl bg-[#060912]">
-                <table className="w-full text-xs text-left font-mono-tech">
-                  <thead className="bg-[#05070f] text-neutral-400 border-b border-blue-900/40 text-[10px] sticky top-0">
+              <div className="max-h-56 overflow-y-auto border border-[rgba(255,255,255,0.07)] rounded-lg bg-[#161920]">
+                <table className="w-full text-xs text-left font-mono">
+                  <thead className="bg-[#1c1f27] text-zinc-400 border-b border-[rgba(255,255,255,0.07)] text-[10px] sticky top-0">
                     <tr>
                       <th className="p-2.5 font-medium">PELEADOR</th>
                       <th className="p-2.5 font-medium">ESTADO</th>
@@ -366,31 +372,31 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                       <th className="p-2.5 text-right"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-blue-900/20">
+                  <tbody className="divide-y divide-[rgba(255,255,255,0.07)]">
                     {participants.map((p) => {
                       const currentPrefId = preferences[p.id] || '';
 
                       return (
-                        <tr key={p.id} className="hover:bg-[#0c1220]">
+                        <tr key={p.id} className="hover:bg-[#1c1f27]/50">
                           <td className="p-2.5 font-medium text-white">
                             <div className="flex items-center gap-2">
                               {p.photoUrl ? (
                                 <img
                                   src={p.photoUrl}
                                   alt={p.name}
-                                  className="w-7 h-7 rounded-full object-cover border border-cyan-400 flex-shrink-0"
+                                  className="w-7 h-7 rounded-lg object-cover border border-[#38bdf8] flex-shrink-0"
                                 />
                               ) : (
-                                <div className="w-7 h-7 rounded-full bg-blue-950 border border-cyan-400 flex items-center justify-center text-[10px] text-cyan-200 font-bold flex-shrink-0">
+                                <div className="w-7 h-7 rounded-lg bg-[#1c1f27] border border-[rgba(255,255,255,0.07)] flex items-center justify-center text-[10px] text-zinc-300 font-bold flex-shrink-0">
                                   {p.name.charAt(0)}
                                 </div>
                               )}
-                              <span className="truncate font-ufc">{p.name}</span>
+                              <span className="truncate font-display font-bold">{p.name}</span>
                               <label
-                                className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-cyan-400/40 hover:border-cyan-400 bg-cyan-950/40 text-cyan-300 rounded ml-1"
+                                className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-[rgba(255,255,255,0.1)] hover:border-[#d4af37] bg-[#1c1f27] text-zinc-400 rounded ml-1"
                                 title="Subir foto"
                               >
-                                {p.photoUrl ? 'FOTO' : '+FOTO'}
+                                {p.photoUrl ? 'Foto' : '+Foto'}
                                 <input
                                   type="file"
                                   accept="image/*"
@@ -405,30 +411,30 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                           </td>
 
                           <td className="p-2.5 text-[10px]">
-                            <span className={p.revealed ? 'text-amber-400 font-bold' : 'text-cyan-400'}>
-                              {p.revealed ? `BOUT #${p.pairNumber}` : 'LIBRE'}
+                            <span className={p.revealed ? 'text-[#d4af37] font-bold' : 'text-[#38bdf8]'}>
+                              {p.revealed ? `Bout #${p.pairNumber}` : 'Libre'}
                             </span>
                           </td>
 
                           <td className="p-2.5 font-medium">
                             {p.revealed ? (
-                              <span className="text-neutral-500 text-[10px]">PACTADO</span>
+                              <span className="text-zinc-500 text-[10px]">Pactado</span>
                             ) : (
                               <select
                                 value={currentPrefId}
                                 onChange={(e) => handleSetPreference(p.id, e.target.value)}
                                 className={`text-[10px] h-7 px-1.5 border outline-none cursor-pointer rounded-lg max-w-[160px] truncate ${
                                   currentPrefId
-                                    ? 'bg-amber-950/80 border-amber-400 text-amber-200'
-                                    : 'bg-[#080d1a] border-blue-900/60 text-neutral-300'
+                                    ? 'bg-amber-950/80 border-[#d4af37] text-amber-200'
+                                    : 'bg-[#111317] border-[rgba(255,255,255,0.1)] text-zinc-300'
                                 }`}
                               >
-                                <option value="">(AL AZAR)</option>
+                                <option value="">(Al azar - Sin fijar)</option>
                                 {participants
                                   .filter((other) => other.id !== p.id && !other.revealed)
                                   .map((other) => (
                                     <option key={other.id} value={other.id}>
-                                      FIJAR: {other.name}
+                                      Fijar con: {other.name}
                                     </option>
                                   ))}
                               </select>
@@ -439,7 +445,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                             <button
                               type="button"
                               onClick={() => handleDeleteParticipant(p.id)}
-                              className="text-neutral-500 hover:text-red-400 text-xs px-2 py-0.5"
+                              className="text-zinc-500 hover:text-red-400 text-xs px-2 py-0.5"
                             >
                               [X]
                             </button>

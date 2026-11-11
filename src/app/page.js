@@ -48,33 +48,90 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#050711] text-[#f1f5f9] antialiased">
-      {/* Neo UFC Header */}
-      <header className="border-b border-blue-900/40 bg-[#070b18]/90 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto h-16 flex items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full bg-[#00f0ff] shadow-[0_0_10px_#00f0ff]" />
-            <span className="font-ufc font-bold text-base sm:text-lg uppercase tracking-wider text-white">
-              FIGHT NIGHT <span className="text-[#00f0ff]">UFC</span> MATCHMAKER
-            </span>
+    <div className="min-h-full bg-[#090a0d] text-[#e2e2e8] font-sans flex flex-col antialiased selection:bg-[#d4af37] selection:text-black">
+      {/* Minimalist Sleek Top Bar (Google Stitch) */}
+      <header className="border-b border-[rgba(255,255,255,0.07)] bg-[#090a0d]/90 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-[1720px] mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
+          {/* Brand & Event Identity */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 rounded bg-[#d4af37] text-black font-display font-black text-xl tracking-tighter leading-none shadow-sm">
+                UFC
+              </span>
+              <span className="font-display font-bold text-xs tracking-widest text-white uppercase">
+                FIGHT NIGHT
+              </span>
+            </div>
+            <div className="h-4 w-px bg-white/20"></div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded bg-white/10 text-[#d4af37] font-display text-[11px] font-bold tracking-wider uppercase border border-[#d4af37]/30">
+                UFC 305
+              </span>
+              <span className="text-xs text-zinc-400 font-medium hidden sm:inline">
+                / MAIN CARD SELECTION
+              </span>
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsAdminOpen(true)}
-            className="btn-neo-outline px-3.5 py-1.5 text-[11px]"
-          >
-            [ORGANIZADOR]
-          </button>
+          {/* Navigation Tabs */}
+          <nav className="hidden md:flex items-center gap-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveUser(null)}
+              className="px-3.5 py-2 text-white font-semibold border-b-2 border-[#d4af37] transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[15px] text-[#d4af37]">sports_mma</span>
+              <span>Matchmaker</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const available = participants.filter((p) => !p.revealed);
+                if (available.length > 0) setActiveUser(available[0]);
+              }}
+              className="px-3.5 py-2 text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[15px]">casino</span>
+              <span>Sorteo a Ciegas</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAdminOpen(true)}
+              className="px-3.5 py-2 text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[15px]">admin_panel_settings</span>
+              <span>Organizador [PIN]</span>
+            </button>
+          </nav>
+
+          {/* Broadcast Status & Operator */}
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-400/20">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f87171]"></span>
+              </span>
+              <span className="text-[11px] font-bold tracking-wider text-[#f87171] uppercase">
+                EN VIVO APEX
+              </span>
+            </div>
+            <div className="h-3 w-px bg-white/10 hidden sm:block"></div>
+            <div className="hidden sm:flex items-center gap-2 text-zinc-400">
+              <span className="text-zinc-500">Combates</span>
+              <span className="px-2 py-0.5 rounded bg-[#1c1f27] text-zinc-200 font-medium font-mono text-[11px]">
+                {pairs.length} Listos
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Main Arena */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
+      {/* Main Content */}
+      <main className="flex-1 max-w-[1720px] w-full mx-auto px-6 lg:px-12 py-8 flex flex-col gap-8">
         {loading ? (
-          <div className="text-sm font-mono-tech text-cyan-400 font-bold flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-            CARGANDO PROGRAMA EN VIVO...
+          <div className="py-24 text-center text-xs font-mono text-zinc-500 flex items-center justify-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-ping" />
+            CARGANDO TRANSMISIÓN OFICIAL UFC...
           </div>
         ) : !activeUser ? (
           <ParticipantSelector
@@ -94,11 +151,28 @@ export default function Home() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-blue-900/40 py-4 px-4 text-center bg-[#050814]">
-        <p className="text-[11px] font-mono-tech text-neutral-400">
-          SPARRING MATCHMAKER • ESQUINA AZUL VS ESQUINA ROJA • RESULTADOS EN TIEMPO REAL
-        </p>
+      {/* Minimalist Footer (Google Stitch) */}
+      <footer className="mt-auto border-t border-[rgba(255,255,255,0.07)] bg-[#090a0d] py-5 text-xs text-zinc-500">
+        <div className="max-w-[1720px] mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="font-display font-bold text-white tracking-wider text-sm">UFC</span>
+            <span>•</span>
+            <span>Matchmaker Studio</span>
+            <span>•</span>
+            <span className="text-zinc-600">Reglamento Unificado MMA</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs">
+            <button
+              type="button"
+              onClick={() => setIsAdminOpen(true)}
+              className="text-zinc-400 hover:text-white transition-colors"
+            >
+              Panel Organizador [PIN]
+            </button>
+            <span>•</span>
+            <span className="text-zinc-600">v3.0.5</span>
+          </div>
+        </div>
       </footer>
 
       {/* Admin Modal */}

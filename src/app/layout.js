@@ -1,36 +1,38 @@
-import { Rajdhani, Chakra_Petch, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 
-const rajdhani = Rajdhani({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-ufc",
-  weight: ["500", "600", "700"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
 });
 
-const chakraPetch = Chakra_Petch({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-hud",
-  weight: ["500", "600", "700"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  weight: ["400", "600", "700"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata = {
-  title: "UFC Neo Fight Night • Sparring Matchmaker",
-  description: "Plataforma de emparejamiento de combates en tiempo real - Interfaz HUD Cyberpunk",
+  title: "UFC FIGHT NIGHT • Matchmaker Studio",
+  description: "Sistema oficial de emparejamiento y sorteo a ciegas UFC Fight Night",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
-      className={`${rajdhani.variable} ${chakraPetch.variable} ${jetbrainsMono.variable}`}
+      className={`h-full ${spaceGrotesk.variable} ${inter.variable}`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-[#050711] text-[#f1f5f9]">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        />
+      </head>
+      <body className="min-h-full bg-[#090a0d] text-[#e2e2e8] font-sans flex flex-col antialiased selection:bg-[#d4af37] selection:text-black">
         {children}
       </body>
     </html>

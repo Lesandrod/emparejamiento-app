@@ -213,25 +213,26 @@ export default function Roulette({
         />
       </div>
 
-      {/* Top Banner (Blue Corner Fighter) */}
-      <div className="neo-card-blue p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      {/* Top Banner (Blue Corner Fighter - Stitch Design) */}
+      <div className="bg-[#111317] border border-[rgba(255,255,255,0.07)] rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-3.5">
           {currentUser.photoUrl ? (
             <img
               src={currentUser.photoUrl}
               alt={currentUser.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_15px_#00f0ff] flex-shrink-0"
+              className="w-12 h-12 rounded-xl object-cover border-2 border-blue-400/50 shadow-md flex-shrink-0"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-blue-900 border-2 border-cyan-400 text-cyan-200 flex items-center justify-center font-ufc font-bold text-base uppercase flex-shrink-0">
-              {currentUser.name.charAt(0)}
+            <div className="w-12 h-12 rounded-xl bg-blue-500/20 border-2 border-blue-400/50 text-[#38bdf8] flex items-center justify-center font-display font-black text-lg uppercase flex-shrink-0">
+              {currentUser.name.substring(0, 2).toUpperCase()}
             </div>
           )}
           <div>
-            <div className="text-[10px] font-mono-tech text-cyan-400 font-bold tracking-wider">
-              PELEADOR EN TURNO • ESQUINA AZUL
+            <div className="text-[10px] font-mono text-[#38bdf8] font-bold tracking-wider uppercase flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]"></span>
+              Esquina Azul • Peleador en Cuadrilátero
             </div>
-            <h1 className="text-2xl sm:text-3xl font-ufc font-bold text-white tracking-wide">
+            <h1 className="text-2xl sm:text-3xl font-display font-black text-white tracking-tight uppercase">
               {currentUser.name}
             </h1>
           </div>
@@ -242,39 +243,40 @@ export default function Roulette({
             type="button"
             onClick={handleChocolatear}
             disabled={isChocolateando || isRevealing}
-            className="btn-neo-outline px-4 h-10 text-[11px] font-mono-tech"
+            className="px-3.5 py-2 rounded-lg bg-[#161920] hover:bg-[#1c1f27] border border-[rgba(255,255,255,0.07)] hover:border-[#d4af37] text-zinc-200 text-xs font-semibold transition-colors flex items-center gap-1.5"
           >
-            {isChocolateando ? 'REVOLVIENDO...' : '[REVOLVER CARTAS]'}
+            <span className="material-symbols-outlined text-[16px] text-[#d4af37]">casino</span>
+            <span>{isChocolateando ? 'Chocolateando...' : 'Chocolatear Cartas'}</span>
           </button>
           <button
             type="button"
             onClick={onCancel}
             disabled={isChocolateando || isRevealing}
-            className="px-3.5 h-10 rounded-lg text-xs font-mono-tech text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 transition-colors"
+            className="px-3 py-2 rounded-lg text-xs font-mono text-zinc-400 hover:text-white border border-[rgba(255,255,255,0.07)] hover:border-zinc-500 transition-colors"
           >
-            [SALIR]
+            Volver
           </button>
         </div>
       </div>
 
       {/* Error Notice */}
       {errorMessage && (
-        <div className="p-3 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs font-mono-tech text-center">
+        <div className="p-3 rounded-lg bg-red-950/80 border border-red-500 text-red-200 text-xs font-mono text-center">
           {errorMessage}
         </div>
       )}
 
       {/* Table Arena */}
-      <div className="neo-card p-5 sm:p-7 space-y-5">
-        <div className="flex items-center justify-between border-b border-white/10 pb-2.5 text-[11px] font-mono-tech text-neutral-400">
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+      <div className="bg-[#111317] border border-[rgba(255,255,255,0.07)] rounded-xl p-5 sm:p-7 space-y-5 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.07)] pb-2.5 text-xs text-zinc-400">
+          <span className="flex items-center gap-2 font-medium">
+            <span className="material-symbols-outlined text-[16px] text-[#d4af37]">touch_app</span>
             {selectedCardId !== null
-              ? 'CARTA SELECCIONADA • CONFIRMA PARA SUBIR AL RING'
-              : 'SELECCIONA UNA CARTA A CIEGAS'}
+              ? 'Carta seleccionada • Confirma para revelar rival'
+              : 'Selecciona una carta a ciegas de la mesa'}
           </span>
-          <span className="text-cyan-400 font-bold">
-            {candidatePool.length} RIVALES DISPONIBLES
+          <span className="text-[#d4af37] font-bold font-mono">
+            {candidatePool.length} Opciones en Mesa
           </span>
         </div>
 
@@ -300,33 +302,33 @@ export default function Roulette({
                     transition: isRevealing ? 'none' : 'transform 0.15s ease-out'
                   }}
                 >
-                  {/* Back of Card: Crimson Red Neon Back */}
+                  {/* Back of Card: UFC Gold / Red Corner */}
                   <div
                     className={`card-face-back absolute inset-0 rounded-xl border flex flex-col items-center justify-between p-2.5 shadow-xl ${
                       isSelected
-                        ? 'bg-gradient-to-b from-[#38060c] to-[#1a0306] border-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.7)]'
-                        : 'bg-gradient-to-b from-[#24070c] to-[#120306] border-red-500/50 hover:border-red-400'
+                        ? 'bg-gradient-to-b from-[#1c1f27] to-[#111317] border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.6)]'
+                        : 'bg-gradient-to-b from-[#161920] to-[#0d0f14] border-[rgba(255,255,255,0.1)] hover:border-red-400/50'
                     }`}
                     style={{ backfaceVisibility: 'hidden' }}
                   >
-                    <div className="w-full flex justify-between text-[9px] font-mono-tech text-red-400 font-bold">
+                    <div className="w-full flex justify-between text-[9px] font-mono text-[#f87171] font-bold">
                       <span>RIVAL</span>
                       <span>#{String(idx + 1).padStart(2, '0')}</span>
                     </div>
 
-                    {/* Geometric Neon Diamond */}
-                    <div className="w-9 h-9 rounded-md border border-red-400/60 rotate-45 flex items-center justify-center shadow-[0_0_10px_rgba(255,23,68,0.3)]">
-                      <div className="w-3.5 h-3.5 bg-red-500/80 rotate-45 rounded-sm" />
+                    {/* UFC Octagon Logo Mark */}
+                    <div className="w-9 h-9 rounded-lg border border-[#d4af37]/40 flex items-center justify-center bg-[#1c1f27]">
+                      <span className="font-display font-black text-xs text-[#d4af37]">UFC</span>
                     </div>
 
-                    <span className="text-[9px] font-mono-tech text-red-300 font-bold tracking-wider">
-                      {isSelected ? 'ELEGIDA' : 'ESQUINA ROJA'}
+                    <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-400 font-bold">
+                      {isSelected ? 'Elegida' : 'Esquina Roja'}
                     </span>
                   </div>
 
                   {/* Front of Card: Revealed Partner */}
                   <div
-                    className="card-face-front absolute inset-0 rounded-xl bg-gradient-to-b from-[#24070c] to-[#120306] text-white border-2 border-red-500 flex flex-col items-center justify-center p-2 shadow-2xl"
+                    className="card-face-front absolute inset-0 rounded-xl bg-gradient-to-b from-[#161920] to-[#0d0f14] text-white border-2 border-red-500/60 flex flex-col items-center justify-center p-2 shadow-2xl"
                     style={{
                       backfaceVisibility: 'hidden',
                       transform: 'rotateY(180deg)'
@@ -338,17 +340,17 @@ export default function Roulette({
                           <img
                             src={revealedPartner.photoUrl}
                             alt={revealedPartner.name}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-red-400 mb-1 shadow-[0_0_10px_#ff1744]"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-red-400 mb-1"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-red-950 text-red-200 font-ufc font-bold text-base flex items-center justify-center mb-1 border-2 border-red-400">
+                          <div className="w-12 h-12 rounded-full bg-red-950 border-2 border-red-400 text-red-200 font-display font-bold text-base flex items-center justify-center mb-1">
                             {revealedPartner.name.charAt(0)}
                           </div>
                         )}
-                        <div className="text-[8px] font-mono-tech text-red-400 font-bold">
-                          ESQUINA ROJA
+                        <div className="text-[9px] font-mono text-[#f87171] font-bold uppercase">
+                          Esquina Roja
                         </div>
-                        <div className="text-xs font-ufc font-bold uppercase text-center truncate w-full text-white">
+                        <div className="text-xs font-bold uppercase text-center truncate w-full text-white mt-0.5">
                           {revealedPartner.name}
                         </div>
                       </>
@@ -362,7 +364,7 @@ export default function Roulette({
 
         {/* Floating Bottom Bar for Mobile Confirmation */}
         <div
-          className={`fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-[#060914]/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-cyan-500/40 sm:border-0 z-40 transition-all ${
+          className={`fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-[#090a0d]/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-[rgba(255,255,255,0.07)] sm:border-0 z-40 transition-all ${
             selectedCardId !== null ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none sm:hidden'
           }`}
         >
@@ -371,9 +373,10 @@ export default function Roulette({
               type="button"
               onClick={handleConfirmFlip}
               disabled={isRevealing}
-              className="btn-neo-cyan w-full h-12 text-sm"
+              className="w-full h-12 rounded-lg bg-[#d4af37] hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase transition-all shadow-lg shadow-[#d4af37]/20 flex items-center justify-center gap-2 cursor-pointer"
             >
-              {isRevealing ? 'REVELANDO RIVAL...' : 'CONFIRMAR Y SUBIR AL RING'}
+              <span className="material-symbols-outlined text-[18px]">sports_mma</span>
+              <span>{isRevealing ? 'Volteando carta...' : 'Confirmar Combate y Revelar Rival'}</span>
             </button>
           </div>
         </div>
