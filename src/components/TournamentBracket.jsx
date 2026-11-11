@@ -289,9 +289,10 @@ export default function TournamentBracket({
   };
 
   // Fila de conectores entre una ronda (arriba, menos combates) y la ronda anterior
-  // (abajo, el doble de combates). Dibuja, por cada combate de la ronda de arriba,
-  // un tronco que baja y se divide en dos ramas hacia sus dos combates de origen.
-  const renderConnectorRow = (pairCount) => {
+  // (abajo, el doble de combates). Por cada combate de la ronda de arriba dibuja un
+  // "tronco" dorado que baja y se bifurca en dos ramas curvas hacia sus dos combates
+  // de origen, con un nodo luminoso en el punto de fusión.
+  const renderConnectorRow = (pairCount, keyPrefix) => {
     const pairSpan = baseMatchCount / pairCount;
     return (
       <div
@@ -299,16 +300,52 @@ export default function TournamentBracket({
         style={{ gridTemplateColumns: `repeat(${baseMatchCount}, minmax(0, 1fr))` }}
       >
         {Array.from({ length: pairCount }).map((_, i) => (
-          <div key={i} style={{ gridColumn: `span ${pairSpan}` }} className="relative h-5 sm:h-7">
-            <div className="absolute border-l border-outline-dim" style={{ left: '50%', top: 0, height: '50%' }} />
-            <div className="absolute border-t border-outline-dim" style={{ left: '25%', width: '50%', top: '50%' }} />
-            <div className="absolute border-l border-outline-dim" style={{ left: '25%', top: '50%', height: '50%' }} />
-            <div className="absolute border-l border-outline-dim" style={{ left: '75%', top: '50%', height: '50%' }} />
+          <div key={`${keyPrefix}_${i}`} style={{ gridColumn: `span ${pairSpan}` }} className="h-7 sm:h-11">
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              className="w-full h-full overflow-visible"
+              style={{ filter: 'drop-shadow(0 0 2px rgba(254,207,82,0.35))' }}
+            >
+              <path d="M50,0 Q50,55 25,55 L25,100" fill="none" stroke="#fecf52" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
+              <path d="M50,0 Q50,55 75,55 L75,100" fill="none" stroke="#fecf52" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="50" cy="2" r="7" fill="#fecf52" opacity="0.12" />
+              <circle cx="50" cy="2" r="3" fill="#fecf52" opacity="0.9" />
+            </svg>
           </div>
         ))}
       </div>
     );
   };
+
+  // Medalla con el número de ronda + línea divisoria, usada como encabezado de cada
+  // nivel del árbol vertical.
+  const renderTierRail = (round, isFinalRound) => (
+    <div className="w-full flex items-center gap-2 sm:gap-3 px-1 py-1.5">
+      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-outline-dim to-outline-dim" />
+      <div
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border whitespace-nowrap ${
+          isFinalRound ? 'border-primary bg-primary/10 shadow-[0_0_12px_rgba(254,207,82,0.2)]' : 'border-outline-dim bg-surface-container/70'
+        }`}
+      >
+        <span
+          className={`flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-full text-[8px] sm:text-[9px] font-black font-mono flex-shrink-0 ${
+            isFinalRound ? 'bg-primary text-black' : 'bg-surface-container-high text-primary border border-primary/30'
+          }`}
+        >
+          {String(round.roundNumber).padStart(2, '0')}
+        </span>
+        <span
+          className={`text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest ${
+            isFinalRound ? 'text-primary' : 'text-on-surface-variant'
+          }`}
+        >
+          {isFinalRound ? 'Gran Final' : round.title}
+        </span>
+      </div>
+      <div className="flex-1 h-px bg-gradient-to-l from-transparent via-outline-dim to-outline-dim" />
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-4 select-none">
@@ -511,15 +548,21 @@ export default function TournamentBracket({
       )}
 
       {/* ================================================================= */}
-      {/* 2. MODO ÁRBOL PANORÁMICO (DE ABAJO HACIA ARRIBA: R1 ABAJO,          */}
-      {/*    EL GANADOR SUBE RONDA A RONDA HASTA EL CAMPEÓN ARRIBA)          */}
+      {/* 2. MODO ÁRBOL PANORÁMICO — ESCALERA DEL PODER                      */}
+      {/*    Ronda 1 abajo, el ganador sube nivel a nivel hasta el Campeón.  */}
       {/* ================================================================= */}
       {viewMode === 'tree' && (
-        <div className="w-full bg-surface-dim border border-outline-dim rounded-2xl p-2.5 sm:p-5 md:p-6 overflow-x-auto shadow-2xl">
+        <div
+          className="relative w-full rounded-2xl p-2.5 sm:p-5 md:p-6 overflow-x-auto overflow-y-hidden shadow-2xl border border-outline-dim"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 45% at 50% 0%, rgba(254,207,82,0.10), transparent 60%), linear-gradient(to bottom, #121318, #0a0a0c)'
+          }}
+        >
           {/* Subtle scroll reminder */}
           <div className="flex items-center justify-center gap-1.5 py-1 mb-2 rounded bg-surface-container/80 border border-outline-dim text-[10px] font-mono text-primary">
-            <span className="material-symbols-outlined text-[13px]">swipe_up</span>
-            <span>Ronda 1 abajo • el ganador avanza hacia arriba hasta el Campeón</span>
+            <span className="material-symbols-outlined text-[13px]">trending_up</span>
+            <span>Ronda 1 abajo • el ganador escala hasta coronarse Campeón</span>
           </div>
 
           <div
@@ -530,14 +573,29 @@ export default function TournamentBracket({
               width: zoomLevel < 100 ? `${(100 / zoomLevel) * 100}%` : '100%'
             }}
           >
-            <div className="flex flex-col items-center gap-0 min-w-[640px] sm:min-w-[760px]">
+            <div className="relative flex flex-col items-center gap-0 min-w-[640px] sm:min-w-[760px]">
+              {/* Columna vertebral decorativa: traza la escalera del campeón */}
+              <div
+                className="absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 pointer-events-none"
+                style={{ background: 'linear-gradient(to bottom, rgba(254,207,82,0.35), rgba(254,207,82,0.02))' }}
+              />
+
               {/* CAMPEÓN DEL PODER (arriba de todo) */}
-              <div className="flex flex-col items-center mb-3">
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-surface-container border-2 border-primary flex items-center justify-center text-primary shadow-xl mb-1">
-                  <span className="material-symbols-outlined text-xl sm:text-2xl">emoji_events</span>
+              <div className="relative flex flex-col items-center mb-1 z-10">
+                {champion && (
+                  <div className="absolute -inset-3 rounded-full bg-primary/25 blur-xl animate-pulse pointer-events-none" />
+                )}
+                <div
+                  className={`relative w-11 h-11 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-xl mb-1 border-2 ${
+                    champion
+                      ? 'bg-gradient-to-br from-primary/30 via-surface-container to-surface-container border-primary'
+                      : 'bg-surface-container border-primary/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-xl sm:text-2xl text-primary">emoji_events</span>
                 </div>
                 <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-primary">
-                  CAMPEÓN DEL PODER
+                  Campeón del Poder
                 </span>
                 {champion ? (
                   <div className="mt-1 p-1 rounded-xl bg-primary/10 border border-primary/40 flex flex-col items-center gap-0.5">
@@ -555,9 +613,14 @@ export default function TournamentBracket({
                     Esperando desenlace
                   </span>
                 )}
+                {/* Tallo que conecta la medalla con la Gran Final */}
+                <div
+                  className="w-px h-3 sm:h-5 mt-1"
+                  style={{ background: 'linear-gradient(to bottom, rgba(254,207,82,0.7), rgba(254,207,82,0.1))' }}
+                />
               </div>
 
-              {/* RONDAS: de la Gran Final (arriba) a la Ronda 1 (abajo) */}
+              {/* NIVELES: de la Gran Final (arriba) a la Ronda 1 (abajo) */}
               {[...rounds].reverse().map((round, displayIdx) => {
                 const isFinalRound = round.roundNumber === totalRounds;
                 const spanPerMatch = baseMatchCount / round.matches.length;
@@ -565,14 +628,10 @@ export default function TournamentBracket({
 
                 return (
                   <React.Fragment key={round.roundNumber}>
-                    <div className="w-full text-center pt-1 pb-1.5">
-                      <span className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-widest text-primary/80">
-                        {isFinalRound ? 'GRAN FINAL' : `R0${round.roundNumber} • ${round.title}`}
-                      </span>
-                    </div>
+                    {renderTierRail(round, isFinalRound)}
 
                     <div
-                      className="grid w-full gap-2 sm:gap-3"
+                      className="relative grid w-full gap-2 sm:gap-3 z-10"
                       style={{ gridTemplateColumns: `repeat(${baseMatchCount}, minmax(0, 1fr))` }}
                     >
                       {round.matches.map((m) => (
@@ -582,8 +641,8 @@ export default function TournamentBracket({
                       ))}
                     </div>
 
-                    {/* Conector hacia la ronda anterior (más combates), que se dibuja debajo */}
-                    {!isBottomRound && renderConnectorRow(round.matches.length)}
+                    {/* Conector dorado hacia el nivel de abajo (más combates) */}
+                    {!isBottomRound && renderConnectorRow(round.matches.length, `conn_${round.roundNumber}`)}
                   </React.Fragment>
                 );
               })}
