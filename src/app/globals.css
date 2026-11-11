@@ -1,20 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --surface-bg: #07080d;
-  --surface-card: #0d111a;
-  --surface-subtle: #121824;
-  --surface-elevated: #182030;
-  --neon-cyan: #00f2fe;
-  --neon-blue: #38bdf8;
-  --neon-purple: #c084fc;
-  --neon-magenta: #ec4899;
-  --neon-red: #ff2a5f;
-  --primary-gold: #ffd700;
-  --border-neon: rgba(0, 242, 254, 0.4);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-
-  /* Google Stitch Color Tokens */
+  /* Google Stitch Clean Dark Tokens */
+  --surface-bg: #090a0d;
   --surface-container-lowest: #0b0c0e;
   --surface-dim: #101114;
   --surface: #121316;
@@ -25,13 +13,17 @@
   --outline-dim: #262830;
   --outline-subtle: #363842;
   --primary: #fecf52;
+  --primary-gold: #d4af37;
   --secondary: #b4c5ff;
+  --blue-corner: #38bdf8;
+  --red-corner: #f87171;
   --on-surface: #f1f1f4;
   --on-surface-variant: #92939c;
   --tertiary: #ff6b6b;
+  --border-subtle: rgba(255, 255, 255, 0.08);
 }
 
-/* Stitch Color Utility Helper Classes */
+/* Helper Classes */
 .bg-surface-container-lowest { background-color: var(--surface-container-lowest); }
 .bg-surface-dim { background-color: var(--surface-dim); }
 .bg-surface { background-color: var(--surface); }
@@ -52,83 +44,17 @@
 body {
   background-color: var(--surface-bg);
   background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 242, 254, 0.12), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(168, 85, 247, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255, 42, 95, 0.08), transparent);
-  color: #e2e8f0;
+    radial-gradient(ellipse 70% 35% at 50% 0%, rgba(56, 189, 248, 0.04), transparent),
+    radial-gradient(ellipse 50% 30% at 80% 50%, rgba(248, 113, 113, 0.03), transparent);
+  color: var(--on-surface);
   font-family: var(--font-sans), sans-serif;
   min-height: 100vh;
   margin: 0;
   user-select: none;
 }
 
-.font-orbitron {
-  font-family: var(--font-orbitron), sans-serif;
-}
-
 .font-display {
   font-family: var(--font-display), sans-serif;
-}
-
-/* Neon Glow utilities matching the user reference screenshot */
-.neo-card {
-  background: linear-gradient(180deg, rgba(14, 18, 28, 0.95) 0%, rgba(10, 13, 22, 0.98) 100%);
-  border: 1.5px solid rgba(0, 242, 254, 0.65);
-  box-shadow: 0 0 25px rgba(0, 242, 254, 0.25), inset 0 0 20px rgba(0, 242, 254, 0.06);
-  border-radius: 1.25rem;
-}
-
-.neo-card-red {
-  background: linear-gradient(180deg, rgba(28, 14, 20, 0.95) 0%, rgba(18, 10, 14, 0.98) 100%);
-  border: 1.5px solid rgba(255, 42, 95, 0.65);
-  box-shadow: 0 0 25px rgba(255, 42, 95, 0.25), inset 0 0 20px rgba(255, 42, 95, 0.06);
-  border-radius: 1.25rem;
-}
-
-.neo-card-purple {
-  background: linear-gradient(180deg, rgba(20, 14, 30, 0.95) 0%, rgba(14, 10, 22, 0.98) 100%);
-  border: 1.5px solid rgba(192, 132, 252, 0.55);
-  box-shadow: 0 0 25px rgba(192, 132, 252, 0.2), inset 0 0 20px rgba(192, 132, 252, 0.05);
-  border-radius: 1.25rem;
-}
-
-.neo-button-cyan {
-  background-color: #00f2fe;
-  color: #040810;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 0 0 25px rgba(0, 242, 254, 0.55);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.neo-button-cyan:hover {
-  background-color: #38bdf8;
-  box-shadow: 0 0 35px rgba(0, 242, 254, 0.85);
-  transform: translateY(-1px);
-}
-
-.neo-hud-badge {
-  font-family: var(--font-orbitron), monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.5);
-  background: rgba(0, 242, 254, 0.08);
-  padding: 0.2rem 0.6rem;
-  border-radius: 0.375rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.text-neon-cyan {
-  color: #00f2fe;
-  text-shadow: 0 0 12px rgba(0, 242, 254, 0.6);
-}
-
-.text-neon-magenta {
-  color: #f43f5e;
-  text-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
 }
 
 /* Material symbols outlined default size */
@@ -137,23 +63,23 @@ body {
   vertical-align: middle;
 }
 
-/* Custom clean scrollbars */
+/* Custom clean scrollbars from Stitch design */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #07080d;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 242, 254, 0.3);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 242, 254, 0.6);
+  background: rgba(255, 255, 255, 0.25);
 }
 
-/* 3D Card item styles for the card draw stage */
+/* 3D Card item styles */
 .card-item {
   will-change: transform;
 }
@@ -165,13 +91,6 @@ body {
 .card-face-front {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-}
-
-/* Card Selection Glow */
-.card-selected-glow {
-  outline: 2px solid #00f2fe !important;
-  box-shadow: 0 0 35px rgba(0, 242, 254, 0.8) !important;
-  z-index: 25;
 }
 
 /* Screen shake effect */

@@ -204,18 +204,18 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md select-none">
-      <div className="w-full max-w-2xl bg-gradient-to-b from-[#0e1424] to-[#070a14] border-2 border-[#00f2fe]/70 rounded-2xl shadow-[0_0_35px_rgba(0,242,254,0.3)] flex flex-col max-h-[90vh] text-white overflow-hidden">
+      <div className="w-full max-w-2xl bg-surface-dim border border-outline-dim rounded-xl shadow-2xl flex flex-col max-h-[90vh] text-on-surface overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-cyan-500/20 flex items-center justify-between bg-cyan-950/20">
+        <div className="p-4 sm:p-5 border-b border-outline-dim flex items-center justify-between bg-surface-container-low">
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded bg-[#00f2fe] text-black font-orbitron font-black text-xs tracking-tight shadow-[0_0_10px_rgba(0,242,254,0.6)]">
+            <span className="px-2.5 py-1 rounded bg-[#d4af37] text-black font-display font-black text-xs tracking-tight shadow-sm">
               UFC
             </span>
             <div>
-              <h2 className="text-sm font-orbitron font-bold text-white tracking-wider uppercase">
+              <h2 className="text-sm font-display font-bold text-white tracking-wider uppercase">
                 Panel Matchmaker Apex
               </h2>
-              <span className="text-[10px] text-cyan-300/80 font-mono">
+              <span className="text-[10px] text-on-surface-variant font-mono">
                 Gestión Oficial de Cartelera y Combates
               </span>
             </div>
@@ -223,7 +223,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-[#00f2fe] font-orbitron text-xs transition-colors cursor-pointer"
+            className="text-on-surface-variant hover:text-white font-mono text-xs transition-colors cursor-pointer"
           >
             [CERRAR]
           </button>
@@ -233,7 +233,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         {!isAuthenticated ? (
           <form onSubmit={handleLogin} className="p-6 space-y-4 max-w-sm mx-auto w-full">
             <div className="space-y-1.5">
-              <label className="text-[10px] text-cyan-300 uppercase font-orbitron font-bold tracking-wider">
+              <label className="text-[10px] text-on-surface-variant uppercase font-mono font-bold tracking-wider">
                 CLAVE DE ORGANIZADOR (PIN)
               </label>
               <input
@@ -244,7 +244,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                   setAdminPin(e.target.value);
                   setAuthError('');
                 }}
-                className="w-full h-10 px-3.5 bg-[#121929] border border-cyan-500/30 rounded-lg text-white text-xs font-mono outline-none focus:border-[#00f2fe] focus:shadow-[0_0_10px_rgba(0,242,254,0.3)]"
+                className="w-full h-10 px-3.5 bg-surface-container border border-outline-dim rounded-lg text-white text-xs font-mono outline-none focus:border-primary"
                 autoFocus
               />
             </div>
@@ -256,7 +256,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
             <button
               type="submit"
               disabled={loading}
-              className="neo-button-cyan w-full h-10 rounded-xl font-orbitron font-extrabold text-xs tracking-wider uppercase transition-all shadow-[0_0_15px_rgba(0,242,254,0.5)] cursor-pointer"
+              className="w-full h-10 rounded-lg bg-primary hover:bg-yellow-400 text-black font-display font-bold text-xs tracking-wider uppercase transition-all shadow-sm cursor-pointer"
             >
               {loading ? 'Verificando...' : 'Acceder al Panel'}
             </button>
@@ -271,19 +271,19 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
 
             {/* Metrics */}
             <div className="grid grid-cols-3 gap-2.5 text-center font-mono">
-              <div className="p-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg">
+              <div className="p-3 bg-surface-container border border-outline-dim rounded-lg">
                 <div className="text-xl font-bold text-white font-display">{participants.length}</div>
-                <div className="text-[9px] text-zinc-400 uppercase">Roster Total</div>
+                <div className="text-[9px] text-on-surface-variant uppercase">Roster Total</div>
               </div>
-              <div className="p-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg">
-                <div className="text-xl font-bold text-[#d4af37] font-display">{pairs.length}</div>
-                <div className="text-[9px] text-zinc-400 uppercase">Combates</div>
+              <div className="p-3 bg-surface-container border border-outline-dim rounded-lg">
+                <div className="text-xl font-bold text-primary font-display">{pairs.length}</div>
+                <div className="text-[9px] text-on-surface-variant uppercase">Combates</div>
               </div>
-              <div className="p-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg">
-                <div className="text-xl font-bold text-[#38bdf8] font-display">
+              <div className="p-3 bg-surface-container border border-outline-dim rounded-lg">
+                <div className="text-xl font-bold text-emerald-400 font-display">
                   {participants.filter((p) => !p.revealed).length}
                 </div>
-                <div className="text-[9px] text-zinc-400 uppercase">En Espera</div>
+                <div className="text-[9px] text-on-surface-variant uppercase">En Espera</div>
               </div>
             </div>
 
