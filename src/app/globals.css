@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --blue-corner-dark: #030816;
-  --blue-corner-mid: #0a1b3d;
-  --blue-corner-accent: #2563eb;
-  --blue-corner-glow: #38bdf8;
+  --font-fighter: 'Oswald', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
 
-  --red-corner-dark: #160305;
-  --red-corner-mid: #38060c;
-  --red-corner-accent: #dc2626;
-  --red-corner-glow: #f87171;
+  --navy-base: #080b12;
+  --navy-surface: #0e1320;
+  --navy-card: #121829;
+  --navy-border: #1e2842;
+  --blue-corner: #1d4ed8;
+  --blue-tape: #3b82f6;
 
-  --gold-accent: #f59e0b;
-  --arena-bg: #060911;
-  --arena-card: #0c111e;
-  --arena-border: #1e2638;
+  --crimson-base: #0f0507;
+  --crimson-surface: #1a0a0d;
+  --crimson-card: #240e12;
+  --crimson-border: #42161d;
+  --red-corner: #b91c1c;
+  --red-tape: #ef4444;
+
+  --gold-stamp: #d97706;
 }
 
 * {
@@ -22,153 +27,164 @@
 }
 
 body {
-  background-color: var(--arena-bg);
-  color: #f1f5f9;
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  background-color: var(--navy-base);
+  color: #e2e8f0;
+  font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   margin: 0;
   user-select: none;
   background-image: 
-    radial-gradient(ellipse at 20% 0%, rgba(37, 99, 235, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 0%, rgba(220, 38, 38, 0.18) 0%, transparent 60%),
-    linear-gradient(180deg, #060911 0%, #03050a 100%);
-  background-attachment: fixed;
+    linear-gradient(rgba(8, 11, 18, 0.94), rgba(8, 11, 18, 0.98)),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255, 255, 255, 0.015) 40px, rgba(255, 255, 255, 0.015) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255, 255, 255, 0.015) 40px, rgba(255, 255, 255, 0.015) 41px);
 }
 
-/* Boxing Ring Ropes Effect */
-.boxing-ring-ropes {
-  position: relative;
-}
-.boxing-ring-ropes::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: repeating-linear-gradient(
-    90deg,
-    #2563eb 0px,
-    #2563eb 40%,
-    #ffffff 40%,
-    #ffffff 60%,
-    #dc2626 60%,
-    #dc2626 100%
-  );
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.5), 0 0 10px rgba(220, 38, 38, 0.5);
-}
-
-/* Fight Arena Card */
-.fight-card {
-  background-color: #0b101d;
-  border: 1px solid #1f293d;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
-  position: relative;
-}
-
-.fight-card-blue {
-  background: linear-gradient(135deg, rgba(10, 27, 61, 0.85) 0%, rgba(5, 12, 28, 0.95) 100%);
-  border: 1px solid #1d4ed8;
-  box-shadow: 0 0 25px rgba(37, 99, 235, 0.25);
-}
-
-.fight-card-red {
-  background: linear-gradient(135deg, rgba(56, 6, 12, 0.85) 0%, rgba(22, 3, 5, 0.95) 100%);
-  border: 1px solid #b91c1c;
-  box-shadow: 0 0 25px rgba(220, 38, 38, 0.25);
-}
-
-/* Fight Buttons */
-.fight-btn-blue {
-  background-color: #1d4ed8;
-  color: #ffffff;
-  border: 1px solid #3b82f6;
-  font-weight: 800;
+.font-fighter {
+  font-family: var(--font-fighter), var(--font-sans), sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
+}
+
+.font-mono-tech {
+  font-family: var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Industrial Corner Tape Rules */
+.tape-blue {
+  border-left: 4px solid var(--blue-corner);
+}
+
+.tape-red {
+  border-left: 4px solid var(--red-corner);
+}
+
+.tape-top-ropes {
+  border-top: 3px solid #3b82f6;
+  border-bottom: 3px solid #ef4444;
+}
+
+/* Authentic Boxing Match Ticket Card */
+.ticket-card {
+  background-color: var(--navy-surface);
+  border: 1px solid var(--navy-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+.ticket-card-blue {
+  background: linear-gradient(135deg, #0e1526 0%, #0a0f1d 100%);
+  border: 1px solid var(--navy-border);
+  border-left: 4px solid var(--blue-corner);
+}
+
+.ticket-card-red {
+  background: linear-gradient(135deg, #1f0b0f 0%, #14070a 100%);
+  border: 1px solid var(--crimson-border);
+  border-left: 4px solid var(--red-corner);
+}
+
+/* Authentic Buttons: Heavy Sports Press Style */
+.btn-press-primary {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
+  font-family: var(--font-fighter);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+  transition: all 0.1s ease;
 }
-.fight-btn-blue:hover:not(:disabled) {
+.btn-press-primary:hover:not(:disabled) {
+  background-color: #e2e8f0;
+  border-color: #e2e8f0;
+}
+.btn-press-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-press-blue {
+  background-color: var(--blue-corner);
+  color: #ffffff;
+  border: 1px solid var(--blue-tape);
+  font-family: var(--font-fighter);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+.btn-press-blue:hover:not(:disabled) {
   background-color: #2563eb;
   border-color: #60a5fa;
-  box-shadow: 0 0 25px rgba(37, 99, 235, 0.7);
 }
 
-.fight-btn-red {
-  background-color: #b91c1c;
-  color: #ffffff;
-  border: 1px solid #ef4444;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
-}
-.fight-btn-red:hover:not(:disabled) {
-  background-color: #dc2626;
-  border-color: #f87171;
-  box-shadow: 0 0 25px rgba(220, 38, 38, 0.7);
-}
-
-.fight-btn-gold {
-  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+.btn-press-gold {
+  background-color: #d97706;
   color: #000000;
-  border: 1px solid #fbbf24;
-  font-weight: 900;
+  border: 1px solid #f59e0b;
+  font-family: var(--font-fighter);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+  transition: all 0.1s ease;
 }
-.fight-btn-gold:hover:not(:disabled) {
-  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
-  box-shadow: 0 0 30px rgba(245, 158, 11, 0.8);
+.btn-press-gold:hover:not(:disabled) {
+  background-color: #f59e0b;
+  border-color: #fbbf24;
+}
+
+.btn-press-outline {
+  background-color: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+.btn-press-outline:hover:not(:disabled) {
+  border-color: #94a3b8;
+  color: #ffffff;
 }
 
 /* Card Selection Glow for boxing table */
 .card-selected-glow {
-  outline: 3px solid #f59e0b !important;
-  box-shadow: 0 0 24px rgba(245, 158, 11, 0.9), 0 0 45px rgba(220, 38, 38, 0.6) !important;
+  outline: 2px solid #f59e0b !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25) !important;
   z-index: 25;
 }
 
 /* Screen Shake Effect */
 @keyframes screenShake {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  15% { transform: translate(-6px, 4px) rotate(-1deg); }
-  30% { transform: translate(6px, -4px) rotate(1deg); }
-  45% { transform: translate(-4px, -3px) rotate(-0.5deg); }
-  60% { transform: translate(4px, 3px) rotate(0.5deg); }
-  75% { transform: translate(-2px, 1px) rotate(0deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 3px); }
+  40% { transform: translate(4px, -3px); }
+  60% { transform: translate(-2px, 2px); }
+  80% { transform: translate(2px, -1px); }
+  100% { transform: translate(0, 0); }
 }
 
 .animate-screen-shake {
-  animation: screenShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
-/* Impact flash */
-@keyframes flashImpact {
-  0% { opacity: 0.9; }
-  100% { opacity: 0; }
-}
-
-.animate-impact-flash {
-  animation: flashImpact 0.35s ease-out forwards;
+  animation: screenShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 /* Card 3D Flip */
