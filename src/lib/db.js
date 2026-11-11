@@ -654,16 +654,17 @@ export async function generateTournamentBracket() {
   }
 
   // Populate Round 1 fighters:
-  // Todos los peleadores pelean en parejas; si es impar, SOLO EL ÚLTIMO recibe el Pase Libre
+  // Si es impar, el que sobra ("Pase Libre") va en el grupo donde hay 3 combates (Ala Izquierda: r1LeftCount - 1)
   const r1 = rounds[0];
+  const r1Count = r1.matches.length;
+  const r1LeftCount = Math.ceil(r1Count / 2);
+  const byeMatchIndex = isOdd ? (r1LeftCount - 1) : -1;
+
   let fighterIdx = 0;
-  for (let m = 0; m < r1.matches.length; m++) {
+  for (let m = 0; m < r1Count; m++) {
     const match = r1.matches[m];
-    match.fighter1 = pool[fighterIdx++] || null;
-    if (fighterIdx < pool.length) {
-      match.fighter2 = pool[fighterIdx++] || null;
-    } else {
-      // Único peleador impar con pase libre
+    if (m === byeMatchIndex) {
+      match.fighter1 = pool[fighterIdx++] || null;
       match.fighter2 = {
         id: `bye_1`,
         isBye: true,
@@ -673,6 +674,11 @@ export async function generateTournamentBracket() {
       };
       match.winner = match.fighter1;
       match.isByeMatch = true;
+    } else {
+      match.fighter1 = pool[fighterIdx++] || null;
+      match.fighter2 = pool[fighterIdx++] || null;
+      match.isByeMatch = false;
+      match.winner = null;
     }
   }
 

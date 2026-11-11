@@ -272,8 +272,8 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         className="absolute inset-0 bg-white pointer-events-none z-30"
       ></div>
 
-      {/* Center Clash Area */}
-      <div className="relative z-20 flex items-center justify-center w-full max-w-4xl h-80 px-4">
+      {/* Center Clash Area (Elevated upwards for clear theatrical staging) */}
+      <div className="relative z-20 flex items-center justify-center w-full max-w-4xl h-64 sm:h-72 px-4 -translate-y-14 sm:-translate-y-20">
         {/* Left: Blue Boxing Glove */}
         <div
           ref={blueGloveRef}
@@ -300,11 +300,11 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
           ref={octagonLogoRef}
           className="absolute z-20 flex flex-col items-center justify-center pointer-events-none"
         >
-          <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-2xl bg-[#111317] border-2 border-primary flex flex-col items-center justify-center shadow-2xl">
-            <span className="font-display font-black text-3xl sm:text-4xl text-primary tracking-widest">
+          <div className="w-22 sm:w-26 h-22 sm:h-26 rounded-2xl bg-[#111317] border-2 border-primary flex flex-col items-center justify-center shadow-2xl">
+            <span className="font-display font-black text-2xl sm:text-3xl text-primary tracking-widest">
               VS
             </span>
-            <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
+            <span className="text-[8px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
               OCTAGON
             </span>
           </div>
@@ -323,8 +323,8 @@ export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = t
         </div>
       </div>
 
-      {/* Typography Cards (Rocky Movie Trailer Style) */}
-      <div className="absolute z-30 flex flex-col items-center justify-center text-center px-4 max-w-2xl pointer-events-none mt-56 sm:mt-64">
+      {/* Typography Cards (Positioned comfortably below the gloves with zero overlap) */}
+      <div className="absolute z-30 flex flex-col items-center justify-center text-center px-4 max-w-2xl pointer-events-none translate-y-28 sm:translate-y-32">
         {/* Card 1 */}
         <div ref={textCard1Ref} className="absolute">
           <span className="text-xs sm:text-sm font-mono tracking-[0.3em] uppercase text-zinc-400 font-bold block mb-1">
