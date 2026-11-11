@@ -12,7 +12,7 @@ export default function Home() {
   const [participants, setParticipants] = useState([]);
   const [pairs, setPairs] = useState([]);
   const [tournamentBracket, setTournamentBracket] = useState(null);
-  const [viewMode, setViewMode] = useState('roster'); // 'roster', 'cinematic', 'bracket'
+  const [viewMode, setViewMode] = useState('cinematic'); // 'cinematic' always plays on enter / reload
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isDrawingTournament, setIsDrawingTournament] = useState(false);
@@ -61,15 +61,11 @@ export default function Home() {
         const data = await res.json();
         if (data.bracket && data.bracket.rounds?.length > 0) {
           setTournamentBracket(data.bracket);
-          // Si ya hay árbol y entran/recargan, mostrar la animación cinemática primero
-          setViewMode('cinematic');
         } else {
           setTournamentBracket(null);
-          setViewMode('roster');
         }
       } catch (e) {
         console.error('Error al cargar fixture:', e);
-        setViewMode('roster');
       } finally {
         setLoading(false);
       }
@@ -261,7 +257,17 @@ export default function Home() {
       <main className="flex-1 max-w-[1720px] w-full mx-auto px-6 lg:px-12 py-8 flex flex-col gap-8">
         {/* Rocky Cinematic Movie Sequence */}
         {viewMode === 'cinematic' && (
-          <RockyCinematicIntro onFinish={() => setViewMode('bracket')} />
+          <RockyCinematicIntro
+            hasBracket={Boolean(tournamentBracket && tournamentBracket.rounds?.length > 0)}
+            onFinish={() => {
+              if (tournamentBracket && tournamentBracket.rounds?.length > 0) {
+                setViewMode('bracket');
+              } else {
+                setViewMode('roster');
+              }
+            }}
+            onGoHome={() => setViewMode('roster')}
+          />
         )}
 
         {/* View Mode: Tournament Bracket Tree */}

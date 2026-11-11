@@ -9,7 +9,7 @@ import {
   playArenaCheer
 } from '@/utils/audio';
 
-export default function RockyCinematicIntro({ onFinish }) {
+export default function RockyCinematicIntro({ onFinish, onGoHome, hasBracket = true }) {
   const containerRef = useRef(null);
   const letterboxTopRef = useRef(null);
   const letterboxBottomRef = useRef(null);
@@ -28,6 +28,16 @@ export default function RockyCinematicIntro({ onFinish }) {
     if (hasSkipped) return;
     setHasSkipped(true);
     if (onFinish) onFinish();
+  };
+
+  const handleGoHome = () => {
+    if (hasSkipped) return;
+    setHasSkipped(true);
+    if (onGoHome) {
+      onGoHome();
+    } else if (onFinish) {
+      onFinish();
+    }
   };
 
   useEffect(() => {
@@ -198,12 +208,21 @@ export default function RockyCinematicIntro({ onFinish }) {
         ref={letterboxTopRef}
         className="absolute top-0 left-0 right-0 h-16 sm:h-20 bg-black z-40 border-b border-white/5"
       >
-        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between text-xs font-mono text-zinc-500">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
-            <span className="text-white font-bold tracking-widest uppercase">UFC TORNEO DEL PODER</span>
+        <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
+            <span className="text-white font-bold tracking-widest uppercase font-display">UFC TORNEO DEL PODER</span>
           </div>
-          <span className="tracking-widest uppercase hidden sm:inline text-primary">EDICIÓN CINEMÁTICA</span>
+
+          <button
+            onClick={handleGoHome}
+            type="button"
+            className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white font-sans font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-md"
+            title="Ir a inicio / lista de peleadores"
+          >
+            <span className="material-symbols-outlined text-[16px] text-primary">home</span>
+            <span>Ir a Inicio</span>
+          </button>
         </div>
       </div>
 
@@ -213,13 +232,25 @@ export default function RockyCinematicIntro({ onFinish }) {
         className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 bg-black z-40 border-t border-white/5"
       >
         <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between text-xs font-mono text-zinc-400">
-          <span className="text-zinc-500 tracking-wider">ELIMINACIÓN DIRECTA • SOLO UNO SERÁ EL CAMPEÓN</span>
+          <button
+            onClick={handleGoHome}
+            type="button"
+            className="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-dim text-zinc-300 hover:text-white font-sans font-bold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <span>Inicio</span>
+          </button>
+
+          <span className="text-zinc-500 tracking-wider hidden md:inline text-[11px]">
+            ELIMINACIÓN DIRECTA • SOLO UNO SERÁ EL CAMPEÓN
+          </span>
+
           <button
             onClick={handleSkip}
             type="button"
             className="px-4 py-2 rounded-lg bg-primary hover:bg-yellow-400 text-black font-bold tracking-wider uppercase text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-lg"
           >
-            <span>Ver Fixture</span>
+            <span>{hasBracket ? 'Ver Fixture' : 'Continuar'}</span>
             <span className="material-symbols-outlined text-[16px]">fast_forward</span>
           </button>
         </div>
