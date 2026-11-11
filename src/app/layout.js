@@ -1,4 +1,4 @@
-import { Rajdhani, Oswald, JetBrains_Mono } from "next/font/google";
+import { Rajdhani, Chakra_Petch, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const rajdhani = Rajdhani({
@@ -7,9 +7,9 @@ const rajdhani = Rajdhani({
   weight: ["500", "600", "700"],
 });
 
-const oswald = Oswald({
+const chakraPetch = Chakra_Petch({
   subsets: ["latin"],
-  variable: "--font-fighter",
+  variable: "--font-hud",
   weight: ["500", "600", "700"],
 });
 
@@ -20,15 +20,15 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Fight Night • Sparring Matchmaker",
-  description: "Cartelera oficial de combates y emparejamiento estilo UFC",
+  title: "UFC Neo Fight Night • Sparring Matchmaker",
+  description: "Plataforma de emparejamiento de combates en tiempo real - Interfaz HUD Cyberpunk",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
-      className={`${rajdhani.variable} ${oswald.variable} ${jetbrainsMono.variable}`}
+      className={`${rajdhani.variable} ${chakraPetch.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#050711] text-[#f1f5f9]">
         {children}

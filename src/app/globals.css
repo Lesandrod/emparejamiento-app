@@ -2,19 +2,21 @@
 
 :root {
   --font-ufc: 'Rajdhani', sans-serif;
-  --font-fighter: 'Oswald', sans-serif;
+  --font-hud: 'Chakra Petch', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --neon-cyan: #00f0ff;
-  --neon-blue: #2979ff;
-  --neon-red: #ff1744;
-  --neon-crimson: #ff0055;
-  --neon-amber: #ffab00;
-  --dark-bg: #050711;
+  --neon-cyan-glow: rgba(0, 240, 255, 0.45);
+  --neon-red: #ff0055;
+  --neon-red-glow: rgba(255, 0, 85, 0.45);
+  --neon-amber: #ffd600;
+  
+  --dark-space: #050711;
+  --dark-panel: #090e1f;
 }
 
 body {
-  background-color: var(--dark-bg);
+  background-color: var(--dark-space);
   color: #f1f5f9;
   font-family: var(--font-ufc), sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -22,10 +24,12 @@ body {
   margin: 0;
   user-select: none;
   background-image: 
-    radial-gradient(circle at 12% 15%, rgba(0, 240, 255, 0.15) 0%, transparent 45%),
-    radial-gradient(circle at 88% 30%, rgba(255, 23, 68, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 50% 90%, rgba(41, 121, 255, 0.1) 0%, transparent 55%),
-    linear-gradient(180deg, #060914 0%, #030408 100%);
+    radial-gradient(circle at 12% 15%, rgba(0, 240, 255, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 88% 25%, rgba(255, 0, 85, 0.16) 0%, transparent 48%),
+    radial-gradient(circle at 50% 85%, rgba(41, 121, 255, 0.12) 0%, transparent 50%),
+    linear-gradient(rgba(5, 7, 17, 0.94), rgba(3, 4, 10, 0.98)),
+    repeating-linear-gradient(0deg, transparent, transparent 32px, rgba(0, 240, 255, 0.02) 32px, rgba(0, 240, 255, 0.02) 33px),
+    repeating-linear-gradient(90deg, transparent, transparent 32px, rgba(0, 240, 255, 0.02) 32px, rgba(0, 240, 255, 0.02) 33px);
   background-attachment: fixed;
 }
 
@@ -36,10 +40,10 @@ body {
   font-weight: 700;
 }
 
-.font-fighter {
-  font-family: var(--font-fighter), sans-serif;
-  text-transform: uppercase;
+.font-hud {
+  font-family: var(--font-hud), sans-serif;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .font-mono-tech {
@@ -48,109 +52,108 @@ body {
   text-transform: uppercase;
 }
 
-/* Neo-Futuristic Rounded Cards with Glowing Neon Borders */
-.neo-card {
-  background: linear-gradient(145deg, #090e21 0%, #060916 100%);
-  border: 1.5px solid #2a4175;
-  border-radius: 18px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(41, 121, 255, 0.12);
+/* Cyber-HUD Rounded Cards with Double Glowing Borders */
+.hud-panel {
+  background: linear-gradient(145deg, rgba(11, 17, 36, 0.85) 0%, rgba(6, 9, 20, 0.95) 100%);
+  border: 1.5px solid rgba(41, 121, 255, 0.45);
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(41, 121, 255, 0.15);
+  backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
 }
 
-.neo-card-blue {
-  background: linear-gradient(145deg, #09122b 0%, #050a19 100%);
-  border: 1.5px solid #00f0ff;
-  border-radius: 18px !important;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.22), inset 0 0 20px rgba(0, 240, 255, 0.06);
+.hud-panel-blue {
+  background: linear-gradient(145deg, rgba(9, 20, 48, 0.9) 0%, rgba(5, 11, 28, 0.95) 100%);
+  border: 1.5px solid var(--neon-cyan);
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.25), inset 0 0 20px rgba(0, 240, 255, 0.06);
+  backdrop-filter: blur(12px);
 }
 
-.neo-card-red {
-  background: linear-gradient(145deg, #24070c 0%, #120306 100%);
-  border: 1.5px solid #ff1744;
-  border-radius: 18px !important;
-  box-shadow: 0 0 25px rgba(255, 23, 68, 0.25), inset 0 0 20px rgba(255, 23, 68, 0.06);
+.hud-panel-red {
+  background: linear-gradient(145deg, rgba(46, 8, 18, 0.9) 0%, rgba(20, 4, 8, 0.95) 100%);
+  border: 1.5px solid var(--neon-red);
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(255, 0, 85, 0.25), inset 0 0 20px rgba(255, 0, 85, 0.06);
+  backdrop-filter: blur(12px);
 }
 
-.neo-card-gold {
-  background: linear-gradient(145deg, #1f1406 0%, #120a02 100%);
-  border: 1.5px solid #ffab00;
-  border-radius: 18px !important;
-  box-shadow: 0 0 25px rgba(255, 171, 0, 0.25);
-}
-
-/* Neo Action Buttons */
-.btn-neo-cyan {
+/* Micro-interactive Cyber Buttons */
+.btn-cyber-cyan {
   background-color: #00f0ff;
   color: #000000;
   border: none;
   font-family: var(--font-ufc);
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 10px !important;
+  letter-spacing: 0.09em;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
-  transition: all 0.15s ease;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.55);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.btn-neo-cyan:hover:not(:disabled) {
+.btn-cyber-cyan:hover:not(:disabled) {
   background-color: #38f4ff;
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.8);
-  transform: translateY(-1px);
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.9);
+  transform: translateY(-2px) scale(1.01);
+}
+.btn-cyber-cyan:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
-.btn-neo-red {
-  background-color: #ff1744;
+.btn-cyber-red {
+  background-color: #ff0055;
   color: #ffffff;
   border: none;
   font-family: var(--font-ufc);
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 10px !important;
+  letter-spacing: 0.09em;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(255, 23, 68, 0.45);
-  transition: all 0.15s ease;
+  box-shadow: 0 0 25px rgba(255, 0, 85, 0.55);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.btn-neo-red:hover:not(:disabled) {
-  background-color: #ff3d67;
-  box-shadow: 0 0 35px rgba(255, 23, 68, 0.8);
-  transform: translateY(-1px);
+.btn-cyber-red:hover:not(:disabled) {
+  background-color: #ff2b70;
+  box-shadow: 0 0 40px rgba(255, 0, 85, 0.9);
+  transform: translateY(-2px) scale(1.01);
 }
 
-.btn-neo-outline {
-  background: rgba(0, 240, 255, 0.05);
+.btn-cyber-outline {
+  background: rgba(0, 240, 255, 0.06);
   color: #00f0ff;
-  border: 1px solid rgba(0, 240, 255, 0.4);
+  border: 1px solid rgba(0, 240, 255, 0.5);
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-radius: 10px !important;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
-.btn-neo-outline:hover:not(:disabled) {
+.btn-cyber-outline:hover:not(:disabled) {
   border-color: #00f0ff;
-  background: rgba(0, 240, 255, 0.15);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.18);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
 }
 
-/* Card Selection Glow for boxing cards */
+/* Card Selection Glow with pulsing energy */
 .card-selected-glow {
   border-color: #00f0ff !important;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 0 15px rgba(0, 240, 255, 0.3) !important;
-  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.95), inset 0 0 15px rgba(0, 240, 255, 0.4) !important;
+  transform: translateY(-5px) scale(1.03);
   z-index: 25;
 }
 
@@ -171,16 +174,16 @@ body {
 /* Card 3D Flip */
 .card-item {
   will-change: transform;
-  border-radius: 14px !important;
+  border-radius: 16px;
 }
 .card-inner {
   transform-style: preserve-3d;
   will-change: transform;
-  border-radius: 14px !important;
+  border-radius: 16px;
 }
 .card-face-back,
 .card-face-front {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  border-radius: 14px !important;
+  border-radius: 16px;
 }

@@ -61,60 +61,63 @@ export default function ParticipantSelector({
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
-      {/* Neo UFC Billboard Header */}
-      <div className="neo-card p-6 sm:p-8 space-y-4">
-        {/* Top Control Bar with 3 Status Dots from Reference */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-900/40 pb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-1.5 mr-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5252] shadow-[0_0_8px_#ff5252]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ffd600] shadow-[0_0_8px_#ffd600]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00e676] shadow-[0_0_8px_#00e676]" />
+      {/* Top Cyber-HUD Billboard */}
+      <div className="hud-panel p-6 sm:p-8 space-y-4">
+        {/* Telemetry Dots & Header Tags */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-900/40 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5252] shadow-[0_0_10px_#ff5252]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ffd600] shadow-[0_0_10px_#ffd600]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00e676] shadow-[0_0_10px_#00e676]" />
             </div>
-            <span className="px-2 py-0.5 rounded border border-cyan-400/40 bg-cyan-950/40 text-[10px] font-mono-tech text-cyan-300 font-bold tracking-widest">
+            <span className="px-2.5 py-0.5 rounded-md border border-cyan-400/50 bg-cyan-950/40 text-[10px] font-mono-tech text-cyan-300 font-bold tracking-widest shadow-[0_0_12px_rgba(0,240,255,0.2)]">
               SISTEMA_01 • MATCHMAKER
             </span>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-mono-tech">
-            <span className="text-cyan-400 font-bold">
-              ROSTER: {unpairedList.length} PENDIENTES
+            <span className="text-cyan-400 font-bold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              ROSTER: {unpairedList.length} DISPONIBLES
             </span>
             <span className="text-neutral-600">•</span>
-            <span className="text-red-400 font-bold">
-              COMBATES: {pairs.length} CONFIRMADOS
+            <span className="text-red-400 font-bold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              COMBATES: {pairs.length} PACTADOS
             </span>
           </div>
         </div>
 
+        {/* Hero Title in UFC Aggressive Typography */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-1">
           <div>
             <h1 className="text-3xl sm:text-5xl font-ufc font-bold tracking-wider text-white">
-              FIGHT NIGHT <span className="text-[#00f0ff] drop-shadow-[0_0_15px_rgba(0,240,255,0.6)]">MATCHMAKER</span>
+              NEO GENESIS <span className="text-[#00f0ff] drop-shadow-[0_0_20px_rgba(0,240,255,0.7)]">FIGHT NIGHT</span>
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-400 font-sans mt-1 max-w-xl">
-              Sorteo de combates a ciegas estilo UFC. Selecciona tu peleador y sube al ring para descubrir a tu rival en tiempo real.
+            <p className="text-xs sm:text-sm text-neutral-400 font-hud mt-1 max-w-xl">
+              Protocolo de emparejamiento de sparring en cuadrilátero cibernético. Sube al ring para revelar tu rival a ciegas.
             </p>
           </div>
 
           <button
             type="button"
             onClick={onRefreshParticipants}
-            className="btn-neo-outline px-4 h-10 self-start sm:self-auto font-mono-tech"
+            className="btn-cyber-outline px-4 h-11 self-start sm:self-auto font-mono-tech"
           >
             [↻ ACTUALIZAR CARTELERA]
           </button>
         </div>
       </div>
 
-      {/* Main Grid: Neo Roster & Live Fight Cards */}
+      {/* Main Dual Grid: Roster & Live Program */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Fighter Roster (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="neo-card-blue p-5 sm:p-6 space-y-4">
+          <div className="hud-panel-blue p-5 sm:p-6 space-y-4">
             <div className="border-b border-cyan-500/30 pb-3 flex items-center justify-between">
               <span className="text-xs font-mono-tech text-cyan-300 font-bold tracking-wider flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#00f0ff]" />
                 PELEADORES DISPONIBLES ({unpairedList.length})
               </span>
               <span className="text-[10px] font-mono-tech text-cyan-400/80">
@@ -123,12 +126,12 @@ export default function ParticipantSelector({
             </div>
 
             {unpairedList.length === 0 ? (
-              <div className="p-8 text-center rounded-xl border border-cyan-500/30 bg-blue-950/30 space-y-2">
+              <div className="p-8 text-center rounded-2xl border border-cyan-500/30 bg-blue-950/30 space-y-2">
                 <div className="text-sm font-ufc font-bold text-white tracking-wider">
                   CARTELERA COMPLETA
                 </div>
-                <p className="text-xs text-neutral-400">
-                  Todos los peleadores ya han subido al cuadrilátero.
+                <p className="text-xs text-neutral-400 font-hud">
+                  Todos los peleadores han sido asignados en el cuadrilátero.
                 </p>
               </div>
             ) : (
@@ -218,13 +221,13 @@ export default function ParticipantSelector({
               </div>
             )}
 
-            {/* Enter Ring Button (Cyan Neo Button from Reference) */}
+            {/* Enter Ring Button (Cyan Neo Button) */}
             {unpairedList.length > 0 && (
               <button
                 type="button"
                 disabled={!selectedId || !selectedUser}
                 onClick={handleContinue}
-                className="btn-neo-cyan w-full h-12 text-sm"
+                className="btn-cyber-cyan w-full h-12 text-sm"
               >
                 {selectedUser ? `SUBIR AL RING (${selectedUser.name})` : 'SELECCIONA TU NOMBRE'}
               </button>
@@ -232,25 +235,25 @@ export default function ParticipantSelector({
           </div>
         </div>
 
-        {/* Right Column: Neo Fight Schedule (7 cols) */}
+        {/* Right Column: Live Fight Cards (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="neo-card p-5 sm:p-6 space-y-4">
+          <div className="hud-panel p-5 sm:p-6 space-y-4">
             <div className="border-b border-blue-900/40 pb-3 flex items-center justify-between">
               <span className="text-xs font-mono-tech text-white font-bold tracking-wider flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                CARTELERA OFICIAL DE COMBATES ({pairs.length})
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ff0055]" />
+                CARTELERA OFICIAL EN VIVO ({pairs.length})
               </span>
               <span className="text-[10px] font-mono-tech text-red-400 font-bold">
-                PROGRAMA EN VIVO
+                PROGRAMA PÚBLICO
               </span>
             </div>
 
             {pairs.length === 0 ? (
-              <div className="py-14 px-4 text-center rounded-xl border border-dashed border-blue-900/40 bg-[#070b16] space-y-2">
+              <div className="py-14 px-4 text-center rounded-2xl border border-dashed border-blue-900/40 bg-[#070b16] space-y-2">
                 <div className="text-sm font-mono-tech text-neutral-400 font-bold tracking-wider">
                   NINGÚN COMBATE PACTADO AÚN
                 </div>
-                <p className="text-xs text-neutral-500 max-w-sm mx-auto font-sans">
+                <p className="text-xs text-neutral-500 max-w-sm mx-auto font-hud">
                   Los combates pactados se registrarán aquí automáticamente a medida que cada boxeador saque su carta.
                 </p>
               </div>
@@ -259,13 +262,13 @@ export default function ParticipantSelector({
                 {pairs.map((pair) => (
                   <div
                     key={pair.id}
-                    className="p-4 rounded-xl bg-gradient-to-r from-[#091228] via-[#0b0e1a] to-[#24080e] border border-[#1e2d4d] hover:border-cyan-400/60 transition-all space-y-2.5 relative shadow-lg"
+                    className="p-4 rounded-xl bg-gradient-to-r from-[#09142e] via-[#090d1a] to-[#2b0811] border border-[#1e2d4d] hover:border-cyan-400/60 transition-all space-y-2.5 relative shadow-lg"
                   >
                     <div className="flex items-center justify-between text-[10px] font-mono-tech text-neutral-400 border-b border-white/10 pb-2">
                       <span className="font-bold text-amber-400 tracking-wider">
                         BOUT #{pair.pairNumber}
                       </span>
-                      <span className="text-neutral-400">
+                      <span className="text-neutral-400 font-hud">
                         {pair.trioMember ? 'MODALIDAD: TRÍO' : 'SPARRING 1 VS 1'}
                       </span>
                     </div>
@@ -358,7 +361,7 @@ export default function ParticipantSelector({
 
       {/* Footer Meta */}
       <div className="flex items-center justify-between text-[11px] font-mono-tech text-neutral-400 border-t border-blue-900/40 pt-3">
-        <span>FIGHT NIGHT • SISTEMA DE ASIGNACIÓN EN VIVO</span>
+        <span>UFC NEO GENESIS • SPARRING PAIRING ENGINE</span>
         <button
           type="button"
           onClick={onOpenAdmin}
