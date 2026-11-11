@@ -94,6 +94,23 @@ export default function Home() {
     }
   };
 
+  const handleResetTournamentBracket = async () => {
+    if (!window.confirm('¿Confirmas borrar el árbol del Torneo del Poder?')) return;
+    try {
+      const res = await fetch('/api/tournament', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset' })
+      });
+      if (res.ok) {
+        setTournamentBracket(null);
+        setViewMode('roster');
+      }
+    } catch (e) {
+      console.error('Error al borrar el árbol:', e);
+    }
+  };
+
   return (
     <div className="min-h-full bg-surface-container-lowest text-on-surface font-sans flex flex-col antialiased selection:bg-[#d4af37] selection:text-black">
       {/* Sleek Minimalist Top Bar (Google Stitch UFC Design) */}
@@ -195,6 +212,8 @@ export default function Home() {
           <TournamentBracket
             bracket={tournamentBracket}
             onRefreshBracket={fetchTournamentData}
+            onReDraw={handleStartTournamentDraw}
+            onResetBracket={handleResetTournamentBracket}
             onBackToRoster={() => setViewMode('roster')}
             onOpenAdmin={() => setIsAdminOpen(true)}
           />
@@ -224,14 +243,25 @@ export default function Home() {
 
               <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                 {tournamentBracket && (
-                  <button
-                    onClick={() => setViewMode('bracket')}
-                    type="button"
-                    className="w-full sm:w-auto px-6 py-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary/60 text-primary hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">account_tree</span>
-                    <span>Ver Árbol Fixture</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setViewMode('bracket')}
+                      type="button"
+                      className="w-full sm:w-auto px-6 py-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-primary/60 text-primary hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">account_tree</span>
+                      <span>Ver Árbol Fixture</span>
+                    </button>
+                    <button
+                      onClick={handleResetTournamentBracket}
+                      type="button"
+                      className="w-full sm:w-auto px-5 py-4 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 text-red-300 hover:text-white font-display font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                      title="Borrar árbol del torneo"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete_forever</span>
+                      <span>Borrar Árbol</span>
+                    </button>
+                  </>
                 )}
 
                 <button
@@ -291,6 +321,8 @@ export default function Home() {
       <AdminModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
+        hasTournamentBracket={Boolean(tournamentBracket)}
+        onResetTournament={handleResetTournamentBracket}
         onRefreshParticipants={async () => {
           await fetchPairingData();
           await fetchTournamentData();

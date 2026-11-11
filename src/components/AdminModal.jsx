@@ -3,7 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import ImageCropperModal from './ImageCropperModal';
 
-export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
+export default function AdminModal({
+  isOpen,
+  onClose,
+  hasTournamentBracket = false,
+  onResetTournament,
+  onRefreshParticipants
+}) {
   const [adminPin, setAdminPin] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -12,8 +18,6 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
 
   // Admin Data
   const [participants, setParticipants] = useState([]);
-  const [pairs, setPairs] = useState([]);
-  const [preferences, setPreferences] = useState({});
   const [newName, setNewName] = useState('');
   const [newAlias, setNewAlias] = useState('');
 
@@ -47,8 +51,6 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
         throw new Error(data.error || 'Clave de organizador inválida');
       }
       setParticipants(data.participants || []);
-      setPairs(data.pairs || []);
-      setPreferences(data.preferences || {});
       setIsAuthenticated(true);
       setAuthError('');
     } catch (err) {
@@ -65,52 +67,6 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
       await loadAdminStatus(adminPin);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResetDraw = async () => {
-    if (!window.confirm('¿Reiniciar todos los combates de la cartelera?')) {
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: adminPin, action: 'reset' })
-      });
-      if (res.ok) {
-        setNotice('Cartelera reiniciada.');
-        await loadAdminStatus(adminPin);
-        if (onRefreshParticipants) await onRefreshParticipants();
-      }
-    } finally {
-      setLoading(false);
-      setTimeout(() => setNotice(''), 3000);
-    }
-  };
-
-  const handleUnpairDuo = async (pairId, pairNumber) => {
-    if (!window.confirm(`¿Disolver Bout #${pairNumber}?`)) {
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: adminPin, action: 'unpair', pairId })
-      });
-      if (res.ok) {
-        setNotice(`Bout #${pairNumber} disuelto.`);
-        await loadAdminStatus(adminPin);
-        if (onRefreshParticipants) await onRefreshParticipants();
-      }
-    } catch {
-      setNotice('Error al disolver combate.');
-    } finally {
-      setLoading(false);
-      setTimeout(() => setNotice(''), 3000);
     }
   };
 
@@ -169,7 +125,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
       });
       if (res.ok) {
         setEditingId(null);
-        setNotice('Peleador actualizado.');
+        setNotice('Peleador actualizado correctamente.');
         await loadAdminStatus(adminPin);
         if (onRefreshParticipants) await onRefreshParticipants();
       }
@@ -180,7 +136,7 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
   };
 
   const handleDeleteParticipant = async (id) => {
-    if (!window.confirm('¿Eliminar peleador del roster oficial?')) return;
+    if (!window.confirm('¿Eliminar este peleador del roster oficial del torneo?')) return;
     setLoading(true);
     try {
       const res = await fetch('/api/admin', {
@@ -197,21 +153,27 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
     }
   };
 
-  const handleSetPreference = async (giverId, receiverId) => {
+  const handleResetTournamentTree = async () => {
+    if (!window.confirm('¿Estás seguro de que deseas BORRAR el árbol del Torneo del Poder? Se eliminarán todas las llaves y rondas avanzadas.')) {
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch('/api/admin', {
+      const res = await fetch('/api/tournament', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: adminPin, action: 'setPreference', giverId, receiverId })
+        body: JSON.stringify({ action: 'reset' })
       });
       if (res.ok) {
-        setNotice('Matchup predefinido guardado.');
-        await loadAdminStatus(adminPin);
+        setNotice('Árbol del torneo borrado exitosamente.');
+        if (onResetTournament) await onResetTournament();
+        if (onRefreshParticipants) await onRefreshParticipants();
       }
+    } catch {
+      setNotice('Error al borrar el árbol.');
     } finally {
       setLoading(false);
-      setTimeout(() => setNotice(''), 2500);
+      setTimeout(() => setNotice(''), 3000);
     }
   };
 
@@ -264,10 +226,10 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
             </span>
             <div>
               <h2 className="text-sm font-display font-bold text-white tracking-wider uppercase">
-                Panel Matchmaker Apex
+                Panel Matchmaker • Torneo del Poder
               </h2>
               <span className="text-[10px] text-on-surface-variant font-mono">
-                Gestión Oficial de Cartelera y Combates
+                Gestión Oficial de Roster y Fixture
               </span>
             </div>
           </div>
@@ -320,81 +282,54 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
               </div>
             )}
 
-            {/* Metrics */}
-            <div className="grid grid-cols-3 gap-2.5 text-center font-mono">
-              <div className="p-3 bg-surface-container border border-outline-dim rounded-lg">
-                <div className="text-xl font-bold text-white font-display">{participants.length}</div>
-                <div className="text-[9px] text-on-surface-variant uppercase">Roster Total</div>
-              </div>
-              <div className="p-3 bg-surface-container border border-outline-dim rounded-lg">
-                <div className="text-xl font-bold text-primary font-display">{pairs.length}</div>
-                <div className="text-[9px] text-on-surface-variant uppercase">Combates</div>
-              </div>
-              <div className="p-3 bg-surface-container border border-outline-dim rounded-lg">
-                <div className="text-xl font-bold text-emerald-400 font-display">
-                  {participants.filter((p) => !p.revealed).length}
+            {/* Metrics & Actions Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
+              <div className="p-3.5 bg-surface-container border border-outline-dim rounded-xl flex items-center justify-between">
+                <div>
+                  <div className="text-2xl font-bold text-white font-display">{participants.length}</div>
+                  <div className="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">
+                    Peleadores Registrados
+                  </div>
                 </div>
-                <div className="text-[9px] text-on-surface-variant uppercase">En Espera</div>
+                <span className="material-symbols-outlined text-primary text-3xl">sports_mma</span>
+              </div>
+
+              <div className="p-3.5 bg-surface-container border border-outline-dim rounded-xl flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-white uppercase flex items-center gap-1.5 font-sans">
+                    <span className={`w-2 h-2 rounded-full ${hasTournamentBracket ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`} />
+                    <span>{hasTournamentBracket ? 'Árbol Fixture Activo' : 'Sin Árbol Generado'}</span>
+                  </div>
+                  <div className="text-[10px] text-on-surface-variant mt-0.5">
+                    {hasTournamentBracket ? 'Llaves de combate en curso' : 'Listo para sortear'}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleResetTournamentTree}
+                  disabled={loading}
+                  className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 text-red-300 hover:text-white text-[11px] font-mono font-bold tracking-wider uppercase transition-colors cursor-pointer flex items-center gap-1 shadow-sm"
+                  title="Borrar árbol y reiniciar torneo"
+                >
+                  <span className="material-symbols-outlined text-[14px]">delete_forever</span>
+                  <span>Borrar Árbol</span>
+                </button>
               </div>
             </div>
 
-            {/* Formed Fights */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span className="font-bold uppercase tracking-wider">Combates en Cartelera ({pairs.length})</span>
-                {pairs.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleResetDraw}
-                    className="text-red-400 hover:underline text-xs"
-                  >
-                    [Reiniciar Cartelera]
-                  </button>
-                )}
-              </div>
-
-              {pairs.length === 0 ? (
-                <div className="p-4 border border-dashed border-[rgba(255,255,255,0.07)] rounded-lg text-center text-xs font-mono text-zinc-500">
-                  No hay combates registrados aún.
-                </div>
-              ) : (
-                <div className="border border-[rgba(255,255,255,0.07)] rounded-lg divide-y divide-[rgba(255,255,255,0.07)] bg-[#161920] max-h-48 overflow-y-auto font-mono text-xs">
-                  {pairs.map((p) => (
-                    <div key={p.id} className="p-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#d4af37]">#{p.pairNumber}</span>
-                        <span className="font-bold text-[#38bdf8]">{p.member1.name}</span>
-                        <span className="text-zinc-500">VS</span>
-                        <span className="font-bold text-[#f87171]">{p.member2.name}</span>
-                        {p.trioMember && (
-                          <span className="text-zinc-400">(+{p.trioMember.name})</span>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleUnpairDuo(p.id, p.pairNumber)}
-                        className="text-amber-400 hover:text-amber-300 text-[10px] px-2 py-0.5 border border-amber-500/50 rounded hover:bg-amber-950/40"
-                      >
-                        [Disolver]
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Add Fighter */}
-            <form onSubmit={handleAddParticipant} className="space-y-1.5">
-              <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block">
-                Inscribir Peleador al Roster
+            {/* Add Fighter to Roster */}
+            <form onSubmit={handleAddParticipant} className="space-y-1.5 bg-surface-container-low p-4 rounded-xl border border-outline-dim">
+              <span className="text-[10px] text-primary uppercase font-bold tracking-wider block font-mono">
+                + Inscribir Peleador al Roster Oficial
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1">
                 <input
                   type="text"
                   placeholder="Nombre de peleador *"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="sm:col-span-6 h-9 px-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-white text-xs outline-none focus:border-[#d4af37]"
+                  className="sm:col-span-6 h-9 px-3 bg-surface-container border border-outline-dim rounded-lg text-white text-xs outline-none focus:border-primary font-sans"
                   required
                 />
                 <input
@@ -402,175 +337,169 @@ export default function AdminModal({ isOpen, onClose, onRefreshParticipants }) {
                   placeholder='Alias / Apodo (Ej: El Destructor)'
                   value={newAlias}
                   onChange={(e) => setNewAlias(e.target.value)}
-                  className="sm:col-span-4 h-9 px-3 bg-[#161920] border border-[rgba(255,255,255,0.07)] rounded-lg text-amber-300 text-xs outline-none focus:border-[#d4af37]"
+                  className="sm:col-span-4 h-9 px-3 bg-surface-container border border-outline-dim rounded-lg text-primary text-xs outline-none focus:border-primary font-mono"
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="sm:col-span-2 h-9 rounded-lg bg-[#d4af37] text-black text-xs font-black uppercase tracking-wider hover:bg-yellow-400 transition-colors cursor-pointer"
+                  className="sm:col-span-2 h-9 rounded-lg bg-primary text-black text-xs font-black uppercase tracking-wider hover:bg-yellow-400 transition-colors cursor-pointer"
                 >
                   Inscribir
                 </button>
               </div>
             </form>
 
-            {/* Matchmaker Rigging Preferences */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block">
-                Combates Predefinidos y Gestión de Peleadores
-              </span>
+            {/* Fighter Roster Table */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-bold uppercase tracking-wider font-mono text-[11px]">
+                  Roster Oficial de Contendientes ({participants.length})
+                </span>
+                <span className="text-[10px] text-zinc-500 font-mono">
+                  Edita nombres, apodos y fotos
+                </span>
+              </div>
 
-              <div className="max-h-64 overflow-y-auto border border-[rgba(255,255,255,0.07)] rounded-lg bg-[#161920]">
+              <div className="max-h-72 overflow-y-auto border border-outline-dim rounded-xl bg-surface-container-low">
                 <table className="w-full text-xs text-left font-mono">
-                  <thead className="bg-[#1c1f27] text-zinc-400 border-b border-[rgba(255,255,255,0.07)] text-[10px] sticky top-0">
+                  <thead className="bg-surface-container text-zinc-400 border-b border-outline-dim text-[10px] sticky top-0 z-10">
                     <tr>
-                      <th className="p-2.5 font-medium">PELEADOR Y ALIAS</th>
-                      <th className="p-2.5 font-medium">ESTADO</th>
-                      <th className="p-2.5 font-medium">RIVAL PREFIJADO</th>
-                      <th className="p-2.5 text-right">ACCIONES</th>
+                      <th className="p-3 font-semibold uppercase">Peleador y Foto</th>
+                      <th className="p-3 font-semibold uppercase">Alias / Apodo</th>
+                      <th className="p-3 text-right font-semibold uppercase">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[rgba(255,255,255,0.07)]">
-                    {participants.map((p) => {
-                      const currentPrefId = preferences[p.id] || '';
-                      const isEditing = editingId === p.id;
+                  <tbody className="divide-y divide-outline-dim">
+                    {participants.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="p-6 text-center text-zinc-500 text-xs">
+                          No hay peleadores registrados aún.
+                        </td>
+                      </tr>
+                    ) : (
+                      participants.map((p) => {
+                        const isEditing = editingId === p.id;
 
-                      return (
-                        <tr key={p.id} className="hover:bg-[#1c1f27]/50">
-                          <td className="p-2.5 font-medium text-white">
-                            {isEditing ? (
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <input
-                                  type="text"
-                                  value={editName}
-                                  onChange={(e) => setEditName(e.target.value)}
-                                  placeholder="Nombre *"
-                                  className="h-7 px-2 bg-[#111317] border border-[#d4af37] rounded text-white text-xs w-32 font-sans outline-none"
-                                  required
-                                />
+                        return (
+                          <tr key={p.id} className="hover:bg-surface-container/50 transition-colors">
+                            <td className="p-3 font-medium text-white">
+                              {isEditing ? (
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    placeholder="Nombre *"
+                                    className="h-7 px-2.5 bg-surface-container border border-primary rounded text-white text-xs w-36 font-sans outline-none"
+                                    required
+                                  />
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2.5">
+                                  {p.photoUrl ? (
+                                    <img
+                                      src={p.photoUrl}
+                                      alt={p.name}
+                                      className="w-9 h-9 rounded-full object-cover border border-primary/50 flex-shrink-0 shadow-sm"
+                                    />
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-dim flex items-center justify-center text-xs text-primary font-bold flex-shrink-0">
+                                      {p.name.substring(0, 2).toUpperCase()}
+                                    </div>
+                                  )}
+
+                                  <div className="min-w-0">
+                                    <span className="font-display font-bold text-white block uppercase truncate">
+                                      {p.name}
+                                    </span>
+                                  </div>
+
+                                  <label
+                                    className="cursor-pointer text-[9px] px-2 py-0.5 border border-outline-dim hover:border-primary bg-surface-container text-zinc-400 hover:text-white rounded-md transition-colors ml-1 shadow-sm"
+                                    title="Subir o recortar foto"
+                                  >
+                                    {p.photoUrl ? 'Cambiar Foto' : '+Foto'}
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        handleSelectFileForCrop(p, e.target.files?.[0]);
+                                        e.target.value = '';
+                                      }}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="p-3">
+                              {isEditing ? (
                                 <input
                                   type="text"
                                   value={editAlias}
                                   onChange={(e) => setEditAlias(e.target.value)}
                                   placeholder="Alias / Apodo"
-                                  className="h-7 px-2 bg-[#111317] border border-[#d4af37] rounded text-primary text-xs w-28 font-mono outline-none"
+                                  className="h-7 px-2.5 bg-surface-container border border-primary rounded text-primary text-xs w-32 font-mono outline-none"
                                 />
-                                <button
-                                  type="button"
-                                  onClick={() => handleSaveEdit(p.id)}
-                                  className="text-xs px-2 py-1 bg-primary text-black font-bold rounded cursor-pointer"
-                                  title="Guardar cambios"
-                                >
-                                  ✓
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={handleCancelEdit}
-                                  className="text-xs px-2 py-1 bg-[#23242a] text-zinc-400 hover:text-white rounded cursor-pointer"
-                                  title="Cancelar"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                {p.photoUrl ? (
-                                  <img
-                                    src={p.photoUrl}
-                                    alt={p.name}
-                                    className="w-8 h-8 rounded-full object-cover border border-[#38bdf8] flex-shrink-0 shadow-sm"
-                                  />
-                                ) : (
-                                  <div className="w-8 h-8 rounded-full bg-[#1c1f27] border border-[rgba(255,255,255,0.07)] flex items-center justify-center text-[10px] text-zinc-300 font-bold flex-shrink-0">
-                                    {p.name.charAt(0)}
-                                  </div>
-                                )}
-                                <div className="min-w-0">
-                                  <div className="truncate font-display font-bold text-white flex items-center gap-1.5">
-                                    <span>{p.name}</span>
-                                    {p.alias && (
-                                      <span className="text-primary font-mono text-[10px] font-normal truncate">
-                                        "{p.alias}"
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <label
-                                  className="cursor-pointer text-[9px] px-1.5 py-0.5 border border-[rgba(255,255,255,0.1)] hover:border-[#d4af37] bg-[#1c1f27] text-zinc-400 rounded ml-1"
-                                  title="Subir foto"
-                                >
-                                  {p.photoUrl ? 'Foto' : '+Foto'}
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      handleSelectFileForCrop(p, e.target.files?.[0]);
-                                      e.target.value = '';
-                                    }}
-                                    className="hidden"
-                                  />
-                                </label>
-                              </div>
-                            )}
-                          </td>
-
-                          <td className="p-2.5 text-[10px]">
-                            <span className={p.revealed ? 'text-[#d4af37] font-bold' : 'text-[#38bdf8]'}>
-                              {p.revealed ? `Bout #${p.pairNumber}` : 'Libre'}
-                            </span>
-                          </td>
-
-                          <td className="p-2.5 font-medium">
-                            {p.revealed ? (
-                              <span className="text-zinc-500 text-[10px]">Pactado</span>
-                            ) : (
-                              <select
-                                value={currentPrefId}
-                                onChange={(e) => handleSetPreference(p.id, e.target.value)}
-                                className={`text-[10px] h-7 px-1.5 border outline-none cursor-pointer rounded-lg max-w-[160px] truncate ${
-                                  currentPrefId
-                                    ? 'bg-amber-950/80 border-[#d4af37] text-amber-200'
-                                    : 'bg-[#111317] border-[rgba(255,255,255,0.1)] text-zinc-300'
-                                }`}
-                              >
-                                <option value="">(Al azar - Sin fijar)</option>
-                                {participants
-                                  .filter((other) => other.id !== p.id && !other.revealed)
-                                  .map((other) => (
-                                    <option key={other.id} value={other.id}>
-                                      Fijar con: {other.name}
-                                    </option>
-                                  ))}
-                              </select>
-                            )}
-                          </td>
-
-                          <td className="p-2.5 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1.5">
-                              {!isEditing && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleStartEdit(p)}
-                                  className="text-primary hover:text-yellow-400 text-[11px] px-2 py-0.5 border border-primary/30 rounded bg-primary/10 hover:bg-primary/20 cursor-pointer"
-                                  title="Editar nombre y alias"
-                                >
-                                  Editar
-                                </button>
+                              ) : p.alias ? (
+                                <span className="text-primary font-mono text-xs font-bold">
+                                  "{p.alias}"
+                                </span>
+                              ) : (
+                                <span className="text-zinc-600 text-xs italic">
+                                  Sin apodo
+                                </span>
                               )}
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteParticipant(p.id)}
-                                className="text-zinc-500 hover:text-red-400 text-xs px-2 py-0.5 cursor-pointer"
-                                title="Eliminar peleador"
-                              >
-                                [X]
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                            </td>
+
+                            <td className="p-3 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1.5">
+                                {isEditing ? (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSaveEdit(p.id)}
+                                      className="text-xs px-2.5 py-1 bg-primary text-black font-bold rounded-md hover:bg-yellow-400 transition-colors cursor-pointer"
+                                      title="Guardar cambios"
+                                    >
+                                      ✓ Guardar
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={handleCancelEdit}
+                                      className="text-xs px-2 py-1 bg-surface-container-high text-zinc-400 hover:text-white rounded-md transition-colors cursor-pointer"
+                                      title="Cancelar"
+                                    >
+                                      ✕
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleStartEdit(p)}
+                                      className="text-primary hover:text-yellow-400 text-[11px] px-2.5 py-1 border border-primary/30 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors cursor-pointer font-bold"
+                                      title="Editar nombre y alias"
+                                    >
+                                      Editar
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteParticipant(p.id)}
+                                      className="text-zinc-500 hover:text-red-400 text-xs px-2 py-1 rounded-md hover:bg-red-950/30 transition-colors cursor-pointer"
+                                      title="Eliminar peleador"
+                                    >
+                                      [Eliminar]
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -10,6 +10,8 @@ import {
 export default function TournamentBracket({
   bracket,
   onRefreshBracket,
+  onReDraw,
+  onResetBracket,
   onBackToRoster,
   onOpenAdmin
 }) {
@@ -92,23 +94,32 @@ export default function TournamentBracket({
   };
 
   const handleReDraw = async () => {
-    if (!window.confirm('¿Deseas re-sortear el Torneo del Poder? Se generará un nuevo fixture convergente con cruces aleatorios.')) {
+    if (!window.confirm('¿Deseas re-sortear el Torneo del Poder? Se iniciará la cinemática de Rocky y se generará un nuevo fixture.')) {
       return;
     }
-    setIsResetting(true);
-    try {
-      const res = await fetch('/api/tournament', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'draw' })
-      });
-      if (res.ok && onRefreshBracket) {
-        await onRefreshBracket();
+    if (onReDraw) {
+      await onReDraw();
+    } else if (onRefreshBracket) {
+      setIsResetting(true);
+      try {
+        const res = await fetch('/api/tournament', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'draw' })
+        });
+        if (res.ok) await onRefreshBracket();
+      } finally {
+        setIsResetting(false);
       }
-    } catch (e) {
-      console.error('Error al re-sortear:', e);
-    } finally {
-      setIsResetting(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!window.confirm('¿Estás seguro de que deseas BORRAR el árbol del Torneo del Poder?')) {
+      return;
+    }
+    if (onResetBracket) {
+      await onResetBracket();
     }
   };
 
@@ -325,9 +336,19 @@ export default function TournamentBracket({
             onClick={handleReDraw}
             disabled={isResetting}
             type="button"
-            className="px-4 py-2 rounded-lg bg-primary hover:bg-yellow-400 text-black text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer shadow-md"
+            className="px-4 py-2 rounded-lg bg-primary hover:bg-yellow-400 text-black text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer shadow-md flex items-center gap-1.5"
           >
-            {isResetting ? 'Sorteando...' : 'Re-sortear Torneo'}
+            <span className="material-symbols-outlined text-[16px]">shuffle</span>
+            <span>{isResetting ? 'Sorteando...' : 'Re-sortear Torneo'}</span>
+          </button>
+          <button
+            onClick={handleReset}
+            type="button"
+            className="px-3.5 py-2 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/50 text-red-300 hover:text-white text-xs font-mono font-bold tracking-wider uppercase transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+            title="Borrar árbol y resetear fixture"
+          >
+            <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+            <span>Borrar Árbol</span>
           </button>
           {onOpenAdmin && (
             <button
